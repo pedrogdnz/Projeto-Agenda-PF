@@ -40,4 +40,4 @@ Uma programa de reservas para alunos do curso de PF (Processos Fotográficos), d
 ## Autores
 Pedro Guerreiro Diniz; <br>
 Shauane Eliza Santos da Cunha; <br>
-Thiago Vinicius Braga Aksenen.
+Thiago Vinícius Braga Aksenen.
