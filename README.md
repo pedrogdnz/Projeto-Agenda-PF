@@ -19,17 +19,18 @@ Uma programa de reservas para alunos do curso de PF (Processos Fotográficos), d
 
 <h4> Para o desenvolvimento: </h4>
 
-- ``Flutter``
-- ``Dart``
+- ``Flutter 3.41.9``
+- ``Dart 3.11.5``
+- ``DevTools 2.54.2``
 - ``Banco de Dados``
 - ``Paradigma de Orientação a Objetos``
 <br>
 
-<h4> Sistemas Operacionais: </h4>
+<h4> Sistemas Operacionais dos desenvolvedores: </h4>
 
-- ``Linux POP_OS LTS: 24.04``
+- ``Linux Pop!_OS 24.04 LTS``
 - ``Windows 11``
-- ``Linux Debian``
+- ``Linux Debian Trixie``
 <br>
 
 ## Funcionalidades
