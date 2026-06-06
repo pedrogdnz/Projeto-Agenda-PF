@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:agendapf/login.dart';
 import 'package:agendapf/register.dart';
+import 'package:agendapf/calendar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.black,
         )
       ),
-      home: LoginPage(),
+      home: Calendar(),
       debugShowCheckedModeBanner: false,
     );
   }

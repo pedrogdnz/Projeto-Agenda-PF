@@ -37,7 +37,7 @@ class LoginPage extends StatelessWidget {
                   
                   SizedBox(
                     height: 20,
-                  ),
+                  ),  
                   
                   Text("E-mail:", style: TextStyle(fontWeight: FontWeight.bold),),
                   TextFormField(
