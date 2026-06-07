@@ -1,3 +1,4 @@
+import 'package:agendapf/reservas.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/login.dart';
 import 'package:agendapf/register.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.black,
         )
       ),
-      home: Calendar(),
+      home: Reservas(),
       debugShowCheckedModeBanner: false,
     );
   }
