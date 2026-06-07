@@ -1,8 +1,8 @@
-import 'package:agendapf/reservas.dart';
+import 'package:agendapf/presentation/views/reservas.dart';
 import 'package:flutter/material.dart';
-import 'package:agendapf/login.dart';
-import 'package:agendapf/register.dart';
-import 'package:agendapf/calendar.dart';
+import 'package:agendapf/presentation/views/login.dart';
+import 'package:agendapf/presentation/views/register.dart';
+import 'package:agendapf/presentation/views/calendar.dart';
 
 void main() {
   runApp(const MyApp());
