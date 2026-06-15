@@ -1,0 +1,14 @@
+ViewModel
+Ele guarda estado da tela, chama repository e lembre-se: O view model **não conhece a view!!**
+
+// Gerencia o estado e expõe os dados para a View. Não conhece a View.
+class UserViewModel {
+  final UserRepository _repository;
+  List<User> users = [];
+
+  UserViewModel(this._repository);
+
+  void loadUsers() {
+    users = _repository.getUsers();
+  }
+}

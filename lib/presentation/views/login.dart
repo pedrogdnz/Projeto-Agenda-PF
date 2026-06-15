@@ -1,9 +1,10 @@
-import 'package:agendapf/calendar.dart';
-import 'package:agendapf/register.dart';
+
+import 'package:agendapf/presentation/views/calendar.dart';
+import 'package:agendapf/presentation/views/register.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -105,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Calendar(),
+                                builder: (context) => CalendarPage(),
                               ),
                             );
                           },

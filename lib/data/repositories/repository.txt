@@ -1,0 +1,17 @@
+REPOSITORY
+É a classe que unifica o acesso aos dados e decide de onde eles vêm. O ViewModel (camada de UI) nunca fala direto com o Service; ele pede o que precisa para o Repository.
+
+// Junta o Service com o Model para entregar o dado pronto.
+class UserRepository {
+  final UserService _service;
+
+  UserRepository(this._service);
+
+  List<User> getUsers() {
+    // Pega o dado bruto do Service
+    final rawData = _service.fetchRawUsers();
+    
+    // Usa o Model para converter o dado bruto em objetos User
+    return rawData.map((json) => User.fromJson(json)).toList();
+  }
+}

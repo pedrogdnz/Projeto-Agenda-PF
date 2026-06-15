@@ -1,4 +1,5 @@
-import 'package:agendapf/login.dart';
+
+import 'package:agendapf/presentation/views/login.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {

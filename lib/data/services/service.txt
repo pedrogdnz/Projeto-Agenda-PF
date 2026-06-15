@@ -1,0 +1,13 @@
+SERVICE
+É quem lida diretamente com o mundo exterior. Ele não sabe o que o aplicativo faz com os dados; sua única função é buscar ou enviar dados brutos.
+
+class UserService {
+  // Simula o retorno de um JSON (List de Maps) vindo de uma API
+  List<Map<String, dynamic>> fetchRawUsers() {
+    return [
+      {"name": "Ana"},
+      {"name": "João"},
+      {"name": "Maria"},
+    ];
+  }
+}
