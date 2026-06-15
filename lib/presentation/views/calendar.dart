@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:agendapf/presentation/utils.dart';
+import 'package:agendapf/presentation/views/reservas.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -25,6 +26,17 @@ class _CalendarPageState extends State<CalendarPage> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.list_alt),
+            tooltip: 'Ver reservas',
+            onPressed: (){
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => Reservas())
+              );
+            }
+            )
+        ],
       ),
       backgroundColor: Colors.white,
 
