@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.black,
         )
       ),
-      home: Reservas(),
+      home: LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }

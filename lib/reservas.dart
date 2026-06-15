@@ -42,7 +42,10 @@ class Reservas extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  IconButton(onPressed: () {
+                    Navigator.pop(context);
+                  }, 
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.white)), 
                   const SizedBox(width: 12),
                   Image.asset('images/user.png'),
                   const SizedBox(width: 12),
