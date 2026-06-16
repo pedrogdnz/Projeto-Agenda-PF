@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:agendapf/presentation/views/reservas.dart';
 
-class Detalhes extends StatelessWidget {
+class Detalhes extends StatefulWidget {
   const Detalhes({super.key, required this.data});
+
   final DateTime data;
+
+  @override
+  State<Detalhes> createState() => _DetalhesState();
+}
+
+class _DetalhesState extends State<Detalhes> {
+  TimeOfDay? horarioSelecionado;
+
+  Future<void> selecionarHorario() async {
+    final TimeOfDay? horario = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (horario != null) {
+      setState(() {
+        horarioSelecionado = horario;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,59 +38,104 @@ class Detalhes extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
+                const Text(
                   "Sua Seleção",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Expanded(child: Container()),
-                Icon(Icons.calendar_today_rounded),
+                const Spacer(),
+                const Icon(Icons.calendar_today_rounded),
               ],
             ),
-            Text("Confirme sua reserva"),
+
+            const Text("Confirme sua reserva"),
+
             Text(
-              '${data.day}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              DateFormat('EEEE', 'pt_BR').format(data),
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+              '${widget.data.day}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
-            SizedBox(height: 20),
+            Text(
+              DateFormat('EEEE', 'pt_BR').format(widget.data),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
 
-            Text("Horário:", style: TextStyle(fontWeight: FontWeight.bold)),
-            TextFormField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+            const SizedBox(height: 20),
+
+            const Text(
+              "Horário:",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 8),
+
+            InkWell(
+              onTap: selecionarHorario,
+              borderRadius: BorderRadius.circular(15),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  suffixIcon: const Icon(Icons.access_time),
+                ),
+                child: Text(
+                  horarioSelecionado == null
+                      ? 'Selecione um horário'
+                      : horarioSelecionado!.format(context),
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+
+            const SizedBox(height: 20),
+
+            const Text(
               "Cor do fundo:",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+
             Row(
               children: [
                 TextButton(
-                  style: TextButton.styleFrom(backgroundColor: Colors.black),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.black,
+                  ),
                   onPressed: () {},
-                  child: Text("Preto", style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    "Preto",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
-                TextButton(onPressed: () {}, child: Text("Branco")),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text("Branco"),
+                ),
               ],
             ),
-            SizedBox(height: 20),
+
+            const SizedBox(height: 20),
+
             Row(
-              children: [
+              children: const [
                 Text(
                   "Descrição ",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text("*Opcional", style: TextStyle(fontSize: 12)),
+                Text(
+                  "*Opcional",
+                  style: TextStyle(fontSize: 12),
+                ),
               ],
             ),
+
             TextFormField(
               decoration: InputDecoration(
                 border: OutlineInputBorder(
@@ -76,13 +143,36 @@ class Detalhes extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+
+            const SizedBox(height: 20),
+
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                style: TextButton.styleFrom(backgroundColor: Colors.black),
-                onPressed: () {},
-                child: Text("Confirmar", style: TextStyle(color: Colors.white)),
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.black,
+                ),
+                onPressed: () {
+                  if (horarioSelecionado == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Selecione um horário'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Reservas(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Confirmar",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
