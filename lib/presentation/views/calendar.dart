@@ -29,17 +29,7 @@ class _CalendarPageState extends State<CalendarPage> {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.list_alt),
-            tooltip: 'Ver reservas',
-            onPressed: (){
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => Reservas())
-              );
-            }
-            )
-        ],
+        actions: [],
       ),
       backgroundColor: Colors.white,
 
@@ -51,9 +41,26 @@ class _CalendarPageState extends State<CalendarPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Calendário",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    Text(
+                      "Calendário",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Expanded(child: Container()),
+                    IconButton(
+                      icon: Icon(Icons.person),
+                      tooltip: 'Ver reservas',
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => Reservas()),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 Text("Selecione uma data:"),
               ],
@@ -177,6 +184,29 @@ class _CalendarPageState extends State<CalendarPage> {
 
                       weekendTextStyle: const TextStyle(color: Colors.black87),
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text("Teste de funcionamento calendário:"),
+
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _selectedDay != null
+                        ? Container(
+                            key: ValueKey(_selectedDay),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "Data selecionada: ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
