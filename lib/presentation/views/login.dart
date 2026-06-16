@@ -1,4 +1,4 @@
-
+import 'package:agendapf/presentation/views/textField.dart';
 import 'package:agendapf/presentation/views/calendar.dart';
 import 'package:agendapf/presentation/views/register.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,16 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _showPassword = false;
+  final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final senhaController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    senhaController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,34 +75,49 @@ class _LoginPageState extends State<LoginPage> {
 
                   SizedBox(height: 20),
 
-                  Text(
-                    "E-mail:",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
-                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        CustomTextField(
+                          requiredField: true,
+                          isPassword: false,
+                          controller: emailController,
+                          label: 'E-mail',
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Informe seu e-mail';
+                            }
 
-                  SizedBox(height: 20),
+                            if (!value.contains('@')) {
+                              return 'E-mail inválido';
+                            }
 
-                  Text("Senha:", style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                      suffixIcon: GestureDetector(
-                        child: Icon(
-                          _showPassword == false
-                              ? Icons.visibility_off
-                              : Icons.visibility,
+                            return null;
+                          },
                         ),
-                        onTap: () {
-                          setState(() {
-                            _showPassword = !_showPassword;
-                          });
-                        },
-                      ),
+
+                        const SizedBox(height: 20),
+
+                        CustomTextField(
+                          requiredField: true,
+                          controller: senhaController,
+                          label: 'Senha',
+                          isPassword: true,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Informe sua senha';
+                            }
+
+                            if (value.length < 6) {
+                              return 'A senha deve ter pelo menos 6 caracteres';
+                            }
+
+                            return null;
+                          },
+                        ),
+                      ],
                     ),
-                    obscureText: _showPassword == false ? true : false,
                   ),
 
                   SizedBox(height: 20),
@@ -103,14 +127,16 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CalendarPage(),
-                              ),
-                            );
+                            if (_formKey.currentState!.validate()) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CalendarPage(),
+                                ),
+                              );
+                            }
                           },
-                          child: Text(
+                          child: const Text(
                             "Login",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
