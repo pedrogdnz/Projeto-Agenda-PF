@@ -1,4 +1,4 @@
-import 'package:agendapf/presentation/views/login.dart';
+import 'package:agendapf/presentation/views/contador_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.black,
         )
       ),
-      home: LoginPage(),
+      home: ContadorWidget(valorInicial: 1,),
     );
   }
 }

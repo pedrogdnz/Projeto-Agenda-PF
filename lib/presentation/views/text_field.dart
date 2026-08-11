@@ -11,7 +11,7 @@ class CustomTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
 
-  CustomTextField({
+  const CustomTextField({
     super.key,
     required this.controller,
     required this.label,
