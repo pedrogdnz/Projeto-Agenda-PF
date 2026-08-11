@@ -1,49 +1,37 @@
+import 'package:agendapf/presentation/viewmodels/contador_viewmodel.dart';
 import 'package:flutter/material.dart';
 
-class ContadorWidget extends StatefulWidget {
-  final int valorInicial;
-
-  const ContadorWidget({super.key, required this.valorInicial});
+class ContadorPage extends StatefulWidget {
+  const ContadorPage({super.key});
 
   @override
-  State<ContadorWidget> createState() => _ContadorWidgetState();
+  State<ContadorPage> createState() => _ContadorPageState();
 }
 
-class _ContadorWidgetState extends State<ContadorWidget> {
-  late int _contador;
-  late final int _valorOriginal; // Guardará o primeiro valor recebido
+class _ContadorPageState extends State<ContadorPage> {
+  late final ContadorViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _contador = widget.valorInicial;
-    _valorOriginal =
-        widget.valorInicial; // Salva o valor original apenas na criação
-  }
-
-  @override
-  void didUpdateWidget(ContadorWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // Se o pai enviou um novo valor, atualiza o contador atual,
-    // mas o _valorOriginal continua o mesmo!
-    if (oldWidget.valorInicial != widget.valorInicial) {
-      setState(() {
-        _contador = widget.valorInicial;
-      });
-    }
+    _viewModel = ContadorViewModel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('Valor Atual: $_contador'),
-        Text('Valor Original: $_valorOriginal'), // Exibe o valor inicial fixo
-        Text(
-          'Valor Anterior: ${widget.valorInicial}',
-        ), // Opcional: para ver o valor que veio do pai
-      ],
+    return Scaffold(
+      body: Center(
+        child: ValueListenableBuilder(
+          valueListenable: _viewModel.contador,
+          builder: (context, valorAtual, child) {
+            return Text('Valor: $valorAtual');
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _viewModel.incrementar,
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:agendapf/presentation/views/text_field.dart';
 import 'package:agendapf/presentation/views/calendar.dart';
 import 'package:agendapf/presentation/views/register.dart';
+import 'package:agendapf/presentation/viewmodels/login_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,14 +12,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final senhaController = TextEditingController();
+  late final LoginViewModel _viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = LoginViewModel();
+  }
 
   @override
   void dispose() {
-    emailController.dispose();
-    senhaController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
@@ -76,45 +80,25 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: 20),
 
                   Form(
-                    key: _formKey,
+                    key: _viewModel.formKey,
                     child: Column(
                       children: [
                         CustomTextField(
                           requiredField: true,
                           isPassword: false,
-                          controller: emailController,
+                          controller: _viewModel.emailController,
                           label: 'E-mail',
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Informe seu e-mail';
-                            }
-
-                            if (!value.contains('@')) {
-                              return 'E-mail inválido';
-                            }
-
-                            return null;
-                          },
+                          validator: _viewModel.validateEmail,
                         ),
 
                         const SizedBox(height: 20),
 
                         CustomTextField(
                           requiredField: true,
-                          controller: senhaController,
+                          controller: _viewModel.senhaController,
                           label: 'Senha',
                           isPassword: true,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Informe sua senha';
-                            }
-
-                            if (value.length < 6) {
-                              return 'A senha deve ter pelo menos 6 caracteres';
-                            }
-
-                            return null;
-                          },
+                          validator: _viewModel.validateSenha,
                         ),
                       ],
                     ),
@@ -127,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                       Expanded(
                         child: TextButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (_viewModel.validate()) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

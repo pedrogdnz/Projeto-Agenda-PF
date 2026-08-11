@@ -1,4 +1,4 @@
-import 'package:agendapf/presentation/views/contador_widget.dart';
+import 'package:agendapf/presentation/views/register.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -16,15 +16,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.light(
-          primary: Colors.black,
-        )
-      ),
-      home: ContadorWidget(valorInicial: 1,),
+      theme: ThemeData(colorScheme: ColorScheme.light(primary: Colors.black)),
+      home: RegisterPage(),
     );
   }
 }

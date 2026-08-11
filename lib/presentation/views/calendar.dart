@@ -1,7 +1,7 @@
 import 'package:agendapf/presentation/views/detalhes.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:agendapf/presentation/utils.dart';
+import 'package:agendapf/core/utils/utils.dart';
 import 'package:agendapf/presentation/views/reservas.dart';
 
 class CalendarPage extends StatefulWidget {
