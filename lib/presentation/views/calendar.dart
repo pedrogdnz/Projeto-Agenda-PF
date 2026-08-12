@@ -29,10 +29,14 @@ class _CalendarPageState extends State<CalendarPage> {
     if (dayToOpen != null) {
       _viewModel.clearDayToOpen();
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => Detalhes(data: dayToOpen)),
-      );
+      // Garante que a navegação só ocorra APÓS o frame atual terminar de desenhar
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => Detalhes(data: dayToOpen)),
+        );
+      });
     }
 
     setState(() {});

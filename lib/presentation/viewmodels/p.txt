@@ -6,26 +6,26 @@ class CalendarViewModel extends ChangeNotifier {
   DateTime? _selectedDay;
   DateTime? _lastTappedDay;
   DateTime? _lastTapTime;
-  DateTime? _dayToOpen;
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
   DateTime get focusedDay => _focusedDay;
   DateTime? get selectedDay => _selectedDay;
   CalendarFormat get calendarFormat => _calendarFormat;
+
+  DateTime? _dayToOpen;
+
   DateTime? get dayToOpen => _dayToOpen;
 
   void selectDay(DateTime selectedDay, DateTime focusedDay) {
     final now = DateTime.now();
+
     _dayToOpen = null;
 
-    final bool isDoubleTap =
-        _lastTappedDay != null &&
+    final isDoubleTap = _lastTappedDay != null &&
         isSameDay(_lastTappedDay, selectedDay) &&
         _lastTapTime != null &&
         now.difference(_lastTapTime!).inMilliseconds < 500;
-    //Existe um horário do clique anterior
-    //E passaram menos de 500 milissegundos desde ele?
 
     _selectedDay = selectedDay;
     _focusedDay = focusedDay;
@@ -33,6 +33,7 @@ class CalendarViewModel extends ChangeNotifier {
     if (isDoubleTap) {
       _dayToOpen = selectedDay;
     }
+
     _lastTappedDay = selectedDay;
     _lastTapTime = now;
 
