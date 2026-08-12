@@ -1,8 +1,9 @@
+import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/views/detalhes.dart';
+import 'package:agendapf/presentation/views/reservas.dart';
+import 'package:agendapf/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:agendapf/core/utils/utils.dart';
-import 'package:agendapf/presentation/views/reservas.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -12,12 +13,38 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  DateTime? _lastTappedDay;
-  DateTime? _lastTapTime;
+  late final CalendarViewModel _viewModel;
 
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  @override
+  void initState() {
+    super.initState();
+
+    _viewModel = CalendarViewModel();
+    _viewModel.addListener(_handleViewModelChange);
+  }
+
+  void _handleViewModelChange() {
+    final dayToOpen = _viewModel.dayToOpen;
+
+    if (dayToOpen != null) {
+      _viewModel.clearDayToOpen();
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => Detalhes(data: dayToOpen)),
+      );
+    }
+
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _viewModel.removeListener(_handleViewModelChange);
+    _viewModel.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +56,8 @@ class _CalendarPageState extends State<CalendarPage> {
             Navigator.pop(context);
           },
         ),
-        actions: [],
       ),
       backgroundColor: Colors.white,
-
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -43,16 +68,16 @@ class _CalendarPageState extends State<CalendarPage> {
               children: [
                 Row(
                   children: [
-                    Text(
+                    const Text(
                       "Calendário",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Expanded(child: Container()),
+                    const Spacer(),
                     IconButton(
-                      icon: Icon(Icons.person),
+                      icon: const Icon(Icons.person),
                       tooltip: 'Ver reservas',
                       onPressed: () {
                         Navigator.of(context).push(
@@ -62,20 +87,18 @@ class _CalendarPageState extends State<CalendarPage> {
                     ),
                   ],
                 ),
-                Text("Selecione uma data:"),
+                const Text("Selecione uma data:"),
               ],
             ),
           ),
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-
                 children: [
                   const SizedBox(height: 8),
-
                   const SizedBox(height: 24),
 
                   TableCalendar(
@@ -83,63 +106,37 @@ class _CalendarPageState extends State<CalendarPage> {
 
                     firstDay: kFirstDay,
                     lastDay: kLastDay,
-                    focusedDay: _focusedDay,
 
-                    calendarFormat: _calendarFormat,
+                    focusedDay: _viewModel.focusedDay,
+                    calendarFormat: _viewModel.calendarFormat,
 
                     selectedDayPredicate: (day) {
-                      return isSameDay(_selectedDay, day);
+                      return isSameDay(_viewModel.selectedDay, day);
                     },
 
                     onDaySelected: (selectedDay, focusedDay) {
-                      final now = DateTime.now();
-
-                      if (_lastTappedDay != null &&
-                          isSameDay(_lastTappedDay, selectedDay) &&
-                          _lastTapTime != null &&
-                          now.difference(_lastTapTime!).inMilliseconds < 500) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => Detalhes(data: selectedDay),
-                          ),
-                        );
-                      }
-
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                      });
-
-                      _lastTappedDay = selectedDay;
-                      _lastTapTime = now;
+                      _viewModel.selectDay(selectedDay, focusedDay);
                     },
 
                     onFormatChanged: (format) {
-                      setState(() {
-                        _calendarFormat = format;
-                      });
+                      _viewModel.changeFormat(format);
                     },
 
                     onPageChanged: (focusedDay) {
-                      _focusedDay = focusedDay;
+                      _viewModel.changePage(focusedDay);
                     },
 
                     headerStyle: const HeaderStyle(
                       formatButtonVisible: false,
-
                       titleCentered: false,
-
                       titleTextStyle: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
                       ),
-
                       leftChevronIcon: Icon(
                         Icons.chevron_left,
                         color: Colors.black54,
                       ),
-
                       rightChevronIcon: Icon(
                         Icons.chevron_right,
                         color: Colors.black54,
@@ -151,7 +148,6 @@ class _CalendarPageState extends State<CalendarPage> {
                         color: Colors.grey,
                         fontWeight: FontWeight.w500,
                       ),
-
                       weekendStyle: TextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.w500,
@@ -185,21 +181,26 @@ class _CalendarPageState extends State<CalendarPage> {
                       weekendTextStyle: const TextStyle(color: Colors.black87),
                     ),
                   ),
+
                   const SizedBox(height: 20),
-                  Text("Teste de funcionamento calendário:"),
+
+                  const Text("Teste de funcionamento calendário:"),
 
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    child: _selectedDay != null
+                    child: _viewModel.selectedDay != null
                         ? Container(
-                            key: ValueKey(_selectedDay),
+                            key: ValueKey(_viewModel.selectedDay),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.green.shade100,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              "Data selecionada: ${_selectedDay!.day}/${_selectedDay!.month}/${_selectedDay!.year}",
+                              "Data selecionada: "
+                              "${_viewModel.selectedDay!.day}/"
+                              "${_viewModel.selectedDay!.month}/"
+                              "${_viewModel.selectedDay!.year}",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

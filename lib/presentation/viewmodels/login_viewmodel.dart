@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// ViewModel responsável pelo estado e pelas regras de negócio
-/// da tela de login (validação de campos e ação de login).
 class LoginViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
@@ -38,7 +36,6 @@ class LoginViewModel extends ChangeNotifier {
     return null;
   }
 
-  /// Valida o formulário. Retorna `true` se os dados estiverem válidos.
   bool validate() {
     return formKey.currentState?.validate() ?? false;
   }
