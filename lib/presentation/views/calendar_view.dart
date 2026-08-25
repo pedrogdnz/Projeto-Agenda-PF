@@ -1,6 +1,6 @@
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
-import 'package:agendapf/presentation/views/detalhes.dart';
-import 'package:agendapf/presentation/views/reservas.dart';
+import 'package:agendapf/presentation/views/detalhes_view.dart';
+import 'package:agendapf/presentation/views/reservas_view.dart';
 import 'package:agendapf/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';

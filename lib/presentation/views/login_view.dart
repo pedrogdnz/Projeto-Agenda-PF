@@ -4,8 +4,8 @@ import 'package:agendapf/data/services/fake/fake_horario_service.dart';
 import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
-import 'package:agendapf/presentation/views/calendar.dart';
-import 'package:agendapf/presentation/views/register.dart';
+import 'package:agendapf/presentation/views/calendar_view.dart';
+import 'package:agendapf/presentation/views/register_view.dart';
 import 'package:agendapf/presentation/viewmodels/login_viewmodel.dart';
 import 'package:flutter/material.dart';
 
@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Login Usuário",
+                    "",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
                   ),
 

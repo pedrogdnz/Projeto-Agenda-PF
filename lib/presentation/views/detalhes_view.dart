@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:agendapf/presentation/views/reservas.dart';
+import 'package:agendapf/presentation/views/reservas_view.dart';
 
 class Detalhes extends StatefulWidget {
   const Detalhes({super.key, required this.data});
