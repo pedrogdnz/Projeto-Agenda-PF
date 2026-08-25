@@ -30,4 +30,44 @@ class FakeHorarioService implements HorarioService {
   Future<List<Horario>> buscarTodos() async {
     return List.unmodifiable(_horarios);
   }
+
+  @override
+  Future<Horario?> buscarPorId(String id) async {
+    for (final horario in _horarios) {
+      if (horario.id == id) return horario;
+    }
+    return null;
+  }
+
+  @override
+  Future<Horario> criar(Horario horario) async {
+    final novoHorario = horario.copyWith(id: _gerarProximoId());
+    _horarios.add(novoHorario);
+    return novoHorario;
+  }
+
+  @override
+  Future<Horario> atualizar(Horario horario) async {
+    final index = _horarios.indexWhere((h) => h.id == horario.id);
+    if (index == -1) {
+      throw StateError('Horario com id ${horario.id} não encontrado.');
+    }
+    _horarios[index] = horario;
+    return horario;
+  }
+
+  @override
+  Future<void> excluir(String id) async {
+    _horarios.removeWhere((horario) => horario.id == id);
+  }
+
+  String _gerarProximoId() {
+    final maiorId = _horarios.fold<int>(
+      0,
+      (max, h) => int.tryParse(h.id) != null && int.parse(h.id) > max
+          ? int.parse(h.id)
+          : max,
+    );
+    return (maiorId + 1).toString();
+  }
 }

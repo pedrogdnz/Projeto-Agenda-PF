@@ -35,6 +35,14 @@ class FakeAlunoService implements AlunoService {
   }
 
   @override
+  Future<Aluno?> buscarPorId(String id) async {
+    for (final aluno in _alunos) {
+      if (aluno.id == id) return aluno;
+    }
+    return null;
+  }
+
+  @override
   Future<Aluno?> buscarPorEmailOuMatricula(String identificador) async {
     final query = identificador.trim().toLowerCase();
 
@@ -45,5 +53,51 @@ class FakeAlunoService implements AlunoService {
       }
     }
     return null;
+  }
+
+  @override
+  Future<List<Aluno>> buscarPorNomeOuMatricula(String query) async {
+    final termo = query.trim().toLowerCase();
+    if (termo.isEmpty) return List.unmodifiable(_alunos);
+
+    return _alunos
+        .where(
+          (aluno) =>
+              aluno.nome.toLowerCase().contains(termo) ||
+              aluno.matricula.toLowerCase().contains(termo),
+        )
+        .toList(growable: false);
+  }
+
+  @override
+  Future<Aluno> criar(Aluno aluno) async {
+    final novoAluno = aluno.copyWith(id: _gerarProximoId());
+    _alunos.add(novoAluno);
+    return novoAluno;
+  }
+
+  @override
+  Future<Aluno> atualizar(Aluno aluno) async {
+    final index = _alunos.indexWhere((a) => a.id == aluno.id);
+    if (index == -1) {
+      throw StateError('Aluno com id ${aluno.id} não encontrado.');
+    }
+    _alunos[index] = aluno;
+    return aluno;
+  }
+
+  @override
+  Future<void> excluir(String id) async {
+    _alunos.removeWhere((aluno) => aluno.id == id);
+  }
+
+  String _gerarProximoId() {
+    final maiorId = _alunos.fold<int>(
+      0,
+      (max, a) => int.tryParse(a.id) != null && int.parse(a.id) > max
+          ? int.parse(a.id)
+          : max,
+    );
+    return (maiorId + 1).toString();
   }
 }

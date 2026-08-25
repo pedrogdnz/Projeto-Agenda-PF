@@ -27,4 +27,44 @@ class FakeReservaService implements ReservaService {
   Future<List<Reserva>> buscarTodas() async {
     return List.unmodifiable(_reservas);
   }
+
+  @override
+  Future<Reserva?> buscarPorId(String id) async {
+    for (final reserva in _reservas) {
+      if (reserva.id == id) return reserva;
+    }
+    return null;
+  }
+
+  @override
+  Future<Reserva> criar(Reserva reserva) async {
+    final novaReserva = reserva.copyWith(id: _gerarProximoId());
+    _reservas.add(novaReserva);
+    return novaReserva;
+  }
+
+  @override
+  Future<Reserva> atualizar(Reserva reserva) async {
+    final index = _reservas.indexWhere((r) => r.id == reserva.id);
+    if (index == -1) {
+      throw StateError('Reserva com id ${reserva.id} não encontrada.');
+    }
+    _reservas[index] = reserva;
+    return reserva;
+  }
+
+  @override
+  Future<void> excluir(String id) async {
+    _reservas.removeWhere((reserva) => reserva.id == id);
+  }
+
+  String _gerarProximoId() {
+    final maiorId = _reservas.fold<int>(
+      0,
+      (max, r) => int.tryParse(r.id) != null && int.parse(r.id) > max
+          ? int.parse(r.id)
+          : max,
+    );
+    return (maiorId + 1).toString();
+  }
 }
