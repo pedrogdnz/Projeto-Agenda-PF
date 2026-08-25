@@ -1,24 +1,27 @@
-// lib/data/models/horario.dart
+enum CorFundoHorario {
+  preto,
+  branco;
 
-/// Representa um horário do catálogo fixo/recorrente oferecido pela
-/// instituição (ex: "08:00 às 09:00"). É o MESMO conjunto de horários que
-/// se repete em todo dia aberto — não pertence a uma data específica.
-///
-/// A disponibilidade de um Horario em um dia específico (se já foi
-/// reservado, se já passou, etc.) é calculada dinamicamente pelo
-/// AgendaRepository, cruzando este catálogo com [Reserva] e com o dia
-/// bloqueado ou não — por isso este model não guarda `disponivel` nem
-/// `dataId`.
+  static CorFundoHorario fromNome(String nome) {
+    return CorFundoHorario.values.firstWhere(
+      (cor) => cor.name == nome,
+      orElse: () => CorFundoHorario.branco,
+    );
+  }
+}
+
 class Horario {
   final String id;
   final String horaInicial;
   final String horaFinal;
+  final CorFundoHorario corFundo;
   final String descricao;
 
   const Horario({
     required this.id,
     required this.horaInicial,
     required this.horaFinal,
+    required this.corFundo,
     this.descricao = '',
   });
 
@@ -26,12 +29,14 @@ class Horario {
     String? id,
     String? horaInicial,
     String? horaFinal,
+    CorFundoHorario? corFundo,
     String? descricao,
   }) {
     return Horario(
       id: id ?? this.id,
       horaInicial: horaInicial ?? this.horaInicial,
       horaFinal: horaFinal ?? this.horaFinal,
+      corFundo: corFundo ?? this.corFundo,
       descricao: descricao ?? this.descricao,
     );
   }
@@ -41,6 +46,7 @@ class Horario {
       'id': id,
       'horaInicial': horaInicial,
       'horaFinal': horaFinal,
+      'corFundo': corFundo.name,
       'descricao': descricao,
     };
   }
@@ -50,6 +56,9 @@ class Horario {
       id: map['id'] as String,
       horaInicial: map['horaInicial'] as String,
       horaFinal: map['horaFinal'] as String,
+      corFundo: CorFundoHorario.fromNome(
+        map['corFundo'] as String? ?? 'branco',
+      ),
       descricao: map['descricao'] as String? ?? '',
     );
   }
@@ -61,15 +70,18 @@ class Horario {
         other.id == id &&
         other.horaInicial == horaInicial &&
         other.horaFinal == horaFinal &&
+        other.corFundo == corFundo &&
         other.descricao == descricao;
   }
 
   @override
-  int get hashCode => Object.hash(id, horaInicial, horaFinal, descricao);
+  int get hashCode {
+    return Object.hash(id, horaInicial, horaFinal, corFundo, descricao);
+  }
 
   @override
   String toString() {
     return 'Horario(id: $id, horaInicial: $horaInicial, horaFinal: $horaFinal, '
-        'descricao: $descricao)';
+        'corFundo: $corFundo, descricao: $descricao)';
   }
 }

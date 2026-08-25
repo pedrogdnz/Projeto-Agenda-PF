@@ -1,38 +1,45 @@
 class DataBloqueada {
+  final String id;
   final DateTime data;
-  final bool bloqueado;
 
-  const DataBloqueada({required this.data, this.bloqueado = true});
+  const DataBloqueada({
+    required this.id,
+    required this.data,
+  });
 
-  DataBloqueada copyWith({DateTime? data, bool? bloqueado}) {
+  DataBloqueada copyWith({
+    String? id,
+    DateTime? data,
+  }) {
     return DataBloqueada(
+      id: id ?? this.id,
       data: data ?? this.data,
-      bloqueado: bloqueado ?? this.bloqueado,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {'data': data.toIso8601String(), 'bloqueado': bloqueado};
+    return {
+      'id': id,
+      'data': data.toIso8601String(),
+    };
   }
 
   factory DataBloqueada.fromMap(Map<String, dynamic> map) {
     return DataBloqueada(
+      id: map['id'] as String,
       data: DateTime.parse(map['data'] as String),
-      bloqueado: map['bloqueado'] as bool? ?? true,
     );
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is DataBloqueada &&
-        other.data == data &&
-        other.bloqueado == bloqueado;
+    return other is DataBloqueada && other.id == id && other.data == data;
   }
 
   @override
-  int get hashCode => Object.hash(data, bloqueado);
+  int get hashCode => Object.hash(id, data);
 
   @override
-  String toString() => 'DataBloqueada(data: $data, bloqueado: $bloqueado)';
+  String toString() => 'DataBloqueada(id: $id, data: $data)';
 }
