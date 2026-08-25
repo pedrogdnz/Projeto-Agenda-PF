@@ -1,4 +1,3 @@
-import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/views/detalhes.dart';
 import 'package:agendapf/presentation/views/reservas.dart';
@@ -7,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends StatefulWidget {
-  final AgendaRepository agendaRepository;
+  final CalendarViewModel viewModel;
 
-  const CalendarPage({super.key, required this.agendaRepository});
+  const CalendarPage({super.key, required this.viewModel});
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -18,18 +17,16 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   late final CalendarViewModel _viewModel;
 
-@override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  _viewModel = CalendarViewModel(
-    agendaRepository: widget.agendaRepository,
-  );
+    _viewModel = widget.viewModel;
 
-  _viewModel.addListener(_handleViewModelChange);
+    _viewModel.addListener(_handleViewModelChange);
 
-  _viewModel.carregarDiasBloqueados();
-}
+    _viewModel.carregarDiasBloqueados();
+  }
 
   void _handleViewModelChange() {
     final dayToOpen = _viewModel.dayToOpen;
@@ -195,11 +192,17 @@ void initState() {
 
                           todayTextStyle: const TextStyle(color: Colors.white),
 
-                          outsideTextStyle: TextStyle(color: Colors.grey.shade400),
+                          outsideTextStyle: TextStyle(
+                            color: Colors.grey.shade400,
+                          ),
 
-                          defaultTextStyle: const TextStyle(color: Colors.black87),
+                          defaultTextStyle: const TextStyle(
+                            color: Colors.black87,
+                          ),
 
-                          weekendTextStyle: const TextStyle(color: Colors.black87),
+                          weekendTextStyle: const TextStyle(
+                            color: Colors.black87,
+                          ),
 
                           disabledTextStyle: TextStyle(
                             color: Colors.grey.shade300,

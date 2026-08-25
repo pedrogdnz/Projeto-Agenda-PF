@@ -1,4 +1,9 @@
-import 'package:agendapf/presentation/views/text_field.dart';
+import 'package:agendapf/data/repositories/agenda_repository.dart';
+import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
+import 'package:agendapf/data/services/fake/fake_horario_service.dart';
+import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
+import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
+import 'package:agendapf/presentation/widgets/text_field.dart';
 import 'package:agendapf/presentation/views/calendar.dart';
 import 'package:agendapf/presentation/views/register.dart';
 import 'package:agendapf/presentation/viewmodels/login_viewmodel.dart';
@@ -115,7 +120,16 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CalendarPage(),
+                                  builder: (context) => CalendarPage(
+                                    viewModel: CalendarViewModel(
+                                      agendaRepository: AgendaRepository(
+                                        dataBloqueadaService:
+                                            FakeDataBloqueadaService(),
+                                        horarioService: FakeHorarioService(),
+                                        reservaService: FakeReservaService(),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               );
                             }
