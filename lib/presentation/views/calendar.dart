@@ -1,3 +1,4 @@
+import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/views/detalhes.dart';
 import 'package:agendapf/presentation/views/reservas.dart';
@@ -6,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+  final AgendaRepository agendaRepository;
+
+  const CalendarPage({super.key, required this.agendaRepository});
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -19,10 +22,10 @@ class _CalendarPageState extends State<CalendarPage> {
   void initState() {
     super.initState();
 
-    _viewModel = CalendarViewModel();
+    _viewModel = CalendarViewModel(agendaRepository: widget.agendaRepository);
+
     _viewModel.addListener(_handleViewModelChange);
-    
-    // 1. Carrega as datas bloqueadas assim que a tela abre
+
     _viewModel.carregarDiasBloqueados();
   }
 
@@ -106,101 +109,110 @@ class _CalendarPageState extends State<CalendarPage> {
                 children: [
                   const SizedBox(height: 24),
 
-                  // Exibe indicador de carregamento enquanto busca os bloqueios
-                  if (_viewModel.isLoading)
-                    const Center(child: LinearProgressIndicator())
-                  else
-                    TableCalendar(
-                      locale: 'pt_BR',
+                  AnimatedBuilder(
+                    animation: _viewModel,
+                    builder: (context, _) {
+                      if (_viewModel.carregandoDiasBloqueados) {
+                        return const Center(child: LinearProgressIndicator());
+                      }
 
-                      firstDay: kFirstDay,
-                      lastDay: kLastDay,
+                      return TableCalendar(
+                        locale: 'pt_BR',
 
-                      focusedDay: _viewModel.focusedDay,
-                      calendarFormat: _viewModel.calendarFormat,
+                        firstDay: kFirstDay,
+                        lastDay: kLastDay,
 
-                      // 2. Trava a seleção de dias bloqueados ou passados
-                      enabledDayPredicate: (day) {
-                        return !_viewModel.isDiaBloqueado(day);
-                      },
+                        focusedDay: _viewModel.focusedDay,
+                        calendarFormat: _viewModel.calendarFormat,
 
-                      selectedDayPredicate: (day) {
-                        return isSameDay(_viewModel.selectedDay, day);
-                      },
+                        enabledDayPredicate: (day) {
+                          return _viewModel.diaSelecionavel(day);
+                        },
 
-                      onDaySelected: (selectedDay, focusedDay) {
-                        _viewModel.selectDay(selectedDay, focusedDay);
-                      },
+                        selectedDayPredicate: (day) {
+                          return isSameDay(_viewModel.selectedDay, day);
+                        },
 
-                      onFormatChanged: (format) {
-                        _viewModel.changeFormat(format);
-                      },
+                        onDaySelected: (selectedDay, focusedDay) {
+                          _viewModel.selectDay(selectedDay, focusedDay);
+                        },
 
-                      onPageChanged: (focusedDay) {
-                        _viewModel.changePage(focusedDay);
-                      },
+                        onFormatChanged: (format) {
+                          _viewModel.changeFormat(format);
+                        },
 
-                      headerStyle: const HeaderStyle(
-                        formatButtonVisible: false,
-                        titleCentered: false,
-                        titleTextStyle: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        leftChevronIcon: Icon(
-                          Icons.chevron_left,
-                          color: Colors.black54,
-                        ),
-                        rightChevronIcon: Icon(
-                          Icons.chevron_right,
-                          color: Colors.black54,
-                        ),
-                      ),
+                        onPageChanged: (focusedDay) {
+                          _viewModel.changePage(focusedDay);
+                        },
 
-                      daysOfWeekStyle: const DaysOfWeekStyle(
-                        weekdayStyle: TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        weekendStyle: TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-                      calendarStyle: CalendarStyle(
-                        isTodayHighlighted: true,
-
-                        todayDecoration: BoxDecoration(
-                          color: Colors.blue.shade200,
-                          shape: BoxShape.circle,
+                        headerStyle: const HeaderStyle(
+                          formatButtonVisible: false,
+                          titleCentered: false,
+                          titleTextStyle: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          leftChevronIcon: Icon(
+                            Icons.chevron_left,
+                            color: Colors.black54,
+                          ),
+                          rightChevronIcon: Icon(
+                            Icons.chevron_right,
+                            color: Colors.black54,
+                          ),
                         ),
 
-                        selectedDecoration: const BoxDecoration(
-                          color: Color(0xFF3F51B5),
-                          shape: BoxShape.circle,
+                        daysOfWeekStyle: const DaysOfWeekStyle(
+                          weekdayStyle: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          weekendStyle: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
 
-                        selectedTextStyle: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                        calendarStyle: CalendarStyle(
+                          isTodayHighlighted: true,
+
+                          todayDecoration: BoxDecoration(
+                            color: Colors.blue.shade200,
+                            shape: BoxShape.circle,
+                          ),
+
+                          selectedDecoration: const BoxDecoration(
+                            color: Color(0xFF3F51B5),
+                            shape: BoxShape.circle,
+                          ),
+
+                          selectedTextStyle: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+
+                          todayTextStyle: const TextStyle(color: Colors.white),
+
+                          outsideTextStyle: TextStyle(
+                            color: Colors.grey.shade400,
+                          ),
+
+                          defaultTextStyle: const TextStyle(
+                            color: Colors.black87,
+                          ),
+
+                          weekendTextStyle: const TextStyle(
+                            color: Colors.black87,
+                          ),
+
+                          disabledTextStyle: TextStyle(
+                            color: Colors.grey.shade300,
+                            decoration: TextDecoration.lineThrough,
+                          ),
                         ),
-
-                        todayTextStyle: const TextStyle(color: Colors.white),
-
-                        outsideTextStyle: TextStyle(color: Colors.grey.shade400),
-
-                        defaultTextStyle: const TextStyle(color: Colors.black87),
-
-                        weekendTextStyle: const TextStyle(color: Colors.black87),
-
-                        // 3. Estilização para dias desabilitados pelo enabledDayPredicate
-                        disabledTextStyle: TextStyle(
-                          color: Colors.grey.shade300,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                    ),
+                      );
+                    },
+                  ),
 
                   const SizedBox(height: 20),
 
