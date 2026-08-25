@@ -21,4 +21,16 @@ class FakeAdministradorService implements AdministradorService {
   Future<List<Administrador>> buscarTodos() async {
     return List.unmodifiable(_administradores);
   }
+
+  @override
+  Future<Administrador?> buscarPorEmail(String email) async {
+    final query = email.trim().toLowerCase();
+
+    for (final admin in _administradores) {
+      if (admin.email.toLowerCase() == query) {
+        return admin;
+      }
+    }
+    return null;
+  }
 }

@@ -33,4 +33,17 @@ class FakeAlunoService implements AlunoService {
   Future<List<Aluno>> buscarTodos() async {
     return List.unmodifiable(_alunos);
   }
+
+  @override
+  Future<Aluno?> buscarPorEmailOuMatricula(String identificador) async {
+    final query = identificador.trim().toLowerCase();
+
+    for (final aluno in _alunos) {
+      if (aluno.email.toLowerCase() == query ||
+          aluno.matricula.toLowerCase() == query) {
+        return aluno;
+      }
+    }
+    return null;
+  }
 }

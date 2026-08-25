@@ -1,5 +1,3 @@
-// lib/presentation/viewmodels/calendar_viewmodel.dart
-
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
@@ -18,12 +16,10 @@ class CalendarViewModel extends ChangeNotifier {
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
-  // Dias disponibilizados/bloqueados pelo administrador
-  Set<DateTime> _diasBloqueados = {};
+    Set<DateTime> _diasBloqueados = {};
   bool _carregandoDiasBloqueados = true;
 
-  // Horários do dia selecionado
-  List<HorarioDoDia> _horariosDoDiaSelecionado = [];
+    List<HorarioDoDia> _horariosDoDiaSelecionado = [];
   bool _carregandoHorarios = false;
 
   DateTime get focusedDay => _focusedDay;

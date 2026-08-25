@@ -1,6 +1,7 @@
 import 'package:agendapf/data/models/administrador_model.dart';
 import 'package:agendapf/data/models/aluno_model.dart';
-import 'package:agendapf/data/services/abstract/auth_data_source.dart';
+import 'package:agendapf/data/services/abstract/administrador_data_source.dart';
+import 'package:agendapf/data/services/abstract/aluno_data_source.dart';
 
 enum TipoUsuario { aluno, administrador }
 
@@ -55,13 +56,13 @@ class VerificadorDeSenhaTextoPuro implements VerificadorDeSenha {
 }
 
 class AuthRepository {
-  final AlunoAuthService _alunoService;
-  final AdministradorAuthService _administradorService;
+  final AlunoService _alunoService;
+  final AdministradorService _administradorService;
   final VerificadorDeSenha _verificadorDeSenha;
 
   const AuthRepository({
-    required AlunoAuthService alunoService,
-    required AdministradorAuthService administradorService,
+    required AlunoService alunoService,
+    required AdministradorService administradorService,
     VerificadorDeSenha verificadorDeSenha = const VerificadorDeSenhaTextoPuro(),
   }) : _alunoService = alunoService,
        _administradorService = administradorService,
@@ -71,7 +72,7 @@ class AuthRepository {
     required String identificador,
     required String senha,
   }) async {
-    // 1. Tenta autenticar como Administrador primeiro.
+    
     final administrador = await _administradorService.buscarPorEmail(
       identificador,
     );

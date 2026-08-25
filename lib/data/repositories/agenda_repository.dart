@@ -47,7 +47,7 @@ class AgendaRepository {
     }
 
     final horarios = await _horarioService.buscarTodos();
-    final reservasDoDia = await _reservaService.buscarPorData(diaNormalizado);
+    final reservasDoDia = await _reservaService.buscarTodas();
     final idsReservados = reservasDoDia.map((r) => r.horarioId).toSet();
 
     final agora = DateTime.now();

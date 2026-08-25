@@ -18,16 +18,18 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   late final CalendarViewModel _viewModel;
 
-  @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
 
-    _viewModel = CalendarViewModel(agendaRepository: widget.agendaRepository);
+  _viewModel = CalendarViewModel(
+    agendaRepository: widget.agendaRepository,
+  );
 
-    _viewModel.addListener(_handleViewModelChange);
+  _viewModel.addListener(_handleViewModelChange);
 
-    _viewModel.carregarDiasBloqueados();
-  }
+  _viewModel.carregarDiasBloqueados();
+}
 
   void _handleViewModelChange() {
     final dayToOpen = _viewModel.dayToOpen;
@@ -193,17 +195,11 @@ class _CalendarPageState extends State<CalendarPage> {
 
                           todayTextStyle: const TextStyle(color: Colors.white),
 
-                          outsideTextStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                          ),
+                          outsideTextStyle: TextStyle(color: Colors.grey.shade400),
 
-                          defaultTextStyle: const TextStyle(
-                            color: Colors.black87,
-                          ),
+                          defaultTextStyle: const TextStyle(color: Colors.black87),
 
-                          weekendTextStyle: const TextStyle(
-                            color: Colors.black87,
-                          ),
+                          weekendTextStyle: const TextStyle(color: Colors.black87),
 
                           disabledTextStyle: TextStyle(
                             color: Colors.grey.shade300,
