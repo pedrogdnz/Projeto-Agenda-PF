@@ -30,14 +30,5 @@ int getHashCode(DateTime key) {
 
 final kToday = DateTime.now();
 
-final kFirstDay = DateTime(
-  kToday.year,
-  kToday.month - 12,
-  kToday.day,
-);
-
-final kLastDay = DateTime(
-  kToday.year,
-  kToday.month + 12,
-  kToday.day,
-);
+final kFirstDay = DateTime(DateTime.now().year, 1, 1);
+final kLastDay = DateTime(DateTime.now().year, 12, 31);
