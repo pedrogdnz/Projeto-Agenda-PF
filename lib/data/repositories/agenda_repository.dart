@@ -1,5 +1,7 @@
 import 'package:agendapf/data/models/horario_model.dart';
-import 'package:agendapf/data/services/agenda_data_source.dart';
+import 'package:agendapf/data/services/abstract/horario_data_source.dart';
+import 'package:agendapf/data/services/abstract/data_bloqueada_source.dart';
+import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
 
 class HorarioDoDia {
   final Horario horario;

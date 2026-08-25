@@ -1,6 +1,6 @@
 import 'package:agendapf/data/models/administrador_model.dart';
 import 'package:agendapf/data/models/aluno_model.dart';
-import 'package:agendapf/data/services/auth_data_source.dart';
+import 'package:agendapf/data/services/abstract/auth_data_source.dart';
 
 enum TipoUsuario { aluno, administrador }
 

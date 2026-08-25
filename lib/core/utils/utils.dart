@@ -32,3 +32,4 @@ final kToday = DateTime.now();
 
 final kFirstDay = DateTime(DateTime.now().year, 1, 1);
 final kLastDay = DateTime(DateTime.now().year, 12, 31);
+

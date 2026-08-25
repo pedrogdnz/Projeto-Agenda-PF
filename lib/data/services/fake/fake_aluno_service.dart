@@ -1,5 +1,5 @@
 import 'package:agendapf/data/models/aluno_model.dart';
-import 'package:agendapf/data/services/aluno_data_source.dart';
+import 'package:agendapf/data/services/abstract/aluno_data_source.dart';
 
 class FakeAlunoService implements AlunoService {
   final List<Aluno> _alunos = [
