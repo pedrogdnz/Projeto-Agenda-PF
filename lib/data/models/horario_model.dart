@@ -1,51 +1,37 @@
-enum CorFundoHorario {
-  preto,
-  branco;
+// lib/data/models/horario.dart
 
-  static CorFundoHorario fromNome(String nome) {
-    return CorFundoHorario.values.firstWhere(
-      (cor) => cor.name == nome,
-      orElse: () => CorFundoHorario.branco,
-    );
-  }
-}
-
+/// Representa um horário do catálogo fixo/recorrente oferecido pela
+/// instituição (ex: "08:00 às 09:00"). É o MESMO conjunto de horários que
+/// se repete em todo dia aberto — não pertence a uma data específica.
+///
+/// A disponibilidade de um Horario em um dia específico (se já foi
+/// reservado, se já passou, etc.) é calculada dinamicamente pelo
+/// AgendaRepository, cruzando este catálogo com [Reserva] e com o dia
+/// bloqueado ou não — por isso este model não guarda `disponivel` nem
+/// `dataId`.
 class Horario {
   final String id;
-  final String dataId;
   final String horaInicial;
   final String horaFinal;
-  final bool disponivel;
-  final CorFundoHorario corFundo;
   final String descricao;
 
   const Horario({
     required this.id,
-    required this.dataId,
     required this.horaInicial,
     required this.horaFinal,
-    required this.disponivel,
-    this.corFundo = CorFundoHorario.branco,
     this.descricao = '',
   });
 
-  /// Cria uma cópia deste Horario, substituindo apenas os campos informados.
   Horario copyWith({
     String? id,
-    String? dataId,
     String? horaInicial,
     String? horaFinal,
-    bool? disponivel,
-    CorFundoHorario? corFundo,
     String? descricao,
   }) {
     return Horario(
       id: id ?? this.id,
-      dataId: dataId ?? this.dataId,
       horaInicial: horaInicial ?? this.horaInicial,
       horaFinal: horaFinal ?? this.horaFinal,
-      disponivel: disponivel ?? this.disponivel,
-      corFundo: corFundo ?? this.corFundo,
       descricao: descricao ?? this.descricao,
     );
   }
@@ -53,11 +39,8 @@ class Horario {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'dataId': dataId,
       'horaInicial': horaInicial,
       'horaFinal': horaFinal,
-      'disponivel': disponivel,
-      'corFundo': corFundo.name,
       'descricao': descricao,
     };
   }
@@ -65,13 +48,8 @@ class Horario {
   factory Horario.fromMap(Map<String, dynamic> map) {
     return Horario(
       id: map['id'] as String,
-      dataId: map['dataId'] as String,
       horaInicial: map['horaInicial'] as String,
       horaFinal: map['horaFinal'] as String,
-      disponivel: map['disponivel'] as bool,
-      corFundo: CorFundoHorario.fromNome(
-        map['corFundo'] as String? ?? 'branco',
-      ),
       descricao: map['descricao'] as String? ?? '',
     );
   }
@@ -81,31 +59,17 @@ class Horario {
     if (identical(this, other)) return true;
     return other is Horario &&
         other.id == id &&
-        other.dataId == dataId &&
         other.horaInicial == horaInicial &&
         other.horaFinal == horaFinal &&
-        other.disponivel == disponivel &&
-        other.corFundo == corFundo &&
         other.descricao == descricao;
   }
 
   @override
-  int get hashCode {
-    return Object.hash(
-      id,
-      dataId,
-      horaInicial,
-      horaFinal,
-      disponivel,
-      corFundo,
-      descricao,
-    );
-  }
+  int get hashCode => Object.hash(id, horaInicial, horaFinal, descricao);
 
   @override
   String toString() {
-    return 'Horario(id: $id, dataId: $dataId, horaInicial: $horaInicial, '
-        'horaFinal: $horaFinal, disponivel: $disponivel, corFundo: $corFundo, '
+    return 'Horario(id: $id, horaInicial: $horaInicial, horaFinal: $horaFinal, '
         'descricao: $descricao)';
   }
 }
