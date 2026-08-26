@@ -146,7 +146,7 @@ class _ReservasState extends State<Reservas> {
               _viewModel.cancelarReserva(reservaId);
             },
             child: const Text(
-              'Cancelar',
+              'Sim, cancelar',
               style: TextStyle(color: Colors.white),
             ),
           ),

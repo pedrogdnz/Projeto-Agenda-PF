@@ -1,18 +1,13 @@
-// lib/presentation/views/
 import 'package:flutter/material.dart';
 
-/// Menu central do administrador (RF09/RF10/RF11 - navegação).
-///
-/// Apresenta atalhos para a configuração do ano letivo e para os 4 CRUDs
-/// administrativos do sistema. Esta tela não possui lógica de negócio nem
-/// estado próprio, apenas navegação, por isso não utiliza ViewModel
-/// (mesmo padrão adotado em `Reservas`, que também é puramente de exibição).
-///
-/// As telas de destino de cada CRUD ainda serão implementadas; até lá, os
-/// atalhos ainda não conectados mostram um aviso ao serem tocados.
-class AdminHomePage extends StatelessWidget {
+class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
 
+  @override
+  State<AdminHomePage> createState() => _AdminHomePageState();
+}
+
+class _AdminHomePageState extends State<AdminHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,13 +53,6 @@ class AdminHomePage extends StatelessWidget {
               const SizedBox(height: 16),
 
               _AdminMenuButton(
-                icon: Icons.calendar_month_outlined,
-                label: 'Datas e Horários',
-                onTap: () => _abrirModulo(context, 'CRUD de Datas e Horários'),
-              ),
-              const SizedBox(height: 16),
-
-              _AdminMenuButton(
                 icon: Icons.event_note_outlined,
                 label: 'Reservas',
                 onTap: () => _abrirModulo(context, 'CRUD de Reservas'),
@@ -80,10 +68,46 @@ class AdminHomePage extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 1) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Pendências: tela ainda não implementada'),
+              ),
+            );
+          }
+
+          if (index == 2) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Conta: tela ainda não implementada'),
+              ),
+            );
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: 'Painel',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pending_actions_outlined),
+            activeIcon: Icon(Icons.pending_actions),
+            label: 'Pendências',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Conta',
+          ),
+        ],
+      ),
     );
   }
 
-  // TODO: substituir por Navigator.push para cada tela real assim que as views dos CRUDs forem implementadas.
   void _abrirModulo(BuildContext context, String nome) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$nome: tela ainda não implementada')),

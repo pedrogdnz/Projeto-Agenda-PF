@@ -83,7 +83,7 @@ class _DetalhesState extends State<Detalhes> {
 
             Text(
               '${_viewModel.data.day}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
 
             Text(
