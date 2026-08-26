@@ -174,12 +174,9 @@ class _CalendarPageState extends State<CalendarPage> {
                   calendarStyle: CalendarStyle(
                     isTodayHighlighted: true,
 
-                    // 2. ADICIONE / ESTILIZE ESTES PROPRIEDADES:
-                    // Define a aparencia visual dos dias indisponiveis
                     disabledTextStyle: TextStyle(
                       color: Colors.grey.shade400,
-                      decoration: TextDecoration
-                          .lineThrough, // Opcional: deixa o número riscado
+                      decoration: TextDecoration.lineThrough,
                     ),
                     disabledDecoration: const BoxDecoration(
                       color: Colors.transparent,

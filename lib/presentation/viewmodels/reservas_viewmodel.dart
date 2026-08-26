@@ -13,6 +13,8 @@ class ReservaComHorario {
   const ReservaComHorario({required this.reserva, this.horario});
 }
 
+enum TipoFiltroReserva { ativas, passadas }
+
 class ReservasViewModel extends ChangeNotifier {
   final ReservaService _reservaService;
   final HorarioService _horarioService;
@@ -25,9 +27,32 @@ class ReservasViewModel extends ChangeNotifier {
 
   bool _carregando = true;
   List<ReservaComHorario> _reservas = [];
+  TipoFiltroReserva _filtroAtual = TipoFiltroReserva.ativas;
 
   bool get carregando => _carregando;
-  List<ReservaComHorario> get reservas => _reservas;
+  TipoFiltroReserva get filtroAtual => _filtroAtual;
+
+  List<ReservaComHorario> get reservasFiltradas {
+    final hoje = DateTime.now();
+    final inicioHoje = DateTime(hoje.year, hoje.month, hoje.day);
+
+    if (_filtroAtual == TipoFiltroReserva.ativas) {
+      return _reservas
+          .where((r) => !r.reserva.dataReserva.isBefore(inicioHoje))
+          .toList();
+    } else {
+      return _reservas
+          .where((r) => r.reserva.dataReserva.isBefore(inicioHoje))
+          .toList();
+    }
+  }
+
+  void alterarFiltro(TipoFiltroReserva novoFiltro) {
+    if (_filtroAtual != novoFiltro) {
+      _filtroAtual = novoFiltro;
+      notifyListeners();
+    }
+  }
 
   Future<void> carregarReservas() async {
     _carregando = true;
