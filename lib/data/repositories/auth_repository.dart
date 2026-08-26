@@ -25,6 +25,27 @@ class AcessoNegadoException implements Exception {
   String toString() => mensagem;
 }
 
+class EmailJaCadastradoException implements Exception {
+  final String mensagem;
+  const EmailJaCadastradoException([
+    this.mensagem = 'Este e-mail já está cadastrado.',
+  ]);
+
+  @override
+  String toString() => mensagem;
+}
+
+/// Lançada ao tentar cadastrar um Aluno com uma matrícula que já está em uso.
+class MatriculaJaCadastradaException implements Exception {
+  final String mensagem;
+  const MatriculaJaCadastradaException([
+    this.mensagem = 'Esta matrícula já está cadastrada.',
+  ]);
+
+  @override
+  String toString() => mensagem;
+}
+
 class ResultadoLogin {
   final TipoUsuario tipo;
   final Aluno? aluno;
@@ -72,7 +93,6 @@ class AuthRepository {
     required String identificador,
     required String senha,
   }) async {
-    
     final administrador = await _administradorService.buscarPorEmail(
       identificador,
     );
@@ -83,7 +103,6 @@ class AuthRepository {
       return ResultadoLogin.administrador(administrador);
     }
 
-    // 2. Se não for admin, tenta buscar como Aluno por e-mail ou matrícula.
     final aluno = await _alunoService.buscarPorEmailOuMatricula(identificador);
     if (aluno != null) {
       if (!_verificadorDeSenha.verificar(senha, aluno.senha)) {
@@ -93,6 +112,57 @@ class AuthRepository {
     }
 
     throw const CredenciaisInvalidasException();
+  }
+
+  /// Cadastra um novo Aluno (RF01) e devolve o `ResultadoLogin` já
+  /// autenticado, permitindo o login automático logo após o cadastro e
+  /// reaproveitando o mesmo fluxo de redirecionamento usado pelo [autenticar].
+  ///
+  /// Regras de negócio aplicadas aqui (e não no ViewModel/View):
+  /// - e-mail não pode coincidir com o de um Administrador nem de outro Aluno;
+  /// - matrícula não pode coincidir com a de outro Aluno já cadastrado.
+  Future<ResultadoLogin> cadastrarAluno({
+    required String nome,
+    required String matricula,
+    required String email,
+    required String senha,
+  }) async {
+    final emailNormalizado = email.trim().toLowerCase();
+    final matriculaNormalizada = matricula.trim();
+
+    final adminComEmail = await _administradorService.buscarPorEmail(
+      emailNormalizado,
+    );
+    if (adminComEmail != null) {
+      throw const EmailJaCadastradoException();
+    }
+
+    final alunoComEmail = await _alunoService.buscarPorEmailOuMatricula(
+      emailNormalizado,
+    );
+    if (alunoComEmail != null) {
+      throw const EmailJaCadastradoException();
+    }
+
+    final alunoComMatricula = await _alunoService.buscarPorEmailOuMatricula(
+      matriculaNormalizada,
+    );
+    if (alunoComMatricula != null) {
+      throw const MatriculaJaCadastradaException();
+    }
+
+    final novoAluno = await _alunoService.criar(
+      Aluno(
+        id: '', // o service (fake ou real) é responsável por gerar o id
+        nome: nome.trim(),
+        matricula: matriculaNormalizada,
+        email: emailNormalizado,
+        senha: senha,
+        criadoEm: DateTime.now(),
+      ),
+    );
+
+    return ResultadoLogin.aluno(novoAluno);
   }
 
   void garantirAcessoAdministrativo(TipoUsuario tipo) {

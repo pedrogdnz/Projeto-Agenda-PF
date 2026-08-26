@@ -1,5 +1,4 @@
 import 'package:agendapf/data/repositories/agenda_repository.dart';
-import 'package:agendapf/data/repositories/auth_repository.dart';
 import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
 import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
@@ -46,7 +45,9 @@ class _LoginPageState extends State<LoginPage> {
     if (!sucesso) {
       final erro = _viewModel.erro;
       if (erro != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(erro)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(erro)));
       }
       return;
     }

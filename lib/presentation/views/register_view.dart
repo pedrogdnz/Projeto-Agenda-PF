@@ -1,4 +1,3 @@
-
 import 'package:agendapf/presentation/views/login_view.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
 import 'package:agendapf/presentation/viewmodels/register_viewmodel.dart';

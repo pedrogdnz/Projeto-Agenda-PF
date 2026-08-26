@@ -24,8 +24,6 @@ class DetalhesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Retorna uma mensagem de erro se a seleção estiver incompleta,
-  /// ou `null` se estiver tudo certo para confirmar a reserva.
   String? validarSelecao() {
     if (_horarioSelecionado == null) {
       return 'Selecione um horário';

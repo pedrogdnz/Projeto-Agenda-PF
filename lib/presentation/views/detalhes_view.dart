@@ -72,10 +72,7 @@ class _DetalhesState extends State<Detalhes> {
               children: [
                 const Text(
                   "Sua Seleção",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 const Icon(Icons.calendar_today_rounded),
@@ -86,18 +83,12 @@ class _DetalhesState extends State<Detalhes> {
 
             Text(
               '${_viewModel.data.day}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             Text(
               DateFormat('EEEE', 'pt_BR').format(_viewModel.data),
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
             ),
 
             const SizedBox(height: 20),
@@ -160,8 +151,7 @@ class _DetalhesState extends State<Detalhes> {
                 TextButton(
                   style: TextButton.styleFrom(
                     backgroundColor:
-                        _viewModel.corFundoSelecionada ==
-                            CorFundoHorario.branco
+                        _viewModel.corFundoSelecionada == CorFundoHorario.branco
                         ? Colors.grey.shade300
                         : null,
                   ),
@@ -181,10 +171,7 @@ class _DetalhesState extends State<Detalhes> {
                   "Descrição ",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  "*Opcional",
-                  style: TextStyle(fontSize: 12),
-                ),
+                Text("*Opcional", style: TextStyle(fontSize: 12)),
               ],
             ),
 
@@ -202,9 +189,7 @@ class _DetalhesState extends State<Detalhes> {
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.black,
-                ),
+                style: TextButton.styleFrom(backgroundColor: Colors.black),
                 onPressed: _confirmar,
                 child: const Text(
                   "Confirmar",

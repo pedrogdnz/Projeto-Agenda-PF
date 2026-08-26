@@ -1,3 +1,4 @@
+// lib/presentation/views/
 import 'package:flutter/material.dart';
 
 /// Menu central do administrador (RF09/RF10/RF11 - navegação).
@@ -44,7 +45,8 @@ class AdminHomePage extends StatelessWidget {
               _AdminMenuButton(
                 icon: Icons.event_available,
                 label: 'Configuração do Ano Letivo',
-                onTap: () => _abrirModulo(context, 'Configuração do Ano Letivo'),
+                onTap: () =>
+                    _abrirModulo(context, 'Configuração do Ano Letivo'),
               ),
               const SizedBox(height: 16),
 
@@ -81,8 +83,7 @@ class AdminHomePage extends StatelessWidget {
     );
   }
 
-  // TODO: substituir por Navigator.push para cada tela real assim que
-  // as views dos CRUDs forem implementadas.
+  // TODO: substituir por Navigator.push para cada tela real assim que as views dos CRUDs forem implementadas.
   void _abrirModulo(BuildContext context, String nome) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$nome: tela ainda não implementada')),
@@ -127,10 +128,7 @@ class _AdminMenuButton extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(
-                  Icons.chevron_right,
-                  color: Colors.white70,
-                ),
+                const Icon(Icons.chevron_right, color: Colors.white70),
               ],
             ),
           ),

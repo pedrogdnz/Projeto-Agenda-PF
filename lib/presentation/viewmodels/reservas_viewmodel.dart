@@ -6,7 +6,6 @@ import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
 import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
 
-/// Junta uma [Reserva] com o [Horario] correspondente para exibição na tela.
 class ReservaComHorario {
   final Reserva reserva;
   final Horario? horario;
