@@ -1,12 +1,14 @@
 import 'package:agendapf/data/repositories/agenda_repository.dart';
+import 'package:agendapf/data/repositories/auth_repository.dart';
 import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
 import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
-import 'package:agendapf/presentation/widgets/text_field.dart';
+import 'package:agendapf/presentation/viewmodels/login_viewmodel.dart';
+import 'package:agendapf/presentation/views/admin_home_view.dart';
 import 'package:agendapf/presentation/views/calendar_view.dart';
 import 'package:agendapf/presentation/views/register_view.dart';
-import 'package:agendapf/presentation/viewmodels/login_viewmodel.dart';
+import 'package:agendapf/presentation/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,12 +25,56 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _viewModel = LoginViewModel();
+    _viewModel.addListener(_handleViewModelChange);
+  }
+
+  void _handleViewModelChange() {
+    setState(() {});
   }
 
   @override
   void dispose() {
+    _viewModel.removeListener(_handleViewModelChange);
     _viewModel.dispose();
     super.dispose();
+  }
+
+  Future<void> _entrar() async {
+    final sucesso = await _viewModel.autenticar();
+    if (!mounted) return;
+
+    if (!sucesso) {
+      final erro = _viewModel.erro;
+      if (erro != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(erro)));
+      }
+      return;
+    }
+
+    final resultado = _viewModel.resultado!;
+
+    if (resultado.ehAdministrador) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminHomePage()),
+      );
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CalendarPage(
+          viewModel: CalendarViewModel(
+            agendaRepository: AgendaRepository(
+              dataBloqueadaService: FakeDataBloqueadaService(),
+              horarioService: FakeHorarioService(),
+              reservaService: FakeReservaService(),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -58,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "",
+                    "Login Usuário",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
                   ),
 
@@ -115,29 +161,19 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Expanded(
                         child: TextButton(
-                          onPressed: () {
-                            if (_viewModel.validate()) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CalendarPage(
-                                    viewModel: CalendarViewModel(
-                                      agendaRepository: AgendaRepository(
-                                        dataBloqueadaService:
-                                            FakeDataBloqueadaService(),
-                                        horarioService: FakeHorarioService(),
-                                        reservaService: FakeReservaService(),
-                                      ),
-                                    ),
+                          onPressed: _viewModel.carregando ? null : _entrar,
+                          child: _viewModel.carregando
+                              ? const SizedBox(
+                                  height: 18,
+                                  width: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                   ),
+                                )
+                              : const Text(
+                                  "Login",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                              );
-                            }
-                          },
-                          child: const Text(
-                            "Login",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
                         ),
                       ),
                     ],
