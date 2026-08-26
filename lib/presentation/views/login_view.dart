@@ -1,3 +1,5 @@
+// lib/presentation/views/login_view.dart
+
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
@@ -6,7 +8,6 @@ import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/viewmodels/login_viewmodel.dart';
 import 'package:agendapf/presentation/views/admin_home_view.dart';
 import 'package:agendapf/presentation/views/calendar_view.dart';
-import 'package:agendapf/presentation/views/register_view.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
 import 'package:flutter/material.dart';
 
@@ -38,8 +39,11 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  Future<void> _entrar() async {
-    final sucesso = await _viewModel.autenticar();
+  /// Envia o formulário (Login ou Cadastro, dependendo do modo atual) e
+  /// redireciona conforme o tipo de usuário retornado: Aluno vai para o
+  /// Calendário (RF-navegação Aluno), Administrador vai para o Painel Admin.
+  Future<void> _enviar() async {
+    final sucesso = await _viewModel.enviar();
     if (!mounted) return;
 
     if (!sucesso) {
@@ -81,6 +85,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     double size = MediaQuery.of(context).size.height / 100;
+    final ehCadastro = _viewModel.ehCadastro;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
@@ -99,30 +105,27 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.only(topLeft: Radius.circular(80)),
               color: Colors.white,
             ),
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(35.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Login Usuário",
+                    ehCadastro ? "Cadastro de Aluno" : "Login Usuário",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
                   ),
 
                   Row(
                     children: [
-                      Text("Não tem uma conta?"),
+                      Text(
+                        ehCadastro ? "Já tem uma conta?" : "Não tem uma conta?",
+                      ),
                       TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RegisterPage(),
-                            ),
-                          );
-                        },
+                        onPressed: _viewModel.carregando
+                            ? null
+                            : _viewModel.alternarModo,
                         child: Text(
-                          'Cadastre-se',
+                          ehCadastro ? 'Login' : 'Cadastre-se',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -135,11 +138,33 @@ class _LoginPageState extends State<LoginPage> {
                     key: _viewModel.formKey,
                     child: Column(
                       children: [
+                        // Campos exclusivos do Cadastro (RF01).
+                        if (ehCadastro) ...[
+                          CustomTextField(
+                            requiredField: true,
+                            isPassword: false,
+                            controller: _viewModel.nomeController,
+                            label: 'Nome',
+                            validator: _viewModel.validateNome,
+                          ),
+                          const SizedBox(height: 20),
+                          CustomTextField(
+                            requiredField: true,
+                            isPassword: false,
+                            controller: _viewModel.matriculaController,
+                            label: 'Matrícula',
+                            keyboardType: TextInputType.number,
+                            validator: _viewModel.validateMatricula,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
                         CustomTextField(
                           requiredField: true,
                           isPassword: false,
                           controller: _viewModel.emailController,
                           label: 'E-mail',
+                          keyboardType: TextInputType.emailAddress,
                           validator: _viewModel.validateEmail,
                         ),
 
@@ -162,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Expanded(
                         child: TextButton(
-                          onPressed: _viewModel.carregando ? null : _entrar,
+                          onPressed: _viewModel.carregando ? null : _enviar,
                           child: _viewModel.carregando
                               ? const SizedBox(
                                   height: 18,
@@ -171,8 +196,8 @@ class _LoginPageState extends State<LoginPage> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Text(
-                                  "Login",
+                              : Text(
+                                  ehCadastro ? "Cadastrar" : "Login",
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                         ),

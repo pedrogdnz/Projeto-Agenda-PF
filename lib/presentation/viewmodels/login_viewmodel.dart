@@ -13,7 +13,7 @@ class LoginViewModel extends ChangeNotifier {
   final emailController = TextEditingController();
   final senhaController = TextEditingController();
 
-  // Campos exclusivos do Cadastro.
+  // Campos exclusivos do Cadastro (RF01).
   final nomeController = TextEditingController();
   final matriculaController = TextEditingController();
 
@@ -37,6 +37,10 @@ class LoginViewModel extends ChangeNotifier {
   bool get carregando => _carregando;
   String? get erro => _erro;
 
+  /// Resultado do login (seja por autenticação direta, seja pelo login
+  /// automático que ocorre logo após um cadastro bem-sucedido). A View usa
+  /// esse valor, e apenas ele, para decidir para onde redirecionar o
+  /// usuário — o mesmo fluxo serve tanto para Login quanto para Cadastro.
   ResultadoLogin? get resultado => _resultado;
 
   @override
@@ -48,6 +52,8 @@ class LoginViewModel extends ChangeNotifier {
     super.dispose();
   }
 
+  /// Alterna entre os formulários de Login e Cadastro, limpando erros e
+  /// campos que não fazem sentido no outro modo.
   void alternarModo() {
     _modo = _modo == ModoFormulario.login
         ? ModoFormulario.cadastro
@@ -122,6 +128,8 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  /// Cadastra um novo Aluno (RF01) e já autentica automaticamente,
+  /// preenchendo [resultado] da mesma forma que [autenticar] faz.
   Future<bool> cadastrar() async {
     if (!validate()) return false;
 
@@ -146,6 +154,8 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  /// Ponto único de entrada para a View: dispara Login ou Cadastro
+  /// dependendo do [modo] atual.
   Future<bool> enviar() {
     return ehCadastro ? cadastrar() : autenticar();
   }
