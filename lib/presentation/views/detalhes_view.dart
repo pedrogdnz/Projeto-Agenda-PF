@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:agendapf/data/models/horario_model.dart';
+import 'package:agendapf/presentation/viewmodels/detalhes_viewmodel.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
 
 class Detalhes extends StatefulWidget {
@@ -12,19 +14,49 @@ class Detalhes extends StatefulWidget {
 }
 
 class _DetalhesState extends State<Detalhes> {
-  TimeOfDay? horarioSelecionado;
+  late final DetalhesViewModel _viewModel;
 
-  Future<void> selecionarHorario() async {
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = DetalhesViewModel(data: widget.data);
+    _viewModel.addListener(_handleViewModelChange);
+  }
+
+  void _handleViewModelChange() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _viewModel.removeListener(_handleViewModelChange);
+    _viewModel.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selecionarHorario() async {
     final TimeOfDay? horario = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
 
     if (horario != null) {
-      setState(() {
-        horarioSelecionado = horario;
-      });
+      _viewModel.selecionarHorario(horario);
     }
+  }
+
+  void _confirmar() {
+    final erro = _viewModel.validarSelecao();
+
+    if (erro != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(erro)));
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const Reservas()),
+    );
   }
 
   @override
@@ -53,7 +85,7 @@ class _DetalhesState extends State<Detalhes> {
             const Text("Confirme sua reserva"),
 
             Text(
-              '${widget.data.day}',
+              '${_viewModel.data.day}',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -61,7 +93,7 @@ class _DetalhesState extends State<Detalhes> {
             ),
 
             Text(
-              DateFormat('EEEE', 'pt_BR').format(widget.data),
+              DateFormat('EEEE', 'pt_BR').format(_viewModel.data),
               style: const TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
@@ -78,7 +110,7 @@ class _DetalhesState extends State<Detalhes> {
             const SizedBox(height: 8),
 
             InkWell(
-              onTap: selecionarHorario,
+              onTap: _selecionarHorario,
               borderRadius: BorderRadius.circular(15),
               child: InputDecorator(
                 decoration: InputDecoration(
@@ -88,9 +120,9 @@ class _DetalhesState extends State<Detalhes> {
                   suffixIcon: const Icon(Icons.access_time),
                 ),
                 child: Text(
-                  horarioSelecionado == null
+                  _viewModel.horarioSelecionado == null
                       ? 'Selecione um horário'
-                      : horarioSelecionado!.format(context),
+                      : _viewModel.horarioSelecionado!.format(context),
                 ),
               ),
             ),
@@ -106,16 +138,36 @@ class _DetalhesState extends State<Detalhes> {
               children: [
                 TextButton(
                   style: TextButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor:
+                        _viewModel.corFundoSelecionada == CorFundoHorario.preto
+                        ? Colors.black
+                        : null,
                   ),
-                  onPressed: () {},
-                  child: const Text(
+                  onPressed: () {
+                    _viewModel.selecionarCorFundo(CorFundoHorario.preto);
+                  },
+                  child: Text(
                     "Preto",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color:
+                          _viewModel.corFundoSelecionada ==
+                              CorFundoHorario.preto
+                          ? Colors.white
+                          : Colors.black,
+                    ),
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  style: TextButton.styleFrom(
+                    backgroundColor:
+                        _viewModel.corFundoSelecionada ==
+                            CorFundoHorario.branco
+                        ? Colors.grey.shade300
+                        : null,
+                  ),
+                  onPressed: () {
+                    _viewModel.selecionarCorFundo(CorFundoHorario.branco);
+                  },
                   child: const Text("Branco"),
                 ),
               ],
@@ -137,6 +189,7 @@ class _DetalhesState extends State<Detalhes> {
             ),
 
             TextFormField(
+              controller: _viewModel.descricaoController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -152,23 +205,7 @@ class _DetalhesState extends State<Detalhes> {
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.black,
                 ),
-                onPressed: () {
-                  if (horarioSelecionado == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Selecione um horário'),
-                      ),
-                    );
-                    return;
-                  }
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const Reservas(),
-                    ),
-                  );
-                },
+                onPressed: _confirmar,
                 child: const Text(
                   "Confirmar",
                   style: TextStyle(color: Colors.white),
