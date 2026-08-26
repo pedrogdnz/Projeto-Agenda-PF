@@ -1,7 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:agendapf/data/models/horario_model.dart';
+import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart';
 
-class Reservas extends StatelessWidget {
+class Reservas extends StatefulWidget {
   const Reservas({super.key});
+
+  @override
+  State<Reservas> createState() => _ReservasState();
+}
+
+class _ReservasState extends State<Reservas> {
+  late final ReservasViewModel _viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = ReservasViewModel();
+    _viewModel.addListener(_handleViewModelChange);
+    _viewModel.carregarReservas();
+  }
+
+  void _handleViewModelChange() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _viewModel.removeListener(_handleViewModelChange);
+    _viewModel.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +52,25 @@ class Reservas extends StatelessWidget {
                   topRight: Radius.circular(32),
                 ),
               ),
-
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: const EdgeInsets.all(20),
-                    child: ReservaCard(),
-                  );
-                },
-              ),
+              child: _viewModel.carregando
+                  ? const Center(child: CircularProgressIndicator())
+                  : _viewModel.reservas.isEmpty
+                  ? const Center(child: Text('Nenhuma reserva encontrada'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _viewModel.reservas.length,
+                      itemBuilder: (context, index) {
+                        final item = _viewModel.reservas[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: ReservaCard(
+                            item: item,
+                            onCancelar: () =>
+                                _viewModel.cancelarReserva(item.reserva.id),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ),
 
@@ -42,10 +79,12 @@ class Reservas extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  IconButton(onPressed: () {
-                    Navigator.pop(context);
-                  }, 
-                  icon: Icon(Icons.arrow_back_ios, color: Colors.white)), 
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                  ),
                   const SizedBox(width: 12),
                   Image.asset('images/user.png'),
                   const SizedBox(width: 12),
@@ -67,16 +106,17 @@ class Reservas extends StatelessWidget {
   }
 }
 
-class ReservaCard extends StatefulWidget {
-  const ReservaCard({super.key});
+class ReservaCard extends StatelessWidget {
+  final ReservaComHorario item;
+  final VoidCallback onCancelar;
 
-  @override
-  State<ReservaCard> createState() => _ReservaCardState();
-}
+  const ReservaCard({super.key, required this.item, required this.onCancelar});
 
-class _ReservaCardState extends State<ReservaCard> {
   @override
   Widget build(BuildContext context) {
+    final data = item.reserva.dataReserva;
+    final horario = item.horario;
+
     return Card(
       color: Colors.white,
       child: Padding(
@@ -88,22 +128,22 @@ class _ReservaCardState extends State<ReservaCard> {
             Row(
               children: [
                 Container(
-                  height: 40.0, 
-                  width: 3.0, 
-                  color: Colors.grey.shade300, 
+                  height: 40.0,
+                  width: 3.0,
+                  color: Colors.grey.shade300,
                   margin: EdgeInsets.symmetric(horizontal: 10.0),
                 ),
                 Column(
                   children: [
                     Text(
-                      '10',
-                       style: TextStyle(
-                       fontSize: 35,
-                       fontWeight: FontWeight.bold,
+                      '${data.day}',
+                      style: TextStyle(
+                        fontSize: 35,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      "Segunda",
+                      DateFormat('EEEE', 'pt_BR').format(data),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -113,14 +153,20 @@ class _ReservaCardState extends State<ReservaCard> {
             SizedBox(height: 10),
 
             Text(
-              "Cor de Fundo:",
+              "Cor de Fundo: ${horario == null ? '-' : (horario.corFundo == CorFundoHorario.preto ? 'Preto' : 'Branco')}",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text("Horário:", style: TextStyle(fontWeight: FontWeight.bold)),
-            Text("Status:", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              "Horário: ${horario == null ? '-' : '${horario.horaInicial} às ${horario.horaFinal}'}",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "Status: Confirmada",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: onCancelar,
               child: Text(
                 "Cancelar Reserva",
                 style: TextStyle(color: Colors.red),
