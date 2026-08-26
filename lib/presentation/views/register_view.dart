@@ -1,5 +1,7 @@
+
 import 'package:agendapf/presentation/views/login_view.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
+import 'package:agendapf/presentation/viewmodels/register_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -10,19 +12,17 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
+  late final RegisterViewModel _viewModel;
 
-  final nomeController = TextEditingController();
-  final emailController = TextEditingController();
-  final senhaController = TextEditingController();
-  final confirmarSenhaController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = RegisterViewModel();
+  }
 
   @override
   void dispose() {
-    nomeController.dispose();
-    emailController.dispose();
-    senhaController.dispose();
-    confirmarSenhaController.dispose();
+    _viewModel.dispose();
     super.dispose();
   }
 
@@ -52,7 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Padding(
               padding: const EdgeInsets.all(35.0),
               child: Form(
-                key: _formKey,
+                key: _viewModel.formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -88,77 +88,42 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
 
                     CustomTextField(
-                      controller: nomeController,
-                      label: "Nome",
-                      isPassword: false,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Informe seu nome";
-                        }
-                        return null;
-                      },
                       requiredField: true,
+                      isPassword: false,
+                      controller: _viewModel.nomeController,
+                      label: 'Nome',
+                      validator: _viewModel.validateNome,
                     ),
 
                     const SizedBox(height: 20),
 
                     CustomTextField(
-                      controller: emailController,
-                      label: "E-mail",
+                      requiredField: true,
+                      isPassword: false,
+                      controller: _viewModel.emailController,
+                      label: 'E-mail',
                       keyboardType: TextInputType.emailAddress,
-                      isPassword: false,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Informe seu e-mail";
-                        }
-
-                        if (!value.contains('@')) {
-                          return "E-mail inválido";
-                        }
-
-                        return null;
-                      },
-                      requiredField: true,
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    CustomTextField(
-                      controller: senhaController,
-                      label: "Senha",
-                      isPassword: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Informe sua senha";
-                        }
-
-                        if (value.length < 6) {
-                          return "A senha deve ter pelo menos 6 caracteres";
-                        }
-
-                        return null;
-                      },
-                      requiredField: true,
+                      validator: _viewModel.validateEmail,
                     ),
 
                     const SizedBox(height: 20),
 
                     CustomTextField(
                       requiredField: true,
-                      controller: confirmarSenhaController,
-                      label: "Confirme sua senha",
                       isPassword: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Confirme sua senha";
-                        }
+                      controller: _viewModel.senhaController,
+                      label: 'Senha',
+                      validator: _viewModel.validateSenha,
+                    ),
 
-                        if (value != senhaController.text) {
-                          return "As senhas não coincidem";
-                        }
+                    const SizedBox(height: 20),
 
-                        return null;
-                      },
+                    CustomTextField(
+                      requiredField: true,
+                      isPassword: true,
+                      controller: _viewModel.confirmarSenhaController,
+                      label: 'Confirme sua senha',
+                      validator: _viewModel.validateConfirmarSenha,
                     ),
 
                     const SizedBox(height: 20),
@@ -168,7 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         Expanded(
                           child: TextButton(
                             onPressed: () {
-                              if (_formKey.currentState!.validate()) {
+                              if (_viewModel.validate()) {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
