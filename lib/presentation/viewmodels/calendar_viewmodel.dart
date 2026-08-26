@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 
 class CalendarViewModel extends ChangeNotifier {
@@ -10,22 +9,23 @@ class CalendarViewModel extends ChangeNotifier {
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  DateTime? _lastTappedDay;
-  DateTime? _lastTapTime;
   DateTime? _dayToOpen;
 
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  /// Mensagem de erro exibida quando o aluno toca em um dia indisponível
+  /// (fora do período, bloqueado ou já no passado). É um valor "de disparo
+  /// único": a View deve chamar [limparErroSelecao] logo após exibi-la.
+  String? _erroSelecao;
 
-    Set<DateTime> _diasBloqueados = {};
+  Set<DateTime> _diasBloqueados = {};
   bool _carregandoDiasBloqueados = true;
 
-    List<HorarioDoDia> _horariosDoDiaSelecionado = [];
+  List<HorarioDoDia> _horariosDoDiaSelecionado = [];
   bool _carregandoHorarios = false;
 
   DateTime get focusedDay => _focusedDay;
   DateTime? get selectedDay => _selectedDay;
-  CalendarFormat get calendarFormat => _calendarFormat;
   DateTime? get dayToOpen => _dayToOpen;
+  String? get erroSelecao => _erroSelecao;
 
   bool get carregandoDiasBloqueados => _carregandoDiasBloqueados;
 
@@ -47,28 +47,19 @@ class CalendarViewModel extends ChangeNotifier {
     return _agendaRepository.diaSelecionavel(dia, _diasBloqueados);
   }
 
+  /// Um único toque em um dia disponível já seleciona a data e sinaliza
+  /// para a View abrir a tela de Detalhes. Um toque em um dia indisponível
+  /// não navega — apenas expõe uma mensagem de erro via [erroSelecao].
   void selectDay(DateTime selectedDay, DateTime focusedDay) {
-    if (!diaSelecionavel(selectedDay)) return;
-
-    final now = DateTime.now();
-
-    _dayToOpen = null;
-
-    final bool isDoubleTap =
-        _lastTappedDay != null &&
-        isSameDay(_lastTappedDay, selectedDay) &&
-        _lastTapTime != null &&
-        now.difference(_lastTapTime!).inMilliseconds < 500;
+    if (!diaSelecionavel(selectedDay)) {
+      _erroSelecao = 'Esta data não está disponível para reserva.';
+      notifyListeners();
+      return;
+    }
 
     _selectedDay = selectedDay;
     _focusedDay = focusedDay;
-
-    if (isDoubleTap) {
-      _dayToOpen = selectedDay;
-    }
-
-    _lastTappedDay = selectedDay;
-    _lastTapTime = now;
+    _dayToOpen = selectedDay;
 
     notifyListeners();
 
@@ -91,9 +82,8 @@ class CalendarViewModel extends ChangeNotifier {
     _dayToOpen = null;
   }
 
-  void changeFormat(CalendarFormat format) {
-    _calendarFormat = format;
-    notifyListeners();
+  void limparErroSelecao() {
+    _erroSelecao = null;
   }
 
   void changePage(DateTime focusedDay) {

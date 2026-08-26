@@ -30,6 +30,18 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void _handleViewModelChange() {
     final dayToOpen = _viewModel.dayToOpen;
+    final erro = _viewModel.erroSelecao;
+
+    if (erro != null) {
+      _viewModel.limparErroSelecao();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(erro)));
+      });
+    }
 
     if (dayToOpen != null) {
       _viewModel.clearDayToOpen();
@@ -54,195 +66,154 @@ class _CalendarPageState extends State<CalendarPage> {
     super.dispose();
   }
 
+  void _abrirReservas() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const Reservas()));
+  }
+
+  void _abrirPerfil() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tela de perfil ainda não implementada')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: const Icon(Icons.menu),
+          tooltip: 'Ver reservas',
+          onPressed: _abrirReservas,
         ),
-      ),
-      backgroundColor: Colors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      "Calendário",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.person),
-                      tooltip: 'Ver reservas',
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => Reservas()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const Text("Selecione uma data:"),
-              ],
-            ),
-          ),
-
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-
-                  AnimatedBuilder(
-                    animation: _viewModel,
-                    builder: (context, _) {
-                      if (_viewModel.carregandoDiasBloqueados) {
-                        return const Center(child: LinearProgressIndicator());
-                      }
-
-                      return TableCalendar(
-                        locale: 'pt_BR',
-
-                        firstDay: kFirstDay,
-                        lastDay: kLastDay,
-
-                        focusedDay: _viewModel.focusedDay,
-                        calendarFormat: _viewModel.calendarFormat,
-
-                        enabledDayPredicate: (day) {
-                          return _viewModel.diaSelecionavel(day);
-                        },
-
-                        selectedDayPredicate: (day) {
-                          return isSameDay(_viewModel.selectedDay, day);
-                        },
-
-                        onDaySelected: (selectedDay, focusedDay) {
-                          _viewModel.selectDay(selectedDay, focusedDay);
-                        },
-
-                        onFormatChanged: (format) {
-                          _viewModel.changeFormat(format);
-                        },
-
-                        onPageChanged: (focusedDay) {
-                          _viewModel.changePage(focusedDay);
-                        },
-
-                        headerStyle: const HeaderStyle(
-                          formatButtonVisible: false,
-                          titleCentered: false,
-                          titleTextStyle: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          leftChevronIcon: Icon(
-                            Icons.chevron_left,
-                            color: Colors.black54,
-                          ),
-                          rightChevronIcon: Icon(
-                            Icons.chevron_right,
-                            color: Colors.black54,
-                          ),
-                        ),
-
-                        daysOfWeekStyle: const DaysOfWeekStyle(
-                          weekdayStyle: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          weekendStyle: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-
-                        calendarStyle: CalendarStyle(
-                          isTodayHighlighted: true,
-
-                          todayDecoration: BoxDecoration(
-                            color: Colors.blue.shade200,
-                            shape: BoxShape.circle,
-                          ),
-
-                          selectedDecoration: const BoxDecoration(
-                            color: Color(0xFF3F51B5),
-                            shape: BoxShape.circle,
-                          ),
-
-                          selectedTextStyle: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-
-                          todayTextStyle: const TextStyle(color: Colors.white),
-
-                          outsideTextStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                          ),
-
-                          defaultTextStyle: const TextStyle(
-                            color: Colors.black87,
-                          ),
-
-                          weekendTextStyle: const TextStyle(
-                            color: Colors.black87,
-                          ),
-
-                          disabledTextStyle: TextStyle(
-                            color: Colors.grey.shade300,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _viewModel.selectedDay != null
-                        ? Container(
-                            key: ValueKey(_viewModel.selectedDay),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              "Data selecionada: "
-                              "${_viewModel.selectedDay!.day}/"
-                              "${_viewModel.selectedDay!.month}/"
-                              "${_viewModel.selectedDay!.year}",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ),
-            ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: 'Perfil',
+            onPressed: _abrirPerfil,
           ),
         ],
+      ),
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Calendário",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const Text("Selecione uma data:"),
+
+            const SizedBox(height: 24),
+
+            AnimatedBuilder(
+              animation: _viewModel,
+              builder: (context, _) {
+                if (_viewModel.carregandoDiasBloqueados) {
+                  return const Center(child: LinearProgressIndicator());
+                }
+
+                return TableCalendar(
+                  locale: 'pt_BR',
+
+                  firstDay: kFirstDay,
+                  lastDay: kLastDay,
+
+                  focusedDay: _viewModel.focusedDay,
+                  calendarFormat: CalendarFormat.month,
+
+                  availableGestures: AvailableGestures.horizontalSwipe,
+
+                  // 1. ADICIONE ESTA LINHA:
+                  // Informa ao TableCalendar quais dias podem ser clicados
+                  enabledDayPredicate: (day) => _viewModel.diaSelecionavel(day),
+
+                  selectedDayPredicate: (day) {
+                    return isSameDay(_viewModel.selectedDay, day);
+                  },
+
+                  onDaySelected: (selectedDay, focusedDay) {
+                    _viewModel.selectDay(selectedDay, focusedDay);
+                  },
+
+                  onPageChanged: (focusedDay) {
+                    _viewModel.changePage(focusedDay);
+                  },
+
+                  headerStyle: const HeaderStyle(
+                    formatButtonVisible: false,
+                    titleCentered: false,
+                    titleTextStyle: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    leftChevronIcon: Icon(
+                      Icons.chevron_left,
+                      color: Colors.black54,
+                    ),
+                    rightChevronIcon: Icon(
+                      Icons.chevron_right,
+                      color: Colors.black54,
+                    ),
+                  ),
+
+                  daysOfWeekStyle: const DaysOfWeekStyle(
+                    weekdayStyle: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    weekendStyle: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  calendarStyle: CalendarStyle(
+                    isTodayHighlighted: true,
+
+                    // 2. ADICIONE / ESTILIZE ESTES PROPRIEDADES:
+                    // Define a aparencia visual dos dias indisponiveis
+                    disabledTextStyle: TextStyle(
+                      color: Colors.grey.shade400,
+                      decoration: TextDecoration
+                          .lineThrough, // Opcional: deixa o número riscado
+                    ),
+                    disabledDecoration: const BoxDecoration(
+                      color: Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+
+                    todayDecoration: BoxDecoration(
+                      color: Colors.blue.shade200,
+                      shape: BoxShape.circle,
+                    ),
+
+                    selectedDecoration: const BoxDecoration(
+                      color: Color(0xFF3F51B5),
+                      shape: BoxShape.circle,
+                    ),
+
+                    selectedTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+
+                    todayTextStyle: const TextStyle(color: Colors.white),
+
+                    outsideTextStyle: TextStyle(color: Colors.grey.shade400),
+
+                    defaultTextStyle: const TextStyle(color: Colors.black87),
+
+                    weekendTextStyle: const TextStyle(color: Colors.black87),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
