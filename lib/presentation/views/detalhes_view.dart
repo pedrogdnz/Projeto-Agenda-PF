@@ -116,8 +116,6 @@ class _DetalhesState extends State<Detalhes> {
 
             const SizedBox(height: 8),
 
-            // RN04: os horários vêm de AgendaRepository.buscarHorariosDoDia
-            // (pré-cadastrados), não mais de um showTimePicker livre.
             Expanded(
               child: _viewModel.carregandoHorarios
                   ? const Center(child: CircularProgressIndicator())

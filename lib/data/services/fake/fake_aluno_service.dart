@@ -7,7 +7,7 @@ class FakeAlunoService implements AlunoService {
       id: '1',
       nome: 'Ana Clara Silva',
       matricula: '20240001',
-      email: 'ana.clara@escola.com',
+      email: 'a@escola.com',
       senha: '123456',
       criadoEm: DateTime(2026, 8, 20),
     ),
