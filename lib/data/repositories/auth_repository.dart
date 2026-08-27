@@ -35,7 +35,6 @@ class EmailJaCadastradoException implements Exception {
   String toString() => mensagem;
 }
 
-/// Lançada ao tentar cadastrar um Aluno com uma matrícula que já está em uso.
 class MatriculaJaCadastradaException implements Exception {
   final String mensagem;
   const MatriculaJaCadastradaException([
@@ -62,7 +61,7 @@ class ResultadoLogin {
   bool get ehAdministrador => tipo == TipoUsuario.administrador;
   bool get ehAluno => tipo == TipoUsuario.aluno;
 }
-
+//TODO - TEMOS QUE MELHORAR A FORMA COMO VERIFICA A SENHA, ESTÁ EM TEXTO PURO
 abstract class VerificadorDeSenha {
   bool verificar(String senhaDigitada, String senhaArmazenada);
 }
@@ -114,13 +113,6 @@ class AuthRepository {
     throw const CredenciaisInvalidasException();
   }
 
-  /// Cadastra um novo Aluno (RF01) e devolve o `ResultadoLogin` já
-  /// autenticado, permitindo o login automático logo após o cadastro e
-  /// reaproveitando o mesmo fluxo de redirecionamento usado pelo [autenticar].
-  ///
-  /// Regras de negócio aplicadas aqui (e não no ViewModel/View):
-  /// - e-mail não pode coincidir com o de um Administrador nem de outro Aluno;
-  /// - matrícula não pode coincidir com a de outro Aluno já cadastrado.
   Future<ResultadoLogin> cadastrarAluno({
     required String nome,
     required String matricula,

@@ -11,7 +11,6 @@ class Administrador {
     required this.senha,
   });
 
-  /// Cria uma cópia deste Administrador, substituindo apenas os campos informados.
   Administrador copyWith({
     String? id,
     String? nome,

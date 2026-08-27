@@ -60,7 +60,7 @@ class AgendaRepository {
             diaNormalizado,
             horario.horaInicial,
           );
-          return inicio.isAfter(agora); // RN04: horário passado não é listado
+          return inicio.isAfter(agora);
         })
         .map((horario) {
           final reservado = idsReservados.contains(horario.id);

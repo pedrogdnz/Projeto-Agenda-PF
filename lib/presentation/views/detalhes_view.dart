@@ -1,3 +1,5 @@
+// lib/presentation/views/
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:agendapf/data/models/horario_model.dart';
@@ -34,14 +36,25 @@ class _DetalhesState extends State<Detalhes> {
     super.dispose();
   }
 
-  Future<void> _selecionarHorario() async {
+  Future<void> _selecionarHoraInicial() async {
     final TimeOfDay? horario = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: _viewModel.horaInicialSelecionada ?? TimeOfDay.now(),
     );
 
     if (horario != null) {
-      _viewModel.selecionarHorario(horario);
+      _viewModel.selecionarHoraInicial(horario);
+    }
+  }
+
+  Future<void> _selecionarHoraFinal() async {
+    final TimeOfDay? horario = await showTimePicker(
+      context: context,
+      initialTime: _viewModel.horaFinalSelecionada ?? TimeOfDay.now(),
+    );
+
+    if (horario != null) {
+      _viewModel.selecionarHoraFinal(horario);
     }
   }
 
@@ -100,22 +113,24 @@ class _DetalhesState extends State<Detalhes> {
 
             const SizedBox(height: 8),
 
-            InkWell(
-              onTap: _selecionarHorario,
-              borderRadius: BorderRadius.circular(15),
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
+            Row(
+              children: [
+                Expanded(
+                  child: _CampoHorario(
+                    label: 'Início',
+                    horario: _viewModel.horaInicialSelecionada,
+                    onTap: _selecionarHoraInicial,
                   ),
-                  suffixIcon: const Icon(Icons.access_time),
                 ),
-                child: Text(
-                  _viewModel.horarioSelecionado == null
-                      ? 'Selecione um horário'
-                      : _viewModel.horarioSelecionado!.format(context),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _CampoHorario(
+                    label: 'Fim',
+                    horario: _viewModel.horaFinalSelecionada,
+                    onTap: _selecionarHoraFinal,
+                  ),
                 ),
-              ),
+              ],
             ),
 
             const SizedBox(height: 20),
@@ -203,3 +218,34 @@ class _DetalhesState extends State<Detalhes> {
     );
   }
 }
+
+/// Campo reutilizável para selecionar um horário (inicial ou final),
+/// exibido como um InputDecorator clicável que abre o [showTimePicker].
+class _CampoHorario extends StatelessWidget {
+  final String label;
+  final TimeOfDay? horario;
+  final VoidCallback onTap;
+
+  const _CampoHorario({
+    required this.label,
+    required this.horario,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+          suffixIcon: const Icon(Icons.access_time),
+        ),
+        child: Text(horario == null ? 'Selecionar' : horario!.format(context)),
+      ),
+    );
+  }
+}
+//TODO - É RELATIVAMENTE DIFÍCIL ESCOLHER UMA HORA INTEIRA - TIPO DAS 17 AS 18. ELES VÃO PEGAR HORÁRIOS QUEBRADOS
