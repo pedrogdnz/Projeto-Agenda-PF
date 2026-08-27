@@ -1,3 +1,4 @@
+import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
 import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
 
@@ -8,18 +9,21 @@ class FakeReservaService implements ReservaService {
       alunoId: '1',
       horarioId: '1',
       dataReserva: DateTime(2026, 8, 25),
+      corFundo: CorFundoHorario.branco,
     ),
     Reserva(
       id: '2',
       alunoId: '2',
       horarioId: '2',
       dataReserva: DateTime(2026, 8, 26),
+      corFundo: CorFundoHorario.branco,
     ),
     Reserva(
       id: '3',
       alunoId: '3',
       horarioId: '3',
       dataReserva: DateTime(2026, 8, 27),
+      corFundo: CorFundoHorario.branco,
     ),
   ];
 

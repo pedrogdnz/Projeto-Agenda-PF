@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart';
+import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 
 class Reservas extends StatefulWidget {
   final String alunoId;
@@ -230,7 +230,6 @@ class ReservaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = item.reserva.dataReserva;
-    final horario = item.horario;
 
     final diaSemana = DateFormat('EEE', 'pt_BR').format(data).toUpperCase();
     final mes = DateFormat('MMM', 'pt_BR').format(data).toUpperCase();
@@ -290,17 +289,17 @@ class ReservaCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _InfoRow(
-                        icon: Icons.access_time_rounded,
-                        text: horario == null
-                            ? '-'
-                            : '${horario.horaInicial} às ${horario.horaFinal}',
-                      ),
-                      const SizedBox(height: 6),
-                      _InfoRow(
                         icon: Icons.palette_outlined,
                         text:
-                            "Fundo: ${horario == null ? '-' : (horario.corFundo == CorFundoHorario.preto ? 'Preto' : 'Branco')}",
+                            "Fundo: ${item.reserva.corFundo == CorFundoHorario.preto ? 'Preto' : 'Branco'}",
                       ),
+                      if (item.reserva.descricao.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        _InfoRow(
+                          icon: Icons.notes_outlined,
+                          text: item.reserva.descricao,
+                        ),
+                      ],
                       const SizedBox(height: 6),
                       _InfoRow(
                         icon: isPassada
@@ -343,15 +342,14 @@ class ReservaCard extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
-  final Color? iconColor;
 
-  const _InfoRow({required this.icon, required this.text, this.iconColor});
+  const _InfoRow({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: iconColor ?? Colors.grey.shade600),
+        Icon(icon, size: 16, color: Colors.grey.shade600),
         const SizedBox(width: 8),
         Text(
           text,

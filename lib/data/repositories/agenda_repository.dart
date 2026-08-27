@@ -1,14 +1,27 @@
+import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
 import 'package:agendapf/data/services/abstract/horario_data_source.dart';
 import 'package:agendapf/data/services/abstract/data_bloqueada_source.dart';
 import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
 
+/// Um horário do dia, com a disponibilidade calculada PARA CADA FUNDO
+/// separadamente — o mesmo horário pode estar ocupado no fundo preto e
+/// livre no branco ao mesmo tempo.
 class HorarioDoDia {
   final Horario horario;
-  final bool disponivel;
+  final Map<CorFundoHorario, bool> disponibilidadePorFundo;
 
-  const HorarioDoDia({required this.horario, required this.disponivel});
+  const HorarioDoDia({
+    required this.horario,
+    required this.disponibilidadePorFundo,
+  });
+
+  bool disponivelPara(CorFundoHorario fundo) =>
+      disponibilidadePorFundo[fundo] ?? true;
+
+  bool get algumFundoDisponivel =>
+      disponibilidadePorFundo.values.any((disponivel) => disponivel);
 }
 
 class DataIndisponivelException implements Exception {
@@ -32,7 +45,8 @@ class HorarioInvalidoException implements Exception {
 class HorarioIndisponivelException implements Exception {
   final String mensagem;
   const HorarioIndisponivelException([
-    this.mensagem = 'Este horário já está reservado para esta data.',
+    this.mensagem =
+        'Este horário já está reservado para este fundo nesta data.',
   ]);
 
   @override
@@ -52,10 +66,6 @@ class AgendaRepository {
        _horarioService = horarioService,
        _reservaService = reservaService;
 
-  /// Expostos para que outras camadas (ex.: ReservasViewModel) possam
-  /// reutilizar exatamente a mesma instância de serviço — e assim enxergar
-  /// as mesmas reservas em memória — em vez de criar uma cópia separada do
-  /// serviço fake (o que fazia reservas "sumirem" entre telas).
   HorarioService get horarioService => _horarioService;
   ReservaService get reservaService => _reservaService;
 
@@ -85,10 +95,14 @@ class AgendaRepository {
     final horarios = await _horarioService.buscarTodos();
     final reservas = await _reservaService.buscarTodas();
 
-    final idsReservadosNoDia = reservas
-        .where((r) => _normalizarData(r.dataReserva) == diaNormalizado)
-        .map((r) => r.horarioId)
-        .toSet();
+    // Fundos já ocupados por horário, só considerando reservas do dia.
+    final fundosOcupadosPorHorario = <String, Set<CorFundoHorario>>{};
+    for (final reserva in reservas) {
+      if (_normalizarData(reserva.dataReserva) != diaNormalizado) continue;
+      fundosOcupadosPorHorario
+          .putIfAbsent(reserva.horarioId, () => {})
+          .add(reserva.corFundo);
+    }
 
     final agora = DateTime.now();
     final ehHoje = _normalizarData(agora) == diaNormalizado;
@@ -103,17 +117,31 @@ class AgendaRepository {
           return inicio.isAfter(agora);
         })
         .map((horario) {
-          final reservado = idsReservadosNoDia.contains(horario.id);
-          return HorarioDoDia(horario: horario, disponivel: !reservado);
+          final fundosOcupados =
+              fundosOcupadosPorHorario[horario.id] ?? const {};
+          final disponibilidade = {
+            for (final fundo in CorFundoHorario.values)
+              fundo: !fundosOcupados.contains(fundo),
+          };
+          return HorarioDoDia(
+            horario: horario,
+            disponibilidadePorFundo: disponibilidade,
+          );
         })
         .toList();
   }
 
-  /// Cria uma [Reserva] vinculando o [alunoId] a um [Horario] pré-cadastrado
-    Future<Reserva> criarReserva({
+  /// Cria uma [Reserva] vinculando o [alunoId] a um [Horario] pré-cadastrado,
+  /// numa [data] específica, com o [corFundo] e a [descricao] escolhidos
+  /// pelo próprio aluno. A checagem de conflito é por (horário, data, fundo)
+  /// — não por (horário, data) — para permitir que dois alunos ocupem o
+  /// mesmo horário no mesmo dia, desde que em fundos diferentes.
+  Future<Reserva> criarReserva({
     required String alunoId,
     required String horarioId,
     required DateTime data,
+    required CorFundoHorario corFundo,
+    String descricao = '',
   }) async {
     final diaNormalizado = _normalizarData(data);
     final diasBloqueados = await buscarDiasBloqueados();
@@ -131,6 +159,7 @@ class AgendaRepository {
     final jaReservado = reservas.any(
       (r) =>
           r.horarioId == horarioId &&
+          r.corFundo == corFundo &&
           _normalizarData(r.dataReserva) == diaNormalizado,
     );
 
@@ -144,6 +173,8 @@ class AgendaRepository {
         alunoId: alunoId,
         horarioId: horarioId,
         dataReserva: diaNormalizado,
+        corFundo: corFundo,
+        descricao: descricao,
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:agendapf/data/models/horario_model.dart';
+import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/detalhes_viewmodel.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
@@ -64,7 +64,7 @@ class _DetalhesState extends State<Detalhes> {
     final sucesso = await _viewModel.confirmarReserva();
     if (!mounted || !sucesso) return;
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => Reservas(
@@ -109,6 +109,35 @@ class _DetalhesState extends State<Detalhes> {
 
             const SizedBox(height: 20),
 
+            const Text("Fundo:", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Center(child: Text('Branco')),
+                    selected:
+                        _viewModel.fundoSelecionado == CorFundoHorario.branco,
+                    onSelected: (_) =>
+                        _viewModel.selecionarFundo(CorFundoHorario.branco),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Center(child: Text('Preto')),
+                    selected:
+                        _viewModel.fundoSelecionado == CorFundoHorario.preto,
+                    onSelected: (_) =>
+                        _viewModel.selecionarFundo(CorFundoHorario.preto),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
             const Text(
               "Horário:",
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -131,6 +160,7 @@ class _DetalhesState extends State<Detalhes> {
 
                         return _HorarioTile(
                           item: item,
+                          fundoSelecionado: _viewModel.fundoSelecionado,
                           selecionado: selecionado,
                           onTap: () => _viewModel.selecionarHorario(item),
                         );
@@ -190,15 +220,18 @@ class _DetalhesState extends State<Detalhes> {
   }
 }
 
-/// Um horário pré-cadastrado (RN04) que o aluno pode selecionar. Horários
-/// já reservados naquele dia aparecem desabilitados ("Ocupado").
+/// Um horário pré-cadastrado (RN04) que o aluno pode selecionar. A
+/// disponibilidade é calculada em função do fundo atualmente escolhido —
+/// o mesmo horário pode estar disponível num fundo e ocupado no outro.
 class _HorarioTile extends StatelessWidget {
   final HorarioDoDia item;
+  final CorFundoHorario fundoSelecionado;
   final bool selecionado;
   final VoidCallback onTap;
 
   const _HorarioTile({
     required this.item,
+    required this.fundoSelecionado,
     required this.selecionado,
     required this.onTap,
   });
@@ -206,7 +239,7 @@ class _HorarioTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final horario = item.horario;
-    final disponivel = item.disponivel;
+    final disponivel = item.disponivelPara(fundoSelecionado);
 
     return Opacity(
       opacity: disponivel ? 1 : 0.5,
@@ -230,32 +263,15 @@ class _HorarioTile extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${horario.horaInicial} às ${horario.horaFinal}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: selecionado ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                    if (horario.descricao.isNotEmpty)
-                      Text(
-                        horario.descricao,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: selecionado
-                              ? Colors.white70
-                              : Colors.grey.shade600,
-                        ),
-                      ),
-                  ],
+                child: Text(
+                  '${horario.horaInicial} às ${horario.horaFinal}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: selecionado ? Colors.white : Colors.black87,
+                  ),
                 ),
               ),
-              _CorFundoBadge(cor: horario.corFundo, destacado: selecionado),
-              if (!disponivel) ...[
-                const SizedBox(width: 8),
+              if (!disponivel)
                 Text(
                   'Ocupado',
                   style: TextStyle(
@@ -264,40 +280,8 @@ class _HorarioTile extends StatelessWidget {
                     color: selecionado ? Colors.white70 : Colors.red.shade300,
                   ),
                 ),
-              ],
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Exibe a [CorFundoHorario] do horário — atributo fixo do laboratório,
-/// não uma escolha do aluno (por isso não há mais botões "Preto"/"Branco").
-class _CorFundoBadge extends StatelessWidget {
-  final CorFundoHorario cor;
-  final bool destacado;
-
-  const _CorFundoBadge({required this.cor, required this.destacado});
-
-  @override
-  Widget build(BuildContext context) {
-    final ehPreto = cor == CorFundoHorario.preto;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: ehPreto ? Colors.black : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(20),
-        border: destacado ? Border.all(color: Colors.white70) : null,
-      ),
-      child: Text(
-        ehPreto ? 'Preto' : 'Branco',
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: ehPreto ? Colors.white : Colors.black87,
         ),
       ),
     );
