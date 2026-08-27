@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:agendapf/data/models/horario_model.dart';
+import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart';
 
 class Reservas extends StatefulWidget {
-  const Reservas({super.key});
+  final String alunoId;
+
+  /// Mesmo AgendaRepository usado no Calendário/Detalhes — garante que o
+  /// ReservasViewModel enxergue exatamente as mesmas reservas em memória
+  final AgendaRepository agendaRepository;
+
+  const Reservas({
+    super.key,
+    required this.alunoId,
+    required this.agendaRepository,
+  });
 
   @override
   State<Reservas> createState() => _ReservasState();
@@ -16,7 +27,11 @@ class _ReservasState extends State<Reservas> {
   @override
   void initState() {
     super.initState();
-    _viewModel = ReservasViewModel();
+    _viewModel = ReservasViewModel(
+      alunoId: widget.alunoId,
+      reservaService: widget.agendaRepository.reservaService,
+      horarioService: widget.agendaRepository.horarioService,
+    );
     _viewModel.addListener(_handleViewModelChange);
     _viewModel.carregarReservas();
   }
@@ -67,7 +82,6 @@ class _ReservasState extends State<Reservas> {
             ),
             const SizedBox(height: 12),
 
-            // Container Branco Principal
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -81,14 +95,12 @@ class _ReservasState extends State<Reservas> {
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    // Abas de Filtro
                     _FiltroTabs(
                       filtroAtual: _viewModel.filtroAtual,
                       onFiltroChanged: _viewModel.alterarFiltro,
                     ),
                     const SizedBox(height: 8),
 
-                    // Lista de Reservas
                     Expanded(
                       child: _viewModel.carregando
                           ? const Center(child: CircularProgressIndicator())
@@ -273,7 +285,6 @@ class ReservaCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
 
-                // Detalhes da Reserva
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,4 +394,3 @@ class _EmptyStateView extends StatelessWidget {
     );
   }
 }
-//OS HORÁRIOS NÃO SÃO DE UM ALUNO ESPECÍFICO, AINDA ESTÁ RETORNANDO TUDO

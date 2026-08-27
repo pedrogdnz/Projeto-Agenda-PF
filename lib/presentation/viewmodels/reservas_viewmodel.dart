@@ -16,10 +16,13 @@ class ReservaComHorario {
 enum TipoFiltroReserva { ativas, passadas }
 
 class ReservasViewModel extends ChangeNotifier {
+  final String alunoId;
+
   final ReservaService _reservaService;
   final HorarioService _horarioService;
 
   ReservasViewModel({
+    required this.alunoId,
     ReservaService? reservaService,
     HorarioService? horarioService,
   }) : _reservaService = reservaService ?? FakeReservaService(),
@@ -36,12 +39,14 @@ class ReservasViewModel extends ChangeNotifier {
     final hoje = DateTime.now();
     final inicioHoje = DateTime(hoje.year, hoje.month, hoje.day);
 
+    final doAluno = _reservas.where((r) => r.reserva.alunoId == alunoId);
+
     if (_filtroAtual == TipoFiltroReserva.ativas) {
-      return _reservas
+      return doAluno
           .where((r) => !r.reserva.dataReserva.isBefore(inicioHoje))
           .toList();
     } else {
-      return _reservas
+      return doAluno
           .where((r) => r.reserva.dataReserva.isBefore(inicioHoje))
           .toList();
     }
