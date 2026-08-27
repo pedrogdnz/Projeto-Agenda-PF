@@ -1,5 +1,3 @@
-// lib/presentation/views/login_view.dart
-
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
@@ -39,9 +37,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  /// Envia o formulário (Login ou Cadastro, dependendo do modo atual) e
-  /// redireciona conforme o tipo de usuário retornado: Aluno vai para o
-  /// Calendário (RF-navegação Aluno), Administrador vai para o Painel Admin.
   Future<void> _enviar() async {
     final sucesso = await _viewModel.enviar();
     if (!mounted) return;
@@ -66,17 +61,22 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    // Uma única instância de AgendaRepository (e dos services que ela
+    // encapsula) é criada aqui e reaproveitada por toda a sessão do aluno
+    // — Calendário, Detalhes e Reservas devem enxergar as mesmas reservas
+    // em memória, em vez de cada tela criar seu próprio fake isolado.
+    final agendaRepository = AgendaRepository(
+      dataBloqueadaService: FakeDataBloqueadaService(),
+      horarioService: FakeHorarioService(),
+      reservaService: FakeReservaService(),
+    );
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => CalendarPage(
-          viewModel: CalendarViewModel(
-            agendaRepository: AgendaRepository(
-              dataBloqueadaService: FakeDataBloqueadaService(),
-              horarioService: FakeHorarioService(),
-              reservaService: FakeReservaService(),
-            ),
-          ),
+          alunoId: resultado.aluno!.id,
+          viewModel: CalendarViewModel(agendaRepository: agendaRepository),
         ),
       ),
     );
@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    ehCadastro ? "Criar Conta" : "Login",
+                    ehCadastro ? "" : "Login Usuário",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
                   ),
 
@@ -138,7 +138,6 @@ class _LoginPageState extends State<LoginPage> {
                     key: _viewModel.formKey,
                     child: Column(
                       children: [
-                        // Campos exclusivos do Cadastro (RF01).
                         if (ehCadastro) ...[
                           CustomTextField(
                             requiredField: true,
@@ -213,4 +212,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-// TODO - ATUALIZAR AS TELAS INICIAIS COM O NOVO DESIGN DA SHAU.
