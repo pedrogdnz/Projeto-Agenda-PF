@@ -7,13 +7,12 @@ class CalendarViewModel extends ChangeNotifier {
   CalendarViewModel({required AgendaRepository agendaRepository})
     : _agendaRepository = agendaRepository;
 
+  AgendaRepository get agendaRepository => _agendaRepository;
+
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   DateTime? _dayToOpen;
 
-  /// Mensagem de erro exibida quando o aluno toca em um dia indisponível
-  /// (fora do período, bloqueado ou já no passado). É um valor "de disparo
-  /// único": a View deve chamar [limparErroSelecao] logo após exibi-la.
   String? _erroSelecao;
 
   Set<DateTime> _diasBloqueados = {};
@@ -47,9 +46,6 @@ class CalendarViewModel extends ChangeNotifier {
     return _agendaRepository.diaSelecionavel(dia, _diasBloqueados);
   }
 
-  /// Um único toque em um dia disponível já seleciona a data e sinaliza
-  /// para a View abrir a tela de Detalhes. Um toque em um dia indisponível
-  /// não navega — apenas expõe uma mensagem de erro via [erroSelecao].
   void selectDay(DateTime selectedDay, DateTime focusedDay) {
     if (!diaSelecionavel(selectedDay)) {
       _erroSelecao = 'Esta data não está disponível para reserva.';
