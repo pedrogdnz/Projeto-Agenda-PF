@@ -8,7 +8,13 @@ import 'package:table_calendar/table_calendar.dart';
 class CalendarPage extends StatefulWidget {
   final CalendarViewModel viewModel;
 
-  const CalendarPage({super.key, required this.viewModel});
+  final String alunoId;
+
+  const CalendarPage({
+    super.key,
+    required this.viewModel,
+    required this.alunoId,
+  });
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
@@ -50,7 +56,13 @@ class _CalendarPageState extends State<CalendarPage> {
         if (!mounted) return;
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => Detalhes(data: dayToOpen)),
+          MaterialPageRoute(
+            builder: (_) => Detalhes(
+              data: dayToOpen,
+              alunoId: widget.alunoId,
+              agendaRepository: _viewModel.agendaRepository,
+            ),
+          ),
         );
       });
     }
@@ -67,9 +79,14 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   void _abrirReservas() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const Reservas()));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Reservas(
+          alunoId: widget.alunoId,
+          agendaRepository: _viewModel.agendaRepository,
+        ),
+      ),
+    );
   }
 
   void _abrirPerfil() {
@@ -127,8 +144,6 @@ class _CalendarPageState extends State<CalendarPage> {
 
                   availableGestures: AvailableGestures.horizontalSwipe,
 
-                  // 1. ADICIONE ESTA LINHA:
-                  // Informa ao TableCalendar quais dias podem ser clicados
                   enabledDayPredicate: (day) => _viewModel.diaSelecionavel(day),
 
                   selectedDayPredicate: (day) {
