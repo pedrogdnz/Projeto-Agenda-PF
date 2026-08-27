@@ -140,7 +140,7 @@ class AgendaRepository {
 
     return _reservaService.criar(
       Reserva(
-        id: '',
+        id: '', // O SERVICE QUE CRIA O ID
         alunoId: alunoId,
         horarioId: horarioId,
         dataReserva: diaNormalizado,

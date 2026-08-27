@@ -1,68 +1,92 @@
-// lib/presentation/viewmodels/
-
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/horario_model.dart';
+import 'package:agendapf/data/repositories/agenda_repository.dart';
 
 class DetalhesViewModel extends ChangeNotifier {
   final DateTime data;
+  final String alunoId;
+  final AgendaRepository _agendaRepository;
+
+  //TODO - TA FALTANDO BOTAR O CAMPO DE DESCRIÇÃO NO MODEL
 
   final descricaoController = TextEditingController();
 
-  DetalhesViewModel({required this.data});
+  DetalhesViewModel({
+    required this.data,
+    required this.alunoId,
+    required AgendaRepository agendaRepository,
+  }) : _agendaRepository = agendaRepository;
 
-  TimeOfDay? _horaInicialSelecionada;
-  TimeOfDay? _horaFinalSelecionada;
-  CorFundoHorario _corFundoSelecionada = CorFundoHorario.preto;
+  bool _carregandoHorarios = true;
+  List<HorarioDoDia> _horariosDoDia = [];
+  Horario? _horarioSelecionado;
 
-  TimeOfDay? get horaInicialSelecionada => _horaInicialSelecionada;
-  TimeOfDay? get horaFinalSelecionada => _horaFinalSelecionada;
-  CorFundoHorario get corFundoSelecionada => _corFundoSelecionada;
+  bool _confirmando = false;
+  String? _erro;
+  bool _reservaConfirmada = false;
 
-  void selecionarHoraInicial(TimeOfDay horario) {
-    _horaInicialSelecionada = horario;
+  bool get carregandoHorarios => _carregandoHorarios;
+  List<HorarioDoDia> get horariosDoDia => _horariosDoDia;
+  Horario? get horarioSelecionado => _horarioSelecionado;
+  bool get confirmando => _confirmando;
+  String? get erro => _erro;
+  bool get reservaConfirmada => _reservaConfirmada;
 
-    // Se a hora final já escolhida deixou de ser válida em relação à nova
-    // hora inicial (antes ou igual a ela), limpa para forçar nova escolha.
-    if (_horaFinalSelecionada != null &&
-        !_horaEhDepois(_horaFinalSelecionada!, horario)) {
-      _horaFinalSelecionada = null;
-    }
+  Future<void> carregarHorarios() async {
+    _carregandoHorarios = true;
+    notifyListeners();
 
+    _horariosDoDia = await _agendaRepository.buscarHorariosDoDia(data);
+
+    _carregandoHorarios = false;
     notifyListeners();
   }
 
-  void selecionarHoraFinal(TimeOfDay horario) {
-    _horaFinalSelecionada = horario;
+  void selecionarHorario(HorarioDoDia horarioDoDia) {
+    if (!horarioDoDia.disponivel) return;
+
+    _horarioSelecionado = horarioDoDia.horario;
     notifyListeners();
   }
 
-  void selecionarCorFundo(CorFundoHorario cor) {
-    _corFundoSelecionada = cor;
-    notifyListeners();
-  }
-
-  /// Retorna true se [horario] for estritamente posterior a [referencia].
-  bool _horaEhDepois(TimeOfDay horario, TimeOfDay referencia) {
-    final minutosHorario = horario.hour * 60 + horario.minute;
-    final minutosReferencia = referencia.hour * 60 + referencia.minute;
-    return minutosHorario > minutosReferencia;
-  }
-
-  /// Valida a seleção de horário inicial/final (RN04).
   String? validarSelecao() {
-    if (_horaInicialSelecionada == null) {
-      return 'Selecione o horário inicial';
+    if (_horarioSelecionado == null) {
+      return 'Selecione um horário disponível';
     }
-
-    if (_horaFinalSelecionada == null) {
-      return 'Selecione o horário final';
-    }
-
-    if (!_horaEhDepois(_horaFinalSelecionada!, _horaInicialSelecionada!)) {
-      return 'O horário final deve ser depois do horário inicial';
-    }
-
     return null;
+  }
+
+  Future<bool> confirmarReserva() async {
+    final erroValidacao = validarSelecao();
+    if (erroValidacao != null) {
+      _erro = erroValidacao;
+      notifyListeners();
+      return false;
+    }
+
+    _confirmando = true;
+    _erro = null;
+    notifyListeners();
+
+    try {
+      await _agendaRepository.criarReserva(
+        alunoId: alunoId,
+        horarioId: _horarioSelecionado!.id,
+        data: data,
+      );
+      _reservaConfirmada = true;
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      return false;
+    } finally {
+      _confirmando = false;
+      notifyListeners();
+    }
+  }
+
+  void limparErro() {
+    _erro = null;
   }
 
   @override
