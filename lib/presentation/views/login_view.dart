@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    ehCadastro ? "" : "Login Usuário",
+                    ehCadastro ? "Criar Conta" : "Login",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
                   ),
 
@@ -213,3 +213,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+// TODO - ATUALIZAR AS TELAS INICIAIS COM O NOVO DESIGN DA SHAU.
