@@ -189,4 +189,41 @@ class AgendaRepository {
     final minuto = partes.length > 1 ? int.parse(partes[1]) : 0;
     return DateTime(dia.year, dia.month, dia.day, hora, minuto);
   }
+
+  Future<void> cancelarReserva({
+    required String reservaId,
+    required String alunoIdSolicitante,
+  }) async {
+    final reserva = await _reservaService.buscarPorId(reservaId);
+
+    if (reserva == null) {
+      throw const ReservaNaoEncontradaException();
+    }
+
+    if (reserva.alunoId != alunoIdSolicitante) {
+      throw const ReservaNaoPertenceAoAlunoException();
+    }
+
+    await _reservaService.excluir(reservaId);
+  }
+}
+
+class ReservaNaoEncontradaException implements Exception {
+  final String mensagem;
+  const ReservaNaoEncontradaException([
+    this.mensagem = 'Reserva não encontrada.',
+  ]);
+
+  @override
+  String toString() => mensagem;
+}
+
+class ReservaNaoPertenceAoAlunoException implements Exception {
+  final String mensagem;
+  const ReservaNaoPertenceAoAlunoException([
+    this.mensagem = 'Esta reserva não pertence a este aluno.',
+  ]);
+
+  @override
+  String toString() => mensagem;
 }

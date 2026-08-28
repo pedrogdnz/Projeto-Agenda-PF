@@ -7,8 +7,6 @@ import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 class Reservas extends StatefulWidget {
   final String alunoId;
 
-  /// Mesmo AgendaRepository usado no Calendário/Detalhes — garante que o
-  /// ReservasViewModel enxergue exatamente as mesmas reservas em memória
   final AgendaRepository agendaRepository;
 
   const Reservas({
@@ -29,9 +27,9 @@ class _ReservasState extends State<Reservas> {
     super.initState();
     _viewModel = ReservasViewModel(
       alunoId: widget.alunoId,
-      reservaService: widget.agendaRepository.reservaService,
-      horarioService: widget.agendaRepository.horarioService,
+      agendaRepository: widget.agendaRepository,
     );
+
     _viewModel.addListener(_handleViewModelChange);
     _viewModel.carregarReservas();
   }
@@ -153,9 +151,17 @@ class _ReservasState extends State<Reservas> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              _viewModel.cancelarReserva(reservaId);
+              final sucesso = await _viewModel.cancelarReserva(reservaId);
+              if (!sucesso && mounted) {
+                final erro = _viewModel.erro;
+                if (erro != null) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(erro)));
+                }
+              }
             },
             child: const Text(
               'Sim, cancelar',

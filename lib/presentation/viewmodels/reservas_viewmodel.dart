@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
-import 'package:agendapf/data/services/abstract/horario_data_source.dart';
-import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
-import 'package:agendapf/data/services/fake/fake_horario_service.dart';
-import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
+import 'package:agendapf/data/repositories/agenda_repository.dart';
 
 class ReservaComHorario {
   final Reserva reserva;
@@ -17,23 +14,21 @@ enum TipoFiltroReserva { ativas, passadas }
 
 class ReservasViewModel extends ChangeNotifier {
   final String alunoId;
-
-  final ReservaService _reservaService;
-  final HorarioService _horarioService;
+  final AgendaRepository _agendaRepository;
 
   ReservasViewModel({
     required this.alunoId,
-    ReservaService? reservaService,
-    HorarioService? horarioService,
-  }) : _reservaService = reservaService ?? FakeReservaService(),
-       _horarioService = horarioService ?? FakeHorarioService();
+    required AgendaRepository agendaRepository,
+  }) : _agendaRepository = agendaRepository;
 
   bool _carregando = true;
   List<ReservaComHorario> _reservas = [];
   TipoFiltroReserva _filtroAtual = TipoFiltroReserva.ativas;
+  String? _erro;
 
   bool get carregando => _carregando;
   TipoFiltroReserva get filtroAtual => _filtroAtual;
+  String? get erro => _erro;
 
   List<ReservaComHorario> get reservasFiltradas {
     final hoje = DateTime.now();
@@ -63,8 +58,8 @@ class ReservasViewModel extends ChangeNotifier {
     _carregando = true;
     notifyListeners();
 
-    final reservas = await _reservaService.buscarTodas();
-    final horarios = await _horarioService.buscarTodos();
+    final reservas = await _agendaRepository.reservaService.buscarTodas();
+    final horarios = await _agendaRepository.horarioService.buscarTodos();
     final horariosPorId = {for (final h in horarios) h.id: h};
 
     _reservas = reservas
@@ -80,8 +75,20 @@ class ReservasViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> cancelarReserva(String id) async {
-    await _reservaService.excluir(id);
-    await carregarReservas();
+  Future<bool> cancelarReserva(String id) async {
+    _erro = null;
+
+    try {
+      await _agendaRepository.cancelarReserva(
+        reservaId: id,
+        alunoIdSolicitante: alunoId,
+      );
+      await carregarReservas();
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      notifyListeners();
+      return false;
+    }
   }
 }
