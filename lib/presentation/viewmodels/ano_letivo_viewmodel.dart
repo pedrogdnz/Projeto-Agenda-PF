@@ -1,3 +1,4 @@
+import 'package:agendapf/data/models/enum/motivo_bloqueio.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/enum/tipo_configuracao_ano_letivo.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
@@ -11,7 +12,7 @@ class AnoLetivoViewModel extends ChangeNotifier {
   DateTime _focusedDay = DateTime.now();
   TipoConfiguracaoAnoLetivo? _modoAtivo;
   final Set<DateTime> _datasSelecionadas = {};
-  Set<DateTime> _diasBloqueados = {};
+  Map<DateTime, MotivoBloqueio> _diasBloqueados = {};
 
   bool _carregandoDiasBloqueados = true;
   bool _confirmando = false;
@@ -21,7 +22,8 @@ class AnoLetivoViewModel extends ChangeNotifier {
   DateTime get focusedDay => _focusedDay;
   TipoConfiguracaoAnoLetivo? get modoAtivo => _modoAtivo;
   Set<DateTime> get datasSelecionadas => Set.unmodifiable(_datasSelecionadas);
-  Set<DateTime> get diasBloqueados => Set.unmodifiable(_diasBloqueados);
+  Map<DateTime, MotivoBloqueio> get diasBloqueados =>
+      Map.unmodifiable(_diasBloqueados);
   bool get carregandoDiasBloqueados => _carregandoDiasBloqueados;
   bool get confirmando => _confirmando;
   String? get erro => _erro;
@@ -49,7 +51,6 @@ class AnoLetivoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  ///TODO - RF ainda não implementada — apenas sinaliza para a View exibir o aviso.
   void tentarAbrirHorariosGerais() {
     _mensagemInfo = 'Tela ainda não implementada';
     notifyListeners();
@@ -75,8 +76,8 @@ class AnoLetivoViewModel extends ChangeNotifier {
 
     final diaNormalizado = _normalizarData(dia);
     if (!diaSelecionavel(diaNormalizado)) return;
-    if (_diasBloqueados.contains(diaNormalizado)) return;
-    if (_datasSelecionadas.contains(diaNormalizado)) return;
+    if (_diasBloqueados.containsKey(diaNormalizado)) return;
+    if (_diasBloqueados.containsKey(diaNormalizado)) return;
 
     _datasSelecionadas.add(diaNormalizado);
     notifyListeners();
@@ -87,7 +88,7 @@ class AnoLetivoViewModel extends ChangeNotifier {
 
     final diaNormalizado = _normalizarData(dia);
     if (!diaSelecionavel(diaNormalizado)) return;
-    if (_diasBloqueados.contains(diaNormalizado)) return;
+    if (_diasBloqueados.containsKey(diaNormalizado)) return;
 
     if (_datasSelecionadas.contains(diaNormalizado)) {
       _datasSelecionadas.remove(diaNormalizado);
@@ -109,12 +110,19 @@ class AnoLetivoViewModel extends ChangeNotifier {
       return false;
     }
 
+    final motivo = _modoAtivo == TipoConfiguracaoAnoLetivo.ferias
+        ? MotivoBloqueio.ferias
+        : MotivoBloqueio.feriados;
+
     _confirmando = true;
     _erro = null;
     notifyListeners();
 
     try {
-      await _agendaRepository.bloquearDatas(_datasSelecionadas.toList());
+      await _agendaRepository.bloquearDatas(
+        _datasSelecionadas.toList(),
+        motivo,
+      );
       _datasSelecionadas.clear();
       _modoAtivo = null;
       await carregarDiasBloqueados();

@@ -152,7 +152,7 @@ class _DetalhesState extends State<Detalhes> {
                   : _viewModel.horariosDoDia.isEmpty
                   ? const EmptyStateView(
                       icon: Icons.access_time_outlined,
-                      message: 'Nenhum horário disponível para esta data',
+                      message: 'Nenhum horário disponível para hoje.',
                     )
                   : ListView.separated(
                       itemCount: _viewModel.horariosDoDia.length,
@@ -162,7 +162,6 @@ class _DetalhesState extends State<Detalhes> {
                         final selecionado =
                             _viewModel.horarioSelecionado == item.horario;
 
-                        // Se estiver usando o widget importado, remova o sublinhado (_)
                         return HorarioTile(
                           item: item,
                           fundoSelecionado: _viewModel.fundoSelecionado,

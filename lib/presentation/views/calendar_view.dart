@@ -1,3 +1,4 @@
+import 'package:agendapf/presentation/utils/motivo_bloqueio_cor.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/views/detalhes_view.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
@@ -134,6 +135,28 @@ class _CalendarPageState extends State<CalendarPage> {
                 }
 
                 return TableCalendar(
+                  calendarBuilders: CalendarBuilders(
+                    disabledBuilder: (context, day, focusedDay) {
+                      final motivo = _viewModel.motivoBloqueioPara(day);
+                      if (motivo == null) return null;
+
+                      return Container(
+                        margin: const EdgeInsets.all(4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: corParaMotivoBloqueio(motivo),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${day.day}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   locale: 'pt_BR',
 
                   firstDay: kFirstDay,

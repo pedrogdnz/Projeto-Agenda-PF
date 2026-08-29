@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Alternância em formato de abas (ChoiceChip) entre duas ou mais opções,
-/// destacando a selecionada em preto. funciona com qualquer tipo T.
 class FiltroTabs<T> extends StatelessWidget {
   final T filtroAtual;
   final Map<T, String> opcoes;

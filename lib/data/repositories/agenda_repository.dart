@@ -1,4 +1,5 @@
 import 'package:agendapf/data/models/data_bloqueada_model.dart';
+import 'package:agendapf/data/models/enum/motivo_bloqueio.dart';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
@@ -6,9 +7,6 @@ import 'package:agendapf/data/services/abstract/horario_data_source.dart';
 import 'package:agendapf/data/services/abstract/data_bloqueada_source.dart';
 import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
 
-/// Um horário do dia, com a disponibilidade calculada PARA CADA FUNDO
-/// separadamente — o mesmo horário pode estar ocupado no fundo preto e
-/// livre no branco ao mesmo tempo.
 class HorarioDoDia {
   final Horario horario;
   final Map<CorFundoHorario, bool> disponibilidadePorFundo;
@@ -71,25 +69,34 @@ class AgendaRepository {
   ReservaService get reservaService => _reservaService;
   DataBloqueadaService get dataBloqueadaService => _dataBloqueadaService;
 
-  Future<Set<DateTime>> buscarDiasBloqueados() async {
+  Future<Map<DateTime, MotivoBloqueio>> buscarDiasBloqueados() async {
     final registros = await _dataBloqueadaService.buscarTodas();
-    return registros.map((d) => _normalizarData(d.data)).toSet();
+    return {
+      for (final registro in registros)
+        _normalizarData(registro.data): registro.motivo,
+    };
   }
 
-  Future<void> bloquearDatas(List<DateTime> datas) async {
+  Future<void> bloquearDatas(
+    List<DateTime> datas,
+    MotivoBloqueio motivo,
+  ) async {
     for (final data in datas) {
       await _dataBloqueadaService.criar(
-        DataBloqueada(id: '', data: _normalizarData(data)),
+        DataBloqueada(id: '', data: _normalizarData(data), motivo: motivo),
       );
     }
   }
 
-  bool diaSelecionavel(DateTime dia, Set<DateTime> diasBloqueados) {
+  bool diaSelecionavel(
+    DateTime dia,
+    Map<DateTime, MotivoBloqueio> diasBloqueados,
+  ) {
     final hoje = _normalizarData(DateTime.now());
     final diaNormalizado = _normalizarData(dia);
 
     if (diaNormalizado.isBefore(hoje)) return false; // RN04
-    if (diasBloqueados.contains(diaNormalizado)) return false; // RN05
+    if (diasBloqueados.containsKey(diaNormalizado)) return false; // RN05
 
     return true;
   }
@@ -105,7 +112,6 @@ class AgendaRepository {
     final horarios = await _horarioService.buscarTodos();
     final reservas = await _reservaService.buscarTodas();
 
-    // Fundos já ocupados por horário, só considerando reservas do dia.
     final fundosOcupadosPorHorario = <String, Set<CorFundoHorario>>{};
     for (final reserva in reservas) {
       if (_normalizarData(reserva.dataReserva) != diaNormalizado) continue;
@@ -141,11 +147,6 @@ class AgendaRepository {
         .toList();
   }
 
-  /// Cria uma [Reserva] vinculando o [alunoId] a um [Horario] pré-cadastrado,
-  /// numa [data] específica, com o [corFundo] e a [descricao] escolhidos
-  /// pelo próprio aluno. A checagem de conflito é por (horário, data, fundo)
-  /// — não por (horário, data) — para permitir que dois alunos ocupem o
-  /// mesmo horário no mesmo dia, desde que em fundos diferentes.
   Future<Reserva> criarReserva({
     required String alunoId,
     required String horarioId,
@@ -179,7 +180,7 @@ class AgendaRepository {
 
     return _reservaService.criar(
       Reserva(
-        id: '', // O SERVICE QUE CRIA O ID
+        id: '',
         alunoId: alunoId,
         horarioId: horarioId,
         dataReserva: diaNormalizado,

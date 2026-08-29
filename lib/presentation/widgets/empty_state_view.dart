@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Estado vazio genérico usado em telas de listagem (reservas, horários
-/// do dia, etc.) — evita duplicar o mesmo "ícone + texto cinza
-/// centralizado" em cada tela que pode não ter itens para mostrar.
 class EmptyStateView extends StatelessWidget {
   final IconData icon;
   final String message;

@@ -1,3 +1,5 @@
+import 'package:agendapf/data/models/enum/motivo_bloqueio.dart';
+import 'package:agendapf/presentation/utils/motivo_bloqueio_cor.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/core/utils/utils.dart';
 import 'package:agendapf/data/models/enum/tipo_configuracao_ano_letivo.dart';
@@ -12,7 +14,7 @@ class AnoLetivoCalendar extends StatefulWidget {
   final DateTime focusedDay;
   final TipoConfiguracaoAnoLetivo? modoAtivo;
   final Set<DateTime> datasSelecionadas;
-  final Set<DateTime> diasBloqueados;
+  final Map<DateTime, MotivoBloqueio> diasBloqueados;
   final bool Function(DateTime dia) diaSelecionavel;
   final ValueChanged<DateTime> onDataArrastada;
   final ValueChanged<DateTime> onDataTocada;
@@ -75,9 +77,12 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
     if (widget.datasSelecionadas.contains(diaNormalizado)) {
       return _modoFerias ? Colors.red : Colors.blue;
     }
-    if (widget.diasBloqueados.contains(diaNormalizado)) {
-      return Colors.grey.shade400;
+
+    final motivoExistente = widget.diasBloqueados[diaNormalizado];
+    if (motivoExistente != null) {
+      return corParaMotivoBloqueio(motivoExistente);
     }
+
     return null;
   }
 

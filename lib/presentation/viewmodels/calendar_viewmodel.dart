@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:agendapf/data/models/enum/motivo_bloqueio.dart'; // novo import
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 
 class CalendarViewModel extends ChangeNotifier {
@@ -15,7 +16,7 @@ class CalendarViewModel extends ChangeNotifier {
 
   String? _erroSelecao;
 
-  Set<DateTime> _diasBloqueados = {};
+  Map<DateTime, MotivoBloqueio> _diasBloqueados = {};
   bool _carregandoDiasBloqueados = true;
 
   List<HorarioDoDia> _horariosDoDiaSelecionado = [];
@@ -25,12 +26,14 @@ class CalendarViewModel extends ChangeNotifier {
   DateTime? get selectedDay => _selectedDay;
   DateTime? get dayToOpen => _dayToOpen;
   String? get erroSelecao => _erroSelecao;
-
   bool get carregandoDiasBloqueados => _carregandoDiasBloqueados;
-
   List<HorarioDoDia> get horariosDoDiaSelecionado => _horariosDoDiaSelecionado;
-
   bool get carregandoHorarios => _carregandoHorarios;
+  Map<DateTime, MotivoBloqueio> get diasBloqueados => _diasBloqueados;
+
+  MotivoBloqueio? motivoBloqueioPara(DateTime dia) {
+    return _diasBloqueados[DateTime(dia.year, dia.month, dia.day)];
+  }
 
   Future<void> carregarDiasBloqueados() async {
     _carregandoDiasBloqueados = true;
