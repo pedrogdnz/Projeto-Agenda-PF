@@ -4,12 +4,14 @@ class AdminMenuButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool ativo;
 
   const AdminMenuButton({
     super.key,
     required this.icon,
     required this.label,
     required this.onTap,
+    this.ativo = false,
   });
 
   @override
@@ -17,7 +19,7 @@ class AdminMenuButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Material(
-        color: Colors.black,
+        color: ativo ? const Color(0xFF3F51B5) : Colors.black, // ALTERADO
         borderRadius: BorderRadius.circular(15),
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
@@ -38,7 +40,10 @@ class AdminMenuButton extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: Colors.white70),
+                Icon(
+                  ativo ? Icons.check_circle : Icons.chevron_right,
+                  color: Colors.white70,
+                ),
               ],
             ),
           ),

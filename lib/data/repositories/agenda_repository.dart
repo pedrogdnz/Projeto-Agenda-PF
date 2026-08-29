@@ -1,3 +1,4 @@
+import 'package:agendapf/data/models/data_bloqueada_model.dart';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
@@ -68,10 +69,19 @@ class AgendaRepository {
 
   HorarioService get horarioService => _horarioService;
   ReservaService get reservaService => _reservaService;
+  DataBloqueadaService get dataBloqueadaService => _dataBloqueadaService;
 
   Future<Set<DateTime>> buscarDiasBloqueados() async {
     final registros = await _dataBloqueadaService.buscarTodas();
     return registros.map((d) => _normalizarData(d.data)).toSet();
+  }
+
+  Future<void> bloquearDatas(List<DateTime> datas) async {
+    for (final data in datas) {
+      await _dataBloqueadaService.criar(
+        DataBloqueada(id: '', data: _normalizarData(data)),
+      );
+    }
   }
 
   bool diaSelecionavel(DateTime dia, Set<DateTime> diasBloqueados) {

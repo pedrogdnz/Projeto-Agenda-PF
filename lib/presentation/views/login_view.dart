@@ -60,15 +60,31 @@ class _LoginPageState extends State<LoginPage> {
       );
       return;
     }
-
-    // Uma única instância de AgendaRepository (e dos services que ela
-    // encapsula) é criada aqui e reaproveitada por toda a sessão do aluno
-    // — Calendário, Detalhes e Reservas devem enxergar as mesmas reservas
-    // em memória, em vez de cada tela criar seu próprio fake isolado.
     final agendaRepository = AgendaRepository(
       dataBloqueadaService: FakeDataBloqueadaService(),
       horarioService: FakeHorarioService(),
       reservaService: FakeReservaService(),
+    );
+
+    if (resultado.ehAdministrador) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              AdminHomePage(agendaRepository: agendaRepository),
+        ),
+      );
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CalendarPage(
+          alunoId: resultado.aluno!.id,
+          viewModel: CalendarViewModel(agendaRepository: agendaRepository),
+        ),
+      ),
     );
 
     Navigator.pushReplacement(
