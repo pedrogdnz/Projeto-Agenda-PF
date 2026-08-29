@@ -53,13 +53,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final resultado = _viewModel.resultado!;
 
-    if (resultado.ehAdministrador) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const AdminHomePage()),
-      );
-      return;
-    }
+    // Instancia o repositório que será usado tanto pelo Admin quanto pelo Aluno
     final agendaRepository = AgendaRepository(
       dataBloqueadaService: FakeDataBloqueadaService(),
       horarioService: FakeHorarioService(),
@@ -76,16 +70,6 @@ class _LoginPageState extends State<LoginPage> {
       );
       return;
     }
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CalendarPage(
-          alunoId: resultado.aluno!.id,
-          viewModel: CalendarViewModel(agendaRepository: agendaRepository),
-        ),
-      ),
-    );
 
     Navigator.pushReplacement(
       context,

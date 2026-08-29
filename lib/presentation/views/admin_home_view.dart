@@ -46,6 +46,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 label: 'Configuração do Ano Letivo',
                 onTap: () => _abrirConfiguracaoAnoLetivo(context),
               ),
+              const SizedBox(height: 16),
 
               _AdminMenuButton(
                 icon: Icons.people_alt_outlined,
