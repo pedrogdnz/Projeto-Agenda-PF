@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Agenda - Processos Fotográficos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorScheme: ColorScheme.light(primary: Colors.black)),
       home: LoginPage(),
