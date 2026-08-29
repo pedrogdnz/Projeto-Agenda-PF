@@ -132,7 +132,7 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
         lastDay: kLastDay,
         focusedDay: widget.focusedDay,
         calendarFormat: CalendarFormat.month,
-        availableGestures: AvailableGestures.horizontalSwipe,
+        availableGestures: AvailableGestures.none,
         enabledDayPredicate: (day) => widget.diaSelecionavel(day),
         selectedDayPredicate: (_) => false,
         onDaySelected: (selectedDay, focusedDay) {
