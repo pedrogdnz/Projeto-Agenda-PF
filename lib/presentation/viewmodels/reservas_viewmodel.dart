@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
-import 'package:agendapf/data/services/abstract/horario_data_source.dart';
-import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
-import 'package:agendapf/data/services/fake/fake_horario_service.dart';
-import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
-
+import 'package:agendapf/data/repositories/agenda_repository.dart';
+// TODO - O USUARIO PODE BOTAR QUANTOS CARACTERES ELE QUISER, AI QUEBRA 
 class ReservaComHorario {
   final Reserva reserva;
   final Horario? horario;
@@ -16,32 +13,35 @@ class ReservaComHorario {
 enum TipoFiltroReserva { ativas, passadas }
 
 class ReservasViewModel extends ChangeNotifier {
-  final ReservaService _reservaService;
-  final HorarioService _horarioService;
+  final String alunoId;
+  final AgendaRepository _agendaRepository;
 
   ReservasViewModel({
-    ReservaService? reservaService,
-    HorarioService? horarioService,
-  }) : _reservaService = reservaService ?? FakeReservaService(),
-       _horarioService = horarioService ?? FakeHorarioService();
+    required this.alunoId,
+    required AgendaRepository agendaRepository,
+  }) : _agendaRepository = agendaRepository;
 
   bool _carregando = true;
   List<ReservaComHorario> _reservas = [];
   TipoFiltroReserva _filtroAtual = TipoFiltroReserva.ativas;
+  String? _erro;
 
   bool get carregando => _carregando;
   TipoFiltroReserva get filtroAtual => _filtroAtual;
+  String? get erro => _erro;
 
   List<ReservaComHorario> get reservasFiltradas {
     final hoje = DateTime.now();
     final inicioHoje = DateTime(hoje.year, hoje.month, hoje.day);
 
+    final doAluno = _reservas.where((r) => r.reserva.alunoId == alunoId);
+
     if (_filtroAtual == TipoFiltroReserva.ativas) {
-      return _reservas
+      return doAluno
           .where((r) => !r.reserva.dataReserva.isBefore(inicioHoje))
           .toList();
     } else {
-      return _reservas
+      return doAluno
           .where((r) => r.reserva.dataReserva.isBefore(inicioHoje))
           .toList();
     }
@@ -58,8 +58,8 @@ class ReservasViewModel extends ChangeNotifier {
     _carregando = true;
     notifyListeners();
 
-    final reservas = await _reservaService.buscarTodas();
-    final horarios = await _horarioService.buscarTodos();
+    final reservas = await _agendaRepository.reservaService.buscarTodas();
+    final horarios = await _agendaRepository.horarioService.buscarTodos();
     final horariosPorId = {for (final h in horarios) h.id: h};
 
     _reservas = reservas
@@ -75,8 +75,20 @@ class ReservasViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> cancelarReserva(String id) async {
-    await _reservaService.excluir(id);
-    await carregarReservas();
+  Future<bool> cancelarReserva(String id) async {
+    _erro = null;
+
+    try {
+      await _agendaRepository.cancelarReserva(
+        reservaId: id,
+        alunoIdSolicitante: alunoId,
+      );
+      await carregarReservas();
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      notifyListeners();
+      return false;
+    }
   }
 }

@@ -1,15 +1,23 @@
-// lib/presentation/views/
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:agendapf/data/models/horario_model.dart';
+import 'package:agendapf/presentation/widgets/empty_state_view.dart';
+import 'package:agendapf/presentation/widgets/horario_tile.dart';
+import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
+import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/detalhes_viewmodel.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
 
 class Detalhes extends StatefulWidget {
-  const Detalhes({super.key, required this.data});
+  const Detalhes({
+    super.key,
+    required this.data,
+    required this.alunoId,
+    required this.agendaRepository,
+  });
 
   final DateTime data;
+  final String alunoId;
+  final AgendaRepository agendaRepository;
 
   @override
   State<Detalhes> createState() => _DetalhesState();
@@ -21,11 +29,29 @@ class _DetalhesState extends State<Detalhes> {
   @override
   void initState() {
     super.initState();
-    _viewModel = DetalhesViewModel(data: widget.data);
+    _viewModel = DetalhesViewModel(
+      data: widget.data,
+      alunoId: widget.alunoId,
+      agendaRepository: widget.agendaRepository,
+    );
     _viewModel.addListener(_handleViewModelChange);
+    _viewModel.carregarHorarios();
   }
 
   void _handleViewModelChange() {
+    final erro = _viewModel.erro;
+
+    if (erro != null) {
+      _viewModel.limparErro();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(erro)));
+      });
+    }
+
     setState(() {});
   }
 
@@ -36,39 +62,18 @@ class _DetalhesState extends State<Detalhes> {
     super.dispose();
   }
 
-  Future<void> _selecionarHoraInicial() async {
-    final TimeOfDay? horario = await showTimePicker(
-      context: context,
-      initialTime: _viewModel.horaInicialSelecionada ?? TimeOfDay.now(),
-    );
+  Future<void> _confirmar() async {
+    final sucesso = await _viewModel.confirmarReserva();
+    if (!mounted || !sucesso) return;
 
-    if (horario != null) {
-      _viewModel.selecionarHoraInicial(horario);
-    }
-  }
-
-  Future<void> _selecionarHoraFinal() async {
-    final TimeOfDay? horario = await showTimePicker(
-      context: context,
-      initialTime: _viewModel.horaFinalSelecionada ?? TimeOfDay.now(),
-    );
-
-    if (horario != null) {
-      _viewModel.selecionarHoraFinal(horario);
-    }
-  }
-
-  void _confirmar() {
-    final erro = _viewModel.validarSelecao();
-
-    if (erro != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(erro)));
-      return;
-    }
-
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const Reservas()),
+      MaterialPageRoute(
+        builder: (context) => Reservas(
+          alunoId: widget.alunoId,
+          agendaRepository: widget.agendaRepository,
+        ),
+      ),
     );
   }
 
@@ -106,79 +111,68 @@ class _DetalhesState extends State<Detalhes> {
 
             const SizedBox(height: 20),
 
+            const Text("Fundo:", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Center(child: Text('Branco')),
+                    selected:
+                        _viewModel.fundoSelecionado == CorFundoHorario.branco,
+                    onSelected: (_) =>
+                        _viewModel.selecionarFundo(CorFundoHorario.branco),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ChoiceChip(
+                    label: const Center(child: Text('Preto')),
+                    selected:
+                        _viewModel.fundoSelecionado == CorFundoHorario.preto,
+                    onSelected: (_) =>
+                        _viewModel.selecionarFundo(CorFundoHorario.preto),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
             const Text(
               "Horário:",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 8),
+            Expanded(
+              child: _viewModel.carregandoHorarios
+                  ? const Center(child: CircularProgressIndicator())
+                  : _viewModel.horariosDoDia.isEmpty
+                  ? const EmptyStateView(
+                      icon: Icons.access_time_outlined,
+                      message: 'Nenhum horário disponível para hoje.',
+                    )
+                  : ListView.separated(
+                      itemCount: _viewModel.horariosDoDia.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final item = _viewModel.horariosDoDia[index];
+                        final selecionado =
+                            _viewModel.horarioSelecionado == item.horario;
 
-            Row(
-              children: [
-                Expanded(
-                  child: _CampoHorario(
-                    label: 'Início',
-                    horario: _viewModel.horaInicialSelecionada,
-                    onTap: _selecionarHoraInicial,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _CampoHorario(
-                    label: 'Fim',
-                    horario: _viewModel.horaFinalSelecionada,
-                    onTap: _selecionarHoraFinal,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Cor do fundo:",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-
-            Row(
-              children: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor:
-                        _viewModel.corFundoSelecionada == CorFundoHorario.preto
-                        ? Colors.black
-                        : null,
-                  ),
-                  onPressed: () {
-                    _viewModel.selecionarCorFundo(CorFundoHorario.preto);
-                  },
-                  child: Text(
-                    "Preto",
-                    style: TextStyle(
-                      color:
-                          _viewModel.corFundoSelecionada ==
-                              CorFundoHorario.preto
-                          ? Colors.white
-                          : Colors.black,
+                        return HorarioTile(
+                          item: item,
+                          fundoSelecionado: _viewModel.fundoSelecionado,
+                          selecionado: selecionado,
+                          onTap: () => _viewModel.selecionarHorario(item),
+                        );
+                      },
                     ),
-                  ),
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor:
-                        _viewModel.corFundoSelecionada == CorFundoHorario.branco
-                        ? Colors.grey.shade300
-                        : null,
-                  ),
-                  onPressed: () {
-                    _viewModel.selecionarCorFundo(CorFundoHorario.branco);
-                  },
-                  child: const Text("Branco"),
-                ),
-              ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
             Row(
               children: const [
@@ -189,6 +183,8 @@ class _DetalhesState extends State<Detalhes> {
                 Text("*Opcional", style: TextStyle(fontSize: 12)),
               ],
             ),
+
+            const SizedBox(height: 6),
 
             TextFormField(
               controller: _viewModel.descricaoController,
@@ -205,11 +201,20 @@ class _DetalhesState extends State<Detalhes> {
               width: double.infinity,
               child: TextButton(
                 style: TextButton.styleFrom(backgroundColor: Colors.black),
-                onPressed: _confirmar,
-                child: const Text(
-                  "Confirmar",
-                  style: TextStyle(color: Colors.white),
-                ),
+                onPressed: _viewModel.confirmando ? null : _confirmar,
+                child: _viewModel.confirmando
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        "Confirmar",
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
             ),
           ],
@@ -218,34 +223,3 @@ class _DetalhesState extends State<Detalhes> {
     );
   }
 }
-
-/// Campo reutilizável para selecionar um horário (inicial ou final),
-/// exibido como um InputDecorator clicável que abre o [showTimePicker].
-class _CampoHorario extends StatelessWidget {
-  final String label;
-  final TimeOfDay? horario;
-  final VoidCallback onTap;
-
-  const _CampoHorario({
-    required this.label,
-    required this.horario,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(15),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-          suffixIcon: const Icon(Icons.access_time),
-        ),
-        child: Text(horario == null ? 'Selecionar' : horario!.format(context)),
-      ),
-    );
-  }
-}
-//TODO - É RELATIVAMENTE DIFÍCIL ESCOLHER UMA HORA INTEIRA - TIPO DAS 17 AS 18. ELES VÃO PEGAR HORÁRIOS QUEBRADOS

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-//TODO - AS OPÇÕES CLICAVEIS DOS ADMINISTRADORES NÃO ESTÃO ENVIANDO PARA LUGAR ALGUM
+import 'package:agendapf/data/repositories/agenda_repository.dart';
+import 'package:agendapf/presentation/views/ano_letivo_view.dart';
+
 class AdminHomePage extends StatefulWidget {
-  const AdminHomePage({super.key});
+  final AgendaRepository agendaRepository;
+
+  const AdminHomePage({super.key, required this.agendaRepository});
 
   @override
   State<AdminHomePage> createState() => _AdminHomePageState();
@@ -40,8 +44,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               _AdminMenuButton(
                 icon: Icons.event_available,
                 label: 'Configuração do Ano Letivo',
-                onTap: () =>
-                    _abrirModulo(context, 'Configuração do Ano Letivo'),
+                onTap: () => _abrirConfiguracaoAnoLetivo(context),
               ),
               const SizedBox(height: 16),
 
@@ -104,6 +107,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
             label: 'Conta',
           ),
         ],
+      ),
+    );
+  }
+
+  void _abrirConfiguracaoAnoLetivo(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConfiguracaoAnoLetivoPage(
+          agendaRepository: widget.agendaRepository,
+        ),
       ),
     );
   }

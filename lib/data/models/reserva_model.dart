@@ -1,31 +1,39 @@
 import 'dart:convert';
+import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 
-/// Representa o vínculo entre um Aluno e um Horario reservado (RF05).
-
+/// `corFundo` e `descricao` pertencem à reserva, não ao horário.
 class Reserva {
   final String id;
   final String alunoId;
   final String horarioId;
   final DateTime dataReserva;
+  final CorFundoHorario corFundo;
+  final String descricao;
 
   const Reserva({
     required this.id,
     required this.alunoId,
     required this.horarioId,
     required this.dataReserva,
+    required this.corFundo,
+    this.descricao = '',
   });
 
-    Reserva copyWith({
+  Reserva copyWith({
     String? id,
     String? alunoId,
     String? horarioId,
     DateTime? dataReserva,
+    CorFundoHorario? corFundo,
+    String? descricao,
   }) {
     return Reserva(
       id: id ?? this.id,
       alunoId: alunoId ?? this.alunoId,
       horarioId: horarioId ?? this.horarioId,
       dataReserva: dataReserva ?? this.dataReserva,
+      corFundo: corFundo ?? this.corFundo,
+      descricao: descricao ?? this.descricao,
     );
   }
 
@@ -35,6 +43,8 @@ class Reserva {
       'alunoId': alunoId,
       'horarioId': horarioId,
       'dataReserva': dataReserva.toIso8601String(),
+      'corFundo': corFundo.name,
+      'descricao': descricao,
     };
   }
 
@@ -44,13 +54,15 @@ class Reserva {
       alunoId: map['alunoId'] as String,
       horarioId: map['horarioId'] as String,
       dataReserva: DateTime.parse(map['dataReserva'] as String),
+      corFundo: CorFundoHorario.fromNome(
+        map['corFundo'] as String? ?? 'branco',
+      ),
+      descricao: map['descricao'] as String? ?? '',
     );
   }
 
-  /// Serializa a reserva para uma string JSON.
   String toJson() => jsonEncode(toMap());
 
-  /// Cria uma Reserva a partir de uma string JSON.
   factory Reserva.fromJson(String source) =>
       Reserva.fromMap(jsonDecode(source) as Map<String, dynamic>);
 
@@ -61,17 +73,26 @@ class Reserva {
         other.id == id &&
         other.alunoId == alunoId &&
         other.horarioId == horarioId &&
-        other.dataReserva == dataReserva;
+        other.dataReserva == dataReserva &&
+        other.corFundo == corFundo &&
+        other.descricao == descricao;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, alunoId, horarioId, dataReserva);
+    return Object.hash(
+      id,
+      alunoId,
+      horarioId,
+      dataReserva,
+      corFundo,
+      descricao,
+    );
   }
 
   @override
   String toString() {
     return 'Reserva(id: $id, alunoId: $alunoId, horarioId: $horarioId, '
-        'dataReserva: $dataReserva)';
+        'dataReserva: $dataReserva, corFundo: $corFundo, descricao: $descricao)';
   }
 }

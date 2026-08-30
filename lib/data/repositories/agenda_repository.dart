@@ -1,13 +1,55 @@
+import 'package:agendapf/data/models/data_bloqueada_model.dart';
+import 'package:agendapf/data/models/enum/motivo_bloqueio.dart';
+import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/models/horario_model.dart';
+import 'package:agendapf/data/models/reserva_model.dart';
 import 'package:agendapf/data/services/abstract/horario_data_source.dart';
 import 'package:agendapf/data/services/abstract/data_bloqueada_source.dart';
 import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
 
 class HorarioDoDia {
   final Horario horario;
-  final bool disponivel;
+  final Map<CorFundoHorario, bool> disponibilidadePorFundo;
 
-  const HorarioDoDia({required this.horario, required this.disponivel});
+  const HorarioDoDia({
+    required this.horario,
+    required this.disponibilidadePorFundo,
+  });
+
+  bool disponivelPara(CorFundoHorario fundo) =>
+      disponibilidadePorFundo[fundo] ?? true;
+
+  bool get algumFundoDisponivel =>
+      disponibilidadePorFundo.values.any((disponivel) => disponivel);
+}
+
+class DataIndisponivelException implements Exception {
+  final String mensagem;
+  const DataIndisponivelException([
+    this.mensagem = 'Esta data não está disponível para reserva.',
+  ]);
+
+  @override
+  String toString() => mensagem;
+}
+
+class HorarioInvalidoException implements Exception {
+  final String mensagem;
+  const HorarioInvalidoException([this.mensagem = 'Horário inválido.']);
+
+  @override
+  String toString() => mensagem;
+}
+
+class HorarioIndisponivelException implements Exception {
+  final String mensagem;
+  const HorarioIndisponivelException([
+    this.mensagem =
+        'Este horário já está reservado para este fundo nesta data.',
+  ]);
+
+  @override
+  String toString() => mensagem;
 }
 
 class AgendaRepository {
@@ -23,17 +65,38 @@ class AgendaRepository {
        _horarioService = horarioService,
        _reservaService = reservaService;
 
-  Future<Set<DateTime>> buscarDiasBloqueados() async {
+  HorarioService get horarioService => _horarioService;
+  ReservaService get reservaService => _reservaService;
+  DataBloqueadaService get dataBloqueadaService => _dataBloqueadaService;
+
+  Future<Map<DateTime, MotivoBloqueio>> buscarDiasBloqueados() async {
     final registros = await _dataBloqueadaService.buscarTodas();
-    return registros.map((d) => _normalizarData(d.data)).toSet();
+    return {
+      for (final registro in registros)
+        _normalizarData(registro.data): registro.motivo,
+    };
   }
 
-  bool diaSelecionavel(DateTime dia, Set<DateTime> diasBloqueados) {
+  Future<void> bloquearDatas(
+    List<DateTime> datas,
+    MotivoBloqueio motivo,
+  ) async {
+    for (final data in datas) {
+      await _dataBloqueadaService.criar(
+        DataBloqueada(id: '', data: _normalizarData(data), motivo: motivo),
+      );
+    }
+  }
+
+  bool diaSelecionavel(
+    DateTime dia,
+    Map<DateTime, MotivoBloqueio> diasBloqueados,
+  ) {
     final hoje = _normalizarData(DateTime.now());
     final diaNormalizado = _normalizarData(dia);
 
     if (diaNormalizado.isBefore(hoje)) return false; // RN04
-    if (diasBloqueados.contains(diaNormalizado)) return false; // RN05
+    if (diasBloqueados.containsKey(diaNormalizado)) return false; // RN05
 
     return true;
   }
@@ -47,8 +110,15 @@ class AgendaRepository {
     }
 
     final horarios = await _horarioService.buscarTodos();
-    final reservasDoDia = await _reservaService.buscarTodas();
-    final idsReservados = reservasDoDia.map((r) => r.horarioId).toSet();
+    final reservas = await _reservaService.buscarTodas();
+
+    final fundosOcupadosPorHorario = <String, Set<CorFundoHorario>>{};
+    for (final reserva in reservas) {
+      if (_normalizarData(reserva.dataReserva) != diaNormalizado) continue;
+      fundosOcupadosPorHorario
+          .putIfAbsent(reserva.horarioId, () => {})
+          .add(reserva.corFundo);
+    }
 
     final agora = DateTime.now();
     final ehHoje = _normalizarData(agora) == diaNormalizado;
@@ -63,10 +133,61 @@ class AgendaRepository {
           return inicio.isAfter(agora);
         })
         .map((horario) {
-          final reservado = idsReservados.contains(horario.id);
-          return HorarioDoDia(horario: horario, disponivel: !reservado);
+          final fundosOcupados =
+              fundosOcupadosPorHorario[horario.id] ?? const {};
+          final disponibilidade = {
+            for (final fundo in CorFundoHorario.values)
+              fundo: !fundosOcupados.contains(fundo),
+          };
+          return HorarioDoDia(
+            horario: horario,
+            disponibilidadePorFundo: disponibilidade,
+          );
         })
         .toList();
+  }
+
+  Future<Reserva> criarReserva({
+    required String alunoId,
+    required String horarioId,
+    required DateTime data,
+    required CorFundoHorario corFundo,
+    String descricao = '',
+  }) async {
+    final diaNormalizado = _normalizarData(data);
+    final diasBloqueados = await buscarDiasBloqueados();
+
+    if (!diaSelecionavel(diaNormalizado, diasBloqueados)) {
+      throw const DataIndisponivelException();
+    }
+
+    final horario = await _horarioService.buscarPorId(horarioId);
+    if (horario == null) {
+      throw const HorarioInvalidoException();
+    }
+
+    final reservas = await _reservaService.buscarTodas();
+    final jaReservado = reservas.any(
+      (r) =>
+          r.horarioId == horarioId &&
+          r.corFundo == corFundo &&
+          _normalizarData(r.dataReserva) == diaNormalizado,
+    );
+
+    if (jaReservado) {
+      throw const HorarioIndisponivelException();
+    }
+
+    return _reservaService.criar(
+      Reserva(
+        id: '',
+        alunoId: alunoId,
+        horarioId: horarioId,
+        dataReserva: diaNormalizado,
+        corFundo: corFundo,
+        descricao: descricao,
+      ),
+    );
   }
 
   DateTime _normalizarData(DateTime data) {
@@ -79,4 +200,41 @@ class AgendaRepository {
     final minuto = partes.length > 1 ? int.parse(partes[1]) : 0;
     return DateTime(dia.year, dia.month, dia.day, hora, minuto);
   }
+
+  Future<void> cancelarReserva({
+    required String reservaId,
+    required String alunoIdSolicitante,
+  }) async {
+    final reserva = await _reservaService.buscarPorId(reservaId);
+
+    if (reserva == null) {
+      throw const ReservaNaoEncontradaException();
+    }
+
+    if (reserva.alunoId != alunoIdSolicitante) {
+      throw const ReservaNaoPertenceAoAlunoException();
+    }
+
+    await _reservaService.excluir(reservaId);
+  }
+}
+
+class ReservaNaoEncontradaException implements Exception {
+  final String mensagem;
+  const ReservaNaoEncontradaException([
+    this.mensagem = 'Reserva não encontrada.',
+  ]);
+
+  @override
+  String toString() => mensagem;
+}
+
+class ReservaNaoPertenceAoAlunoException implements Exception {
+  final String mensagem;
+  const ReservaNaoPertenceAoAlunoException([
+    this.mensagem = 'Esta reserva não pertence a este aluno.',
+  ]);
+
+  @override
+  String toString() => mensagem;
 }

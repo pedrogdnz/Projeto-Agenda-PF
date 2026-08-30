@@ -1,5 +1,3 @@
-// lib/presentation/views/login_view.dart
-
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
@@ -39,9 +37,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  /// Envia o formulário (Login ou Cadastro, dependendo do modo atual) e
-  /// redireciona conforme o tipo de usuário retornado: Aluno vai para o
-  /// Calendário (RF-navegação Aluno), Administrador vai para o Painel Admin.
   Future<void> _enviar() async {
     final sucesso = await _viewModel.enviar();
     if (!mounted) return;
@@ -58,10 +53,20 @@ class _LoginPageState extends State<LoginPage> {
 
     final resultado = _viewModel.resultado!;
 
+    // Instancia o repositório que será usado tanto pelo Admin quanto pelo Aluno
+    final agendaRepository = AgendaRepository(
+      dataBloqueadaService: FakeDataBloqueadaService(),
+      horarioService: FakeHorarioService(),
+      reservaService: FakeReservaService(),
+    );
+
     if (resultado.ehAdministrador) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AdminHomePage()),
+        MaterialPageRoute(
+          builder: (context) =>
+              AdminHomePage(agendaRepository: agendaRepository),
+        ),
       );
       return;
     }
@@ -70,13 +75,8 @@ class _LoginPageState extends State<LoginPage> {
       context,
       MaterialPageRoute(
         builder: (context) => CalendarPage(
-          viewModel: CalendarViewModel(
-            agendaRepository: AgendaRepository(
-              dataBloqueadaService: FakeDataBloqueadaService(),
-              horarioService: FakeHorarioService(),
-              reservaService: FakeReservaService(),
-            ),
-          ),
+          alunoId: resultado.aluno!.id,
+          viewModel: CalendarViewModel(agendaRepository: agendaRepository),
         ),
       ),
     );
@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    double size = MediaQuery.of(context).size.height / 100;
+    //double size = MediaQuery.of(context).size.height / 100;
     final ehCadastro = _viewModel.ehCadastro;
 
     return Scaffold(
@@ -99,8 +99,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           Container(
-            height: size * 80,
-            width: size * 100,
+            width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(80)),
               color: Colors.white,
@@ -111,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    ehCadastro ? "" : "Login Usuário",
+                    ehCadastro ? "Registro" : "Login",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
                   ),
 
@@ -138,7 +137,6 @@ class _LoginPageState extends State<LoginPage> {
                     key: _viewModel.formKey,
                     child: Column(
                       children: [
-                        // Campos exclusivos do Cadastro (RF01).
                         if (ehCadastro) ...[
                           CustomTextField(
                             requiredField: true,

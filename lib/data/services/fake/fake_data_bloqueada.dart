@@ -1,10 +1,19 @@
 import 'package:agendapf/data/models/data_bloqueada_model.dart';
+import 'package:agendapf/data/models/enum/motivo_bloqueio.dart';
 import 'package:agendapf/data/services/abstract/data_bloqueada_source.dart';
 
 class FakeDataBloqueadaService implements DataBloqueadaService {
   final List<DataBloqueada> _datasBloqueadas = [
-    DataBloqueada(id: '1', data: DateTime(2026, 9, 7)),
-    DataBloqueada(id: '2', data: DateTime(2026, 10, 12)),
+    DataBloqueada(
+      id: '1',
+      data: DateTime(2026, 9, 7),
+      motivo: MotivoBloqueio.feriados, // Independência do Brasil
+    ),
+    DataBloqueada(
+      id: '2',
+      data: DateTime(2026, 10, 12),
+      motivo: MotivoBloqueio.feriados, // N. Sra. Aparecida
+    ),
   ];
 
   @override
