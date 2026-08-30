@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "356248465632",
+    "project_id": "agendapf",
+    "storage_bucket": "agendapf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356248465632:android:cab245636609f98dbaa085",
+        "android_client_info": {
+          "package_name": "com.example.agendapf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcWgaD5qizYwfxvZU_HUuGCNBNVmvEMqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
