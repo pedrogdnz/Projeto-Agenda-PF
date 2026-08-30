@@ -3,6 +3,7 @@
 abstract class AuthService {
   Future<UsuarioGoogle> signInWithGoogle();
   Future<void> signOut();
+  Stream<UsuarioGoogle?> get authStateChanges;
 }
 
 class UsuarioGoogle {
