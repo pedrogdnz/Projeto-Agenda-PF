@@ -10,6 +10,7 @@ class FakeReservaService implements ReservaService {
       horarioId: '1',
       dataReserva: DateTime(2026, 8, 25),
       corFundo: CorFundoHorario.branco,
+      
     ),
     Reserva(
       id: '2',
