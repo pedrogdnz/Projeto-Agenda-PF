@@ -1,6 +1,8 @@
+import 'package:agendapf/data/repositories/auth_repository.dart';
 import 'package:agendapf/presentation/utils/motivo_bloqueio_cor.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/views/detalhes_view.dart';
+import 'package:agendapf/presentation/views/login_view.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
 import 'package:agendapf/core/utils/utils.dart';
 import 'package:agendapf/presentation/widgets/calendar_legenda.dart';
@@ -9,13 +11,14 @@ import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends StatefulWidget {
   final CalendarViewModel viewModel;
-
   final String alunoId;
+  final AuthRepository authRepository; // NOVO
 
   const CalendarPage({
     super.key,
     required this.viewModel,
     required this.alunoId,
+    required this.authRepository, // NOVO
   });
 
   @override
@@ -97,6 +100,17 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  Future<void> _signout() async {
+  await widget.authRepository.logout();
+  if (!mounted) return;
+
+  // Remove todas as telas da pilha (calendário, reservas, detalhes etc.)
+  // e volta pro login, impedindo o botão "voltar" de retornar ao app logado.
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (context) => const LoginPage()),
+    (route) => false,
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +126,7 @@ class _CalendarPageState extends State<CalendarPage> {
             tooltip: 'Perfil',
             onPressed: _abrirPerfil,
           ),
+          IconButton(onPressed: _signout, icon: Icon(Icons.logout))
         ],
       ),
       backgroundColor: Colors.white,
