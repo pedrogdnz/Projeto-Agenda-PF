@@ -64,7 +64,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
               _AdminMenuButton(
                 icon: Icons.event_note_outlined,
-                label: 'Reservas',
+                label: 'Configuração de horários diários',
                 onTap: () => _abrirModulo(context, 'CRUD de Reservas'),
               ),
               const SizedBox(height: 16),
