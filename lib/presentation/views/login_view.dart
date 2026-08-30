@@ -1,3 +1,4 @@
+import 'package:agendapf/data/repositories/administrador_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
 import 'package:agendapf/data/services/fake/fake_aluno_service.dart';
@@ -56,7 +57,6 @@ class _LoginPageState extends State<LoginPage> {
 
     final resultado = _viewModel.resultado!;
 
-    // Instancia o repositório que será usado tanto pelo Admin quanto pelo Aluno
     final agendaRepository = AgendaRepository(
       dataBloqueadaService: FakeDataBloqueadaService(),
       horarioService: FakeHorarioService(),
@@ -64,9 +64,14 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     final alunoRepository = AlunoRepository(
-      // NOVO
       alunoService: FakeAlunoService(),
       administradorService: FakeAdministradorService(),
+    );
+
+    final administradorRepository = AdministradorRepository(
+      // NOVO
+      administradorService: FakeAdministradorService(),
+      alunoService: FakeAlunoService(),
     );
 
     if (resultado.ehAdministrador) {
@@ -75,7 +80,8 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(
           builder: (context) => AdminHomePage(
             agendaRepository: agendaRepository,
-            alunoRepository: alunoRepository, // NOVO
+            alunoRepository: alunoRepository,
+            administradorRepository: administradorRepository, // NOVO
           ),
         ),
       );

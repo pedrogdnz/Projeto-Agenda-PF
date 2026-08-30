@@ -1,17 +1,21 @@
+import 'package:agendapf/data/repositories/administrador_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/views/ano_letivo_view.dart';
 import 'package:agendapf/presentation/views/alunos_view.dart';
+import 'package:agendapf/presentation/views/administradores_view.dart';
 
 class AdminHomePage extends StatefulWidget {
   final AgendaRepository agendaRepository;
   final AlunoRepository alunoRepository;
+  final AdministradorRepository administradorRepository;
 
   const AdminHomePage({
     super.key,
     required this.agendaRepository,
     required this.alunoRepository,
+    required this.administradorRepository,
   });
 
   @override
@@ -64,7 +68,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
               _AdminMenuButton(
                 icon: Icons.event_note_outlined,
-                label: 'Configuração de horários diários',
+                label: 'Reservas',
                 onTap: () => _abrirModulo(context, 'CRUD de Reservas'),
               ),
               const SizedBox(height: 16),
@@ -72,7 +76,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               _AdminMenuButton(
                 icon: Icons.admin_panel_settings_outlined,
                 label: 'Administradores',
-                onTap: () => _abrirModulo(context, 'CRUD de Administradores'),
+                onTap: () => _abrirAdministradores(context),
               ),
             ],
           ),
@@ -136,6 +140,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
         builder: (context) => AlunosPage(
           alunoRepository: widget.alunoRepository,
           agendaRepository: widget.agendaRepository,
+        ),
+      ),
+    );
+  }
+
+  void _abrirAdministradores(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdministradoresPage(
+          administradorRepository: widget.administradorRepository,
         ),
       ),
     );
