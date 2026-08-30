@@ -12,9 +12,21 @@ class FirebaseAuthService implements AuthService {
     await _googleSignIn.initialize(
       // Web Client ID (do Google Cloud Console / Firebase Console).
       // Necessário mesmo em Android/iOS a partir da v7.
-      serverClientId: 'SEU_WEB_CLIENT_ID.apps.googleusercontent.com',
+      serverClientId: '356248465632-vl9e60da1fvh81cv7tn1s5c40sqq02uu.apps.googleusercontent.com',
     );
     _initialized = true;
+  }
+
+  @override
+  Stream<UsuarioGoogle?> get authStateChanges {
+    return _auth.authStateChanges().map((user) {
+      if (user == null) return null;
+      return UsuarioGoogle(
+        uid: user.uid, 
+        nome: user.displayName ?? '', 
+        email: user.email ?? ''
+        );
+    });
   }
 
   @override
