@@ -1,6 +1,7 @@
 import 'package:agendapf/data/repositories/auth_repository.dart';
 import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
-import 'package:agendapf/data/services/fake/fake_aluno_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_aluno_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
 
 /// Controla qual formulário está sendo exibido: Login ou Cadastro (RF01).
@@ -8,6 +9,7 @@ enum ModoFormulario { login, cadastro }
 
 class LoginViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
+  final matriculaGoogleFormKey = GlobalKey<FormState>();
 
   // Campos comuns a Login e Cadastro.
   final emailController = TextEditingController();
@@ -23,7 +25,8 @@ class LoginViewModel extends ChangeNotifier {
     : _authRepository =
           authRepository ??
           AuthRepository(
-            alunoService: FakeAlunoService(),
+            authService: FirebaseAuthService(),
+            alunoService: FirebaseAlunoService(),
             administradorService: FakeAdministradorService(),
           );
 
@@ -31,17 +34,23 @@ class LoginViewModel extends ChangeNotifier {
   bool _carregando = false;
   String? _erro;
   ResultadoLogin? _resultado;
+  GoogleContaPendente? _contaGooglePendente;
 
   ModoFormulario get modo => _modo;
   bool get ehCadastro => _modo == ModoFormulario.cadastro;
   bool get carregando => _carregando;
   String? get erro => _erro;
+  GoogleContaPendente? get contaGooglePendente => _contaGooglePendente;
+  bool get aguardandoMatriculaGoogle => _contaGooglePendente != null;
 
   /// Resultado do login (seja por autenticação direta, seja pelo login
   /// automático que ocorre logo após um cadastro bem-sucedido). A View usa
   /// esse valor, e apenas ele, para decidir para onde redirecionar o
   /// usuário — o mesmo fluxo serve tanto para Login quanto para Cadastro.
   ResultadoLogin? get resultado => _resultado;
+
+  // dentro de LoginViewModel
+AuthRepository get authRepository => _authRepository; // NOVO
 
   @override
   void dispose() {
@@ -101,9 +110,7 @@ class LoginViewModel extends ChangeNotifier {
     return null;
   }
 
-  bool validate() {
-    return formKey.currentState?.validate() ?? false;
-  }
+  bool validate() => formKey.currentState?.validate() ?? false;
 
   /// Autentica um Aluno ou Administrador existente (Login).
   Future<bool> autenticar() async {
@@ -159,4 +166,61 @@ class LoginViewModel extends ChangeNotifier {
   Future<bool> enviar() {
     return ehCadastro ? cadastrar() : autenticar();
   }
+
+  Future<bool> entrarComGoogle() async {
+    _carregando = true;
+    _erro = null;
+    notifyListeners();
+    try {
+      final resultadoGoogle = await _authRepository.entrarComGoogle();
+      if (resultadoGoogle.precisaCompletarCadastro) {
+        _contaGooglePendente = resultadoGoogle.pendente;
+      } else {
+        _resultado = resultadoGoogle.resultado;
+      }
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      return false;
+    } finally {
+      _carregando = false;
+      notifyListeners();
+    }
+  }
+
+  /// NOVO — completa o cadastro (matrícula) no 1º login via Google.
+  Future<bool> confirmarMatriculaGoogle() async {
+    final valido = matriculaGoogleFormKey.currentState?.validate() ?? false;
+    if (!valido) return false;
+
+    final pendente = _contaGooglePendente;
+    if (pendente == null) return false;
+
+    _carregando = true;
+    _erro = null;
+    notifyListeners();
+    try {
+      _resultado = await _authRepository.completarCadastroAluno(
+        pendente: pendente,
+        matricula: matriculaController.text,
+      );
+      _contaGooglePendente = null;
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      return false;
+    } finally {
+      _carregando = false;
+      notifyListeners();
+    }
+  }
+
+  /// NOVO — volta pro formulário normal cancelando o cadastro via Google.
+  void cancelarCadastroGoogle() {
+    _contaGooglePendente = null;
+    _erro = null;
+    matriculaController.clear();
+    notifyListeners();
+  }
 }
+
