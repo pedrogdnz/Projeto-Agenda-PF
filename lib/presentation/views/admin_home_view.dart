@@ -2,6 +2,7 @@ import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/views/ano_letivo_view.dart';
+import 'package:agendapf/presentation/views/alunos_view.dart';
 
 class AdminHomePage extends StatefulWidget {
   final AgendaRepository agendaRepository;
