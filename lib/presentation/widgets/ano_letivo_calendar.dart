@@ -163,6 +163,8 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
             fontWeight: FontWeight.w500,
           ),
         ),
+
+        calendarStyle: const CalendarStyle(outsideDaysVisible: false),
         calendarBuilders: CalendarBuilders(
           defaultBuilder: (context, day, focusedDay) => _celulaDia(day),
           todayBuilder: (context, day, focusedDay) =>

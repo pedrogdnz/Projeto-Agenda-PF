@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
-
+// TODO - O USUARIO PODE BOTAR QUANTOS CARACTERES ELE QUISER, AI QUEBRA 
 class ReservaComHorario {
   final Reserva reserva;
   final Horario? horario;
