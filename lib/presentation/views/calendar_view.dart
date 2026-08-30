@@ -3,6 +3,7 @@ import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/views/detalhes_view.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
 import 'package:agendapf/core/utils/utils.dart';
+import 'package:agendapf/presentation/widgets/calendar_legenda.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -134,116 +135,132 @@ class _CalendarPageState extends State<CalendarPage> {
                   return const Center(child: LinearProgressIndicator());
                 }
 
-                return TableCalendar(
-                  calendarBuilders: CalendarBuilders(
-                    disabledBuilder: (context, day, focusedDay) {
-                      final motivo = _viewModel.motivoBloqueioPara(day);
-                      if (motivo == null) return null;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TableCalendar(
+                      calendarBuilders: CalendarBuilders(
+                        disabledBuilder: (context, day, focusedDay) {
+                          final motivo = _viewModel.motivoBloqueioPara(day);
+                          if (motivo == null) return null;
 
-                      return Container(
-                        margin: const EdgeInsets.all(4),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: corParaMotivoBloqueio(motivo),
+                          return Container(
+                            margin: const EdgeInsets.all(4),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: corParaMotivoBloqueio(motivo),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '${day.day}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      locale: 'pt_BR',
+
+                      firstDay: kFirstDay,
+                      lastDay: kLastDay,
+
+                      focusedDay: _viewModel.focusedDay,
+                      calendarFormat: CalendarFormat.month,
+
+                      availableGestures: AvailableGestures.horizontalSwipe,
+
+                      enabledDayPredicate: (day) =>
+                          _viewModel.diaSelecionavel(day),
+
+                      selectedDayPredicate: (day) {
+                        return isSameDay(_viewModel.selectedDay, day);
+                      },
+
+                      onDaySelected: (selectedDay, focusedDay) {
+                        _viewModel.selectDay(selectedDay, focusedDay);
+                      },
+
+                      onPageChanged: (focusedDay) {
+                        _viewModel.changePage(focusedDay);
+                      },
+
+                      headerStyle: const HeaderStyle(
+                        formatButtonVisible: false,
+                        titleCentered: false,
+                        titleTextStyle: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        leftChevronIcon: Icon(
+                          Icons.chevron_left,
+                          color: Colors.black54,
+                        ),
+                        rightChevronIcon: Icon(
+                          Icons.chevron_right,
+                          color: Colors.black54,
+                        ),
+                      ),
+
+                      daysOfWeekStyle: const DaysOfWeekStyle(
+                        weekdayStyle: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        weekendStyle: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+                      calendarStyle: CalendarStyle(
+                        isTodayHighlighted: true,
+
+                        disabledTextStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                        disabledDecoration: const BoxDecoration(
+                          color: Colors.transparent,
                           shape: BoxShape.circle,
                         ),
-                        child: Text(
-                          '${day.day}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+
+                        todayDecoration: BoxDecoration(
+                          color: Colors.blue.shade200,
+                          shape: BoxShape.circle,
                         ),
-                      );
-                    },
-                  ),
-                  locale: 'pt_BR',
 
-                  firstDay: kFirstDay,
-                  lastDay: kLastDay,
+                        selectedDecoration: const BoxDecoration(
+                          color: Color(0xFF3F51B5),
+                          shape: BoxShape.circle,
+                        ),
 
-                  focusedDay: _viewModel.focusedDay,
-                  calendarFormat: CalendarFormat.month,
+                        selectedTextStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
 
-                  availableGestures: AvailableGestures.horizontalSwipe,
+                        todayTextStyle: const TextStyle(color: Colors.white),
 
-                  enabledDayPredicate: (day) => _viewModel.diaSelecionavel(day),
+                        outsideTextStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                        ),
 
-                  selectedDayPredicate: (day) {
-                    return isSameDay(_viewModel.selectedDay, day);
-                  },
+                        defaultTextStyle: const TextStyle(
+                          color: Colors.black87,
+                        ),
 
-                  onDaySelected: (selectedDay, focusedDay) {
-                    _viewModel.selectDay(selectedDay, focusedDay);
-                  },
-
-                  onPageChanged: (focusedDay) {
-                    _viewModel.changePage(focusedDay);
-                  },
-
-                  headerStyle: const HeaderStyle(
-                    formatButtonVisible: false,
-                    titleCentered: false,
-                    titleTextStyle: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
+                        weekendTextStyle: const TextStyle(
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
-                    leftChevronIcon: Icon(
-                      Icons.chevron_left,
-                      color: Colors.black54,
+                    const SizedBox(height: 12),
+                    CalendarLegenda(
+                      motivosPresentes: _viewModel.motivosBloqueioDoMesVisivel,
                     ),
-                    rightChevronIcon: Icon(
-                      Icons.chevron_right,
-                      color: Colors.black54,
-                    ),
-                  ),
-
-                  daysOfWeekStyle: const DaysOfWeekStyle(
-                    weekdayStyle: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    weekendStyle: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  calendarStyle: CalendarStyle(
-                    isTodayHighlighted: true,
-
-                    disabledTextStyle: TextStyle(
-                      color: Colors.grey.shade400,
-                      decoration: TextDecoration.lineThrough,
-                    ),
-                    disabledDecoration: const BoxDecoration(
-                      color: Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-
-                    todayDecoration: BoxDecoration(
-                      color: Colors.blue.shade200,
-                      shape: BoxShape.circle,
-                    ),
-
-                    selectedDecoration: const BoxDecoration(
-                      color: Color(0xFF3F51B5),
-                      shape: BoxShape.circle,
-                    ),
-
-                    selectedTextStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-
-                    todayTextStyle: const TextStyle(color: Colors.white),
-
-                    outsideTextStyle: TextStyle(color: Colors.grey.shade400),
-
-                    defaultTextStyle: const TextStyle(color: Colors.black87),
-
-                    weekendTextStyle: const TextStyle(color: Colors.black87),
-                  ),
+                  ],
                 );
               },
             ),

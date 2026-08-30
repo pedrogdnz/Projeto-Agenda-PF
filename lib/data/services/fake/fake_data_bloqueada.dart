@@ -14,6 +14,11 @@ class FakeDataBloqueadaService implements DataBloqueadaService {
       data: DateTime(2026, 10, 12),
       motivo: MotivoBloqueio.feriados, // N. Sra. Aparecida
     ),
+    DataBloqueada(
+      id: '3',
+      data: DateTime(2026, 11, 11),
+      motivo: MotivoBloqueio.ferias, // N. Sra. Aparecida
+    ),
   ];
 
   @override
