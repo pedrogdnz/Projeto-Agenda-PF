@@ -1,5 +1,7 @@
+import 'package:agendapf/presentation/views/admin_home_view.dart';
 import 'package:agendapf/presentation/views/login_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'data/services/firebase/firebase_options.dart';
@@ -7,7 +9,14 @@ import 'data/services/firebase/firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   await initializeDateFormatting('pt_BR', null);
 
