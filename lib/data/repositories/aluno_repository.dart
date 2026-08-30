@@ -1,4 +1,3 @@
-
 import 'package:agendapf/data/models/aluno_model.dart';
 import 'package:agendapf/data/repositories/auth_repository.dart'
     show EmailJaCadastradoException, MatriculaJaCadastradaException;
@@ -10,9 +9,7 @@ import 'package:agendapf/data/services/abstract/aluno_data_source.dart';
 
 class AlunoNaoEncontradoException implements Exception {
   final String mensagem;
-  const AlunoNaoEncontradoException([
-    this.mensagem = 'Aluno não encontrado.',
-  ]);
+  const AlunoNaoEncontradoException([this.mensagem = 'Aluno não encontrado.']);
 
   @override
   String toString() => mensagem;

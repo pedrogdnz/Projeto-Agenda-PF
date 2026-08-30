@@ -1,11 +1,17 @@
+import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/views/ano_letivo_view.dart';
 
 class AdminHomePage extends StatefulWidget {
   final AgendaRepository agendaRepository;
+  final AlunoRepository alunoRepository;
 
-  const AdminHomePage({super.key, required this.agendaRepository});
+  const AdminHomePage({
+    super.key,
+    required this.agendaRepository,
+    required this.alunoRepository,
+  });
 
   @override
   State<AdminHomePage> createState() => _AdminHomePageState();
@@ -51,7 +57,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               _AdminMenuButton(
                 icon: Icons.people_alt_outlined,
                 label: 'Alunos',
-                onTap: () => _abrirModulo(context, 'CRUD de Alunos'),
+                onTap: () => _abrirAlunos(context),
               ),
               const SizedBox(height: 16),
 
@@ -116,6 +122,18 @@ class _AdminHomePageState extends State<AdminHomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => ConfiguracaoAnoLetivoPage(
+          agendaRepository: widget.agendaRepository,
+        ),
+      ),
+    );
+  }
+
+  void _abrirAlunos(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AlunosPage(
+          alunoRepository: widget.alunoRepository,
           agendaRepository: widget.agendaRepository,
         ),
       ),

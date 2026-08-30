@@ -1,3 +1,6 @@
+import 'package:agendapf/data/repositories/aluno_repository.dart';
+import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
+import 'package:agendapf/data/services/fake/fake_aluno_service.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
@@ -60,12 +63,20 @@ class _LoginPageState extends State<LoginPage> {
       reservaService: FakeReservaService(),
     );
 
+    final alunoRepository = AlunoRepository(
+      // NOVO
+      alunoService: FakeAlunoService(),
+      administradorService: FakeAdministradorService(),
+    );
+
     if (resultado.ehAdministrador) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              AdminHomePage(agendaRepository: agendaRepository),
+          builder: (context) => AdminHomePage(
+            agendaRepository: agendaRepository,
+            alunoRepository: alunoRepository, // NOVO
+          ),
         ),
       );
       return;

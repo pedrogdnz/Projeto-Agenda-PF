@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/aluno_model.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
@@ -50,8 +48,7 @@ class AlunoDetalhesViewModel extends ChangeNotifier {
 
     _aluno = await _alunoRepository.buscarPorId(alunoId);
 
-    final todasReservas = await _agendaRepository.reservaService
-        .buscarTodas();
+    final todasReservas = await _agendaRepository.reservaService.buscarTodas();
     final horarios = await _agendaRepository.horarioService.buscarTodos();
     final horariosPorId = {for (final h in horarios) h.id: h};
 
@@ -65,7 +62,9 @@ class AlunoDetalhesViewModel extends ChangeNotifier {
               ),
             )
             .toList()
-          ..sort((a, b) => b.reserva.dataReserva.compareTo(a.reserva.dataReserva));
+          ..sort(
+            (a, b) => b.reserva.dataReserva.compareTo(a.reserva.dataReserva),
+          );
 
     _carregando = false;
     notifyListeners();

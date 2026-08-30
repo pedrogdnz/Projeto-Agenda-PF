@@ -1,5 +1,5 @@
-import 'package:agendapf/presentation/views/admin_home_view.dart';
 import 'package:agendapf/presentation/views/login_view.dart';
+import 'package:agendapf/presentation/views/register_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       title: 'Agenda - Processos Fotográficos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorScheme: ColorScheme.light(primary: Colors.black)),
-      home: AdminHomePage(),
+      home: RegisterPage(),
     );
   }
 }
