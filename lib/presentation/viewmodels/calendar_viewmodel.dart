@@ -30,6 +30,16 @@ class CalendarViewModel extends ChangeNotifier {
   List<HorarioDoDia> get horariosDoDiaSelecionado => _horariosDoDiaSelecionado;
   bool get carregandoHorarios => _carregandoHorarios;
   Map<DateTime, MotivoBloqueio> get diasBloqueados => _diasBloqueados;
+  Set<MotivoBloqueio> get motivosBloqueioDoMesVisivel {
+    return _diasBloqueados.entries
+        .where(
+          (entrada) =>
+              entrada.key.year == _focusedDay.year &&
+              entrada.key.month == _focusedDay.month,
+        )
+        .map((entrada) => entrada.value)
+        .toSet();
+  }
 
   MotivoBloqueio? motivoBloqueioPara(DateTime dia) {
     return _diasBloqueados[DateTime(dia.year, dia.month, dia.day)];
