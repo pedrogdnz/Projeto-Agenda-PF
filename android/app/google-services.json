@@ -12,7 +12,12 @@
           "package_name": "com.example.agendapf"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "356248465632-vl9e60da1fvh81cv7tn1s5c40sqq02uu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBcWgaD5qizYwfxvZU_HUuGCNBNVmvEMqI"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "356248465632-vl9e60da1fvh81cv7tn1s5c40sqq02uu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "356248465632-7p24p5f51gib47f3jibjf6i00n5kob91.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.agendapf"
+              }
+            }
+          ]
         }
       }
     }
