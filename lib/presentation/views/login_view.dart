@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    double size = MediaQuery.of(context).size.height / 100;
+    //double size = MediaQuery.of(context).size.height / 100;
     final ehCadastro = _viewModel.ehCadastro;
 
     return Scaffold(
@@ -99,8 +99,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           Container(
-            height: size * 80,
-            width: size * 100,
+            width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(80)),
               color: Colors.white,
