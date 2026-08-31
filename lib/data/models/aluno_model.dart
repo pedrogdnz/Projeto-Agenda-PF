@@ -3,7 +3,7 @@ class Aluno {
   final String nome;
   final String matricula;
   final String email;
-  final String senha;
+  final String? senha;
   final DateTime criadoEm;
 
   const Aluno({
@@ -11,7 +11,7 @@ class Aluno {
     required this.nome,
     required this.matricula,
     required this.email,
-    required this.senha,
+    this.senha,
     required this.criadoEm,
   });
 
@@ -51,7 +51,7 @@ class Aluno {
       nome: map['nome'] as String,
       matricula: map['matricula'] as String,
       email: map['email'] as String,
-      senha: map['senha'] as String,
+      senha: map['senha'] as String?,
       criadoEm: DateTime.parse(map['criadoEm'] as String),
     );
   }

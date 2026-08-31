@@ -1,3 +1,4 @@
+//mesma coisa que a enum motivo_bloqueio, só que essa é usada apenas para a parte visual dos calendários (As legendas).
 enum TipoConfiguracaoAnoLetivo {
   ferias,
   feriados,
