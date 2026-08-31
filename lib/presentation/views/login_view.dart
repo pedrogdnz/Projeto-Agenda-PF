@@ -58,8 +58,6 @@ class _LoginPageState extends State<LoginPage> {
       _mostrarErroSeHouver();
       return;
     }
-    // Se ainda faltar a matrícula, a tela troca sozinha (via setState do
-    // listener) para o formulário de completar cadastro — nada a navegar.
     if (_viewModel.resultado != null) {
       _navegarAposLogin();
     }
@@ -76,24 +74,24 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _mostrarErroSeHouver() {
-  final erro = _viewModel.erro;
-  if (erro == null) return;
+    final erro = _viewModel.erro;
+    if (erro == null) return;
 
-  final mostrarAcaoCadastro = !_viewModel.ehCadastro;
+    final mostrarAcaoCadastro = !_viewModel.ehCadastro;
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(erro),
-      action: mostrarAcaoCadastro
-          ? SnackBarAction(
-              label: 'Cadastre-se',
-              onPressed: _viewModel.alternarModo,
-            )
-          : null,
-      duration: const Duration(seconds: 5),
-    ),
-  );
-}
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(erro),
+        action: mostrarAcaoCadastro
+            ? SnackBarAction(
+                label: 'Cadastre-se',
+                onPressed: _viewModel.alternarModo,
+              )
+            : null,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
 
   void _navegarAposLogin() {
     final resultado = _viewModel.resultado!;
@@ -145,29 +143,29 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: Image(image: AssetImage("images/ifpr_logo.png")),
-            ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: Image.asset("images/ifpr_logo.png"),
+              ),
+
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(80)),
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.all(35.0),
+                child: _viewModel.aguardandoMatriculaGoogle
+                    ? _buildFormMatriculaGoogle()
+                    : _buildFormPrincipal(),
+              ),
+            ],
           ),
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(80)),
-              color: Colors.white,
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(35.0),
-              child: _viewModel.aguardandoMatriculaGoogle
-                  ? _buildFormMatriculaGoogle()
-                  : _buildFormPrincipal(),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -347,8 +345,9 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(width: 12),
             Expanded(
               child: TextButton(
-                onPressed:
-                    _viewModel.carregando ? null : _confirmarMatriculaGoogle,
+                onPressed: _viewModel.carregando
+                    ? null
+                    : _confirmarMatriculaGoogle,
                 child: _viewModel.carregando
                     ? const SizedBox(
                         height: 18,
