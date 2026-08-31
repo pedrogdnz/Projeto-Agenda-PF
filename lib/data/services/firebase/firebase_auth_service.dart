@@ -10,9 +10,8 @@ class FirebaseAuthService implements AuthService {
   Future<void> _garantirInicializado() async {
     if (_initialized) return;
     await _googleSignIn.initialize(
-      // Web Client ID (do Google Cloud Console / Firebase Console).
-      // Necessário mesmo em Android/iOS a partir da v7.
-      serverClientId: '356248465632-vl9e60da1fvh81cv7tn1s5c40sqq02uu.apps.googleusercontent.com',
+      serverClientId:
+          '356248465632-vl9e60da1fvh81cv7tn1s5c40sqq02uu.apps.googleusercontent.com',
     );
     _initialized = true;
   }
@@ -22,10 +21,10 @@ class FirebaseAuthService implements AuthService {
     return _auth.authStateChanges().map((user) {
       if (user == null) return null;
       return UsuarioGoogle(
-        uid: user.uid, 
-        nome: user.displayName ?? '', 
-        email: user.email ?? ''
-        );
+        uid: user.uid,
+        nome: user.displayName ?? '',
+        email: user.email ?? '',
+      );
     });
   }
 
@@ -58,6 +57,68 @@ class FirebaseAuthService implements AuthService {
       nome: firebaseUser.displayName ?? googleUser.displayName ?? '',
       email: firebaseUser.email ?? googleUser.email,
     );
+  }
+
+  @override
+  Future<UsuarioGoogle> signInComEmail({
+    required String email,
+    required String senha,
+  }) async {
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+      final user = credential.user;
+      if (user == null) throw const CredenciaisInvalidasAuthException();
+
+      return UsuarioGoogle(
+        uid: user.uid,
+        nome: user.displayName ?? '',
+        email: user.email ?? email,
+      );
+    } on FirebaseAuthException catch (e) {
+      throw _mapearErro(e);
+    }
+  }
+
+  @override
+  Future<UsuarioGoogle> cadastrarComEmail({
+    required String email,
+    required String senha,
+  }) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+      final user = credential.user;
+      if (user == null) throw const CredenciaisInvalidasAuthException();
+
+      return UsuarioGoogle(uid: user.uid, nome: '', email: user.email ?? email);
+    } on FirebaseAuthException catch (e) {
+      throw _mapearErro(e);
+    }
+  }
+
+  @override
+  Future<void> excluirContaAtual() async {
+    await _auth.currentUser?.delete();
+  }
+
+  Exception _mapearErro(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+      case 'wrong-password':
+      case 'invalid-credential':
+        return const CredenciaisInvalidasAuthException();
+      case 'email-already-in-use':
+        return const EmailJaCadastradoAuthException();
+      case 'weak-password':
+        return const SenhaFracaException();
+      default:
+        return Exception('Erro ao autenticar: ${e.message}');
+    }
   }
 
   @override
