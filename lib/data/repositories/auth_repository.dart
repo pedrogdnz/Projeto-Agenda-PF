@@ -100,7 +100,7 @@ class GoogleLoginResult {
   bool get precisaCompletarCadastro => pendente != null;
 }
 
-//TODO - TEMOS QUE MELHORAR A FORMA COMO VERIFICA A SENHA, ESTÁ EM TEXTO PURO
+//TODO - administrador continua com verificação manual por enquanto (fora de escopo)
 abstract class VerificadorDeSenha {
   bool verificar(String senhaDigitada, String senhaArmazenada);
 }
@@ -130,6 +130,8 @@ class AuthRepository {
        _administradorService = administradorService,
        _verificadorDeSenha = verificadorDeSenha;
 
+  /// Login por e-mail/senha. Administrador continua com verificação manual;
+  /// Aluno autentica de verdade no Firebase Auth antes de tocar o Firestore.
   Future<ResultadoLogin> autenticar({
     required String identificador,
     required String senha,
@@ -144,20 +146,21 @@ class AuthRepository {
       return ResultadoLogin.administrador(administrador);
     }
 
-    final aluno = await _alunoService.buscarPorEmailOuMatricula(identificador);
-    if (aluno != null) {
-      if (aluno.senha == null) {
-        throw const CredenciaisInvalidasException();
-      }
-      if (!_verificadorDeSenha.verificar(senha, aluno.senha!)) {
-        throw const CredenciaisInvalidasException();
-      }
-      return ResultadoLogin.aluno(aluno);
+    final usuarioAuth = await _authService.signInComEmail(
+      email: identificador.trim(),
+      senha: senha,
+    );
+
+    final aluno = await _alunoService.buscarPorId(usuarioAuth.uid);
+    if (aluno == null) {
+      throw const CredenciaisInvalidasException();
     }
 
-    throw const CredenciaisInvalidasException();
+    return ResultadoLogin.aluno(aluno);
   }
 
+  /// Cadastra um novo Aluno via e-mail/senha, autenticando de verdade
+  /// no Firebase Auth antes de gravar o perfil no Firestore.
   Future<ResultadoLogin> cadastrarAluno({
     required String nome,
     required String matricula,
@@ -167,34 +170,26 @@ class AuthRepository {
     final emailNormalizado = email.trim().toLowerCase();
     final matriculaNormalizada = matricula.trim();
 
-    final adminComEmail = await _administradorService.buscarPorEmail(
-      emailNormalizado,
+    final usuarioAuth = await _authService.cadastrarComEmail(
+      email: emailNormalizado,
+      senha: senha,
     );
-    if (adminComEmail != null) {
-      throw const EmailJaCadastradoException();
-    }
-
-    final alunoComEmail = await _alunoService.buscarPorEmailOuMatricula(
-      emailNormalizado,
-    );
-    if (alunoComEmail != null) {
-      throw const EmailJaCadastradoException();
-    }
 
     final alunoComMatricula = await _alunoService.buscarPorEmailOuMatricula(
       matriculaNormalizada,
     );
     if (alunoComMatricula != null) {
+      await _authService.excluirContaAtual();
       throw const MatriculaJaCadastradaException();
     }
 
     final novoAluno = await _alunoService.criar(
       Aluno(
-        id: '', // o service (fake ou real) é responsável por gerar o id
+        id: usuarioAuth.uid,
         nome: nome.trim(),
         matricula: matriculaNormalizada,
         email: emailNormalizado,
-        senha: senha,
+        senha: null,
         criadoEm: DateTime.now(),
       ),
     );
@@ -202,7 +197,7 @@ class AuthRepository {
     return ResultadoLogin.aluno(novoAluno);
   }
 
-    Future<GoogleLoginResult> entrarComGoogle() async {
+  Future<GoogleLoginResult> entrarComGoogle() async {
     final usuarioGoogle = await _authService.signInWithGoogle();
 
     if (!usuarioGoogle.email.endsWith('@estudantes.ifpr.edu.br')) {
@@ -239,7 +234,7 @@ class AuthRepository {
 
     final novoAluno = await _alunoService.criar(
       Aluno(
-        id: pendente.uid, // id do documento = uid do Firebase Auth
+        id: pendente.uid,
         nome: pendente.nome,
         matricula: matriculaNormalizada,
         email: pendente.email,
@@ -253,10 +248,8 @@ class AuthRepository {
 
   Stream<Aluno?> get alunoAutenticado {
     return _authService.authStateChanges.asyncMap((usuarioGoogle) async {
-
       if (usuarioGoogle == null) return null;
       return _alunoService.buscarPorId(usuarioGoogle.uid);
-
     });
   }
 
