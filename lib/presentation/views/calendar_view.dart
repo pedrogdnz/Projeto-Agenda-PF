@@ -2,12 +2,12 @@ import 'package:agendapf/data/repositories/auth_repository.dart';
 import 'package:agendapf/presentation/utils/motivo_bloqueio_cor.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/views/detalhes_view.dart';
-import 'package:agendapf/presentation/views/login_view.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
 import 'package:agendapf/core/utils/utils.dart';
 import 'package:agendapf/presentation/widgets/calendar_legenda.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:agendapf/presentation/views/aluno_perfil_view.dart';
 
 class CalendarPage extends StatefulWidget {
   final CalendarViewModel viewModel;
@@ -95,22 +95,16 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   void _abrirPerfil() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Tela de perfil ainda não implementada')),
-    );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AlunoPerfil (
+          alunoId: widget.alunoId,
+          authRepository: widget.authRepository,
+    )
+        )
+    ); 
   }
 
-  Future<void> _signout() async {
-  await widget.authRepository.logout();
-  if (!mounted) return;
-
-  // Remove todas as telas da pilha (calendário, reservas, detalhes etc.)
-  // e volta pro login, impedindo o botão "voltar" de retornar ao app logado.
-  Navigator.of(context).pushAndRemoveUntil(
-    MaterialPageRoute(builder: (context) => const LoginPage()),
-    (route) => false,
-  );
-}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,7 +120,6 @@ class _CalendarPageState extends State<CalendarPage> {
             tooltip: 'Perfil',
             onPressed: _abrirPerfil,
           ),
-          IconButton(onPressed: _signout, icon: Icon(Icons.logout))
         ],
       ),
       backgroundColor: Colors.white,
