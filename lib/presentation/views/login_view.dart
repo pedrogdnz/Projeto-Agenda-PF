@@ -76,11 +76,24 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _mostrarErroSeHouver() {
-    final erro = _viewModel.erro;
-    if (erro != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(erro)));
-    }
-  }
+  final erro = _viewModel.erro;
+  if (erro == null) return;
+
+  final mostrarAcaoCadastro = !_viewModel.ehCadastro;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(erro),
+      action: mostrarAcaoCadastro
+          ? SnackBarAction(
+              label: 'Cadastre-se',
+              onPressed: _viewModel.alternarModo,
+            )
+          : null,
+      duration: const Duration(seconds: 5),
+    ),
+  );
+}
 
   void _navegarAposLogin() {
     final resultado = _viewModel.resultado!;
@@ -97,7 +110,6 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     final administradorRepository = AdministradorRepository(
-      // NOVO
       administradorService: FakeAdministradorService(),
       alunoService: FakeAlunoService(),
     );
@@ -109,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
           builder: (context) => AdminHomePage(
             agendaRepository: agendaRepository,
             alunoRepository: alunoRepository,
-            administradorRepository: administradorRepository, // NOVO
+            administradorRepository: administradorRepository,
           ),
         ),
       );
