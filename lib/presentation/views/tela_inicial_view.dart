@@ -1,3 +1,4 @@
+import 'package:agendapf/presentation/views/login_view.dart';
 import 'package:flutter/material.dart';
 
 class TelaInicialView extends StatefulWidget {
@@ -8,6 +9,15 @@ class TelaInicialView extends StatefulWidget {
 }
 
 class _TelaInicialViewState extends State<TelaInicialView> {
+
+  void _abrirPaginaLogin() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>  LoginPage()
+        )
+    ); 
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -41,7 +51,7 @@ class _TelaInicialViewState extends State<TelaInicialView> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _abrirPaginaLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
