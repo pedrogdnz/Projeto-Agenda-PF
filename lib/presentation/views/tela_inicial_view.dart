@@ -149,7 +149,7 @@ class _TelaInicialViewState extends State<TelaInicialView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Comece,\nÉ sua hora de criar.',
+                                  'Laboratório de \nProcessos Fotográficos',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 32,

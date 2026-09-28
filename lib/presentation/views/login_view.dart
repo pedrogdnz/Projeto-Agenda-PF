@@ -12,6 +12,7 @@ import 'package:agendapf/presentation/views/admin_home_view.dart';
 import 'package:agendapf/presentation/views/calendar_view.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:agendapf/presentation/utils/password_validatior.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -238,7 +239,7 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _viewModel.senhaController,
                 label: 'Senha',
                 isPassword: true,
-                validator: _viewModel.validateSenha,
+                validator: PasswordValidator.validate,
               ),
             ],
           ),

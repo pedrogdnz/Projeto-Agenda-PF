@@ -2,6 +2,8 @@ import 'package:agendapf/data/repositories/auth_repository.dart';
 import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
 import 'package:agendapf/data/services/firebase/firebase_aluno_service.dart';
 import 'package:agendapf/data/services/firebase/firebase_auth_service.dart';
+
+
 import 'package:flutter/material.dart';
 
 /// Controla qual formulário está sendo exibido: Login ou Cadastro (RF01).
