@@ -1,3 +1,4 @@
+import 'package:agendapf/data/models/enum/dia_semana.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/enum/motivo_bloqueio.dart'; // novo import
 import 'package:agendapf/data/repositories/agenda_repository.dart';
@@ -29,6 +30,7 @@ class CalendarViewModel extends ChangeNotifier {
   bool get carregandoDiasBloqueados => _carregandoDiasBloqueados;
   List<HorarioDoDia> get horariosDoDiaSelecionado => _horariosDoDiaSelecionado;
   bool get carregandoHorarios => _carregandoHorarios;
+  Set<DiaSemana>? _diasSemanaAtivos; // null = ainda não carregado
   Map<DateTime, MotivoBloqueio> get diasBloqueados => _diasBloqueados;
   Set<MotivoBloqueio> get motivosBloqueioDoMesVisivel {
     return _diasBloqueados.entries
@@ -50,13 +52,18 @@ class CalendarViewModel extends ChangeNotifier {
     notifyListeners();
 
     _diasBloqueados = await _agendaRepository.buscarDiasBloqueados();
+    _diasSemanaAtivos = await _agendaRepository.buscarDiasSemanaAtivos();
 
     _carregandoDiasBloqueados = false;
     notifyListeners();
   }
 
   bool diaSelecionavel(DateTime dia) {
-    return _agendaRepository.diaSelecionavel(dia, _diasBloqueados);
+    return _agendaRepository.diaSelecionavel(
+      dia,
+      _diasBloqueados,
+      diasSemanaAtivos: _diasSemanaAtivos,
+    );
   }
 
   void selectDay(DateTime selectedDay, DateTime focusedDay) {

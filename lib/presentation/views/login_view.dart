@@ -1,6 +1,6 @@
-import 'package:agendapf/data/models/disponibilidade_padrao_model.dart';
 import 'package:agendapf/data/repositories/administrador_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
+import 'package:agendapf/data/repositories/disponibilidade_padrao_repository.dart';
 import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
 import 'package:agendapf/data/services/fake/fake_aluno_service.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
@@ -106,29 +106,30 @@ class _LoginPageState extends State<LoginPage> {
   void _navegarAposLogin() {
     final resultado = _viewModel.resultado!;
 
-    // 1. Instância compartilhada do FakeHorarioService
     final horarioService = FakeHorarioService();
-
-    // 2. Instâncias dos Repositórios usando a mesma instância de horarioService
-    final agendaRepository = AgendaRepository(
-      dataBloqueadaService: FakeDataBloqueadaService(),
-      horarioService: horarioService,
-      reservaService: FakeReservaService(),
-    );
+    final alunoService = FakeAlunoService();
+    final administradorService = FakeAdministradorService();
 
     final disponibilidadePadraoRepository = DisponibilidadePadraoRepository(
       disponibilidadeService: FakeDisponibilidadePadraoService(),
       horarioService: horarioService,
     );
 
+    final agendaRepository = AgendaRepository(
+      dataBloqueadaService: FakeDataBloqueadaService(),
+      horarioService: horarioService,
+      reservaService: FakeReservaService(),
+      disponibilidadePadraoRepository: disponibilidadePadraoRepository,
+    );
+
     final alunoRepository = AlunoRepository(
-      alunoService: FakeAlunoService(),
-      administradorService: FakeAdministradorService(),
+      alunoService: alunoService,
+      administradorService: administradorService,
     );
 
     final administradorRepository = AdministradorRepository(
-      administradorService: FakeAdministradorService(),
-      alunoService: FakeAlunoService(),
+      administradorService: administradorService,
+      alunoService: alunoService,
     );
 
     if (resultado.ehAdministrador) {
@@ -139,12 +140,9 @@ class _LoginPageState extends State<LoginPage> {
             agendaRepository: agendaRepository,
             alunoRepository: alunoRepository,
             administradorRepository: administradorRepository,
-            DisponibilidadePadraoRepository:
-                disponibilidadePadraoRepository, // Passado aqui
           ),
         ),
       );
-
       return;
     }
 
@@ -435,7 +433,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Image.asset(
         'images/logo_ifpr_black.png',
         height: 70,
-        errorBuilder: (_, __, ___) => const Column(
+        errorBuilder: (_, _, _) => const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
@@ -454,8 +452,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  /// Formulário de Login/Cadastro por e-mail e senha, mais o botão de
-  /// entrar com Google (fluxo do aluno).
   Widget _buildFormPrincipal() {
     final ehCadastro = _viewModel.ehCadastro;
 
@@ -568,7 +564,11 @@ class _LoginPageState extends State<LoginPage> {
                 side: const BorderSide(color: Colors.black, width: 1.2),
                 shape: const StadiumBorder(),
               ),
-              icon: Image.asset('images/google_logo.png', width: 22, height: 22),
+              icon: Image.asset(
+                'images/google_logo.png',
+                width: 22,
+                height: 22,
+              ),
               label: const Text(
                 'Entrar com Google (@estudantes.ifpr.edu.br)',
                 style: TextStyle(fontSize: 12),
