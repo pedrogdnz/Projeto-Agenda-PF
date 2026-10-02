@@ -31,9 +31,46 @@ class _AdminHomePageState extends State<AdminHomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+  icon: const Icon(
+    Icons.arrow_back_ios,
+    color: Colors.black,
+  ),
+  onPressed: () async {
+    final sair = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Sair da página?'),
+          content: const Text(
+            'Tem certeza que deseja sair?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(183, 61, 61, 61),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Sair'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (sair == true && mounted) {
+      Navigator.pop(context);
+    }
+  },
+),
       ),
       body: SafeArea(
         child: Padding(

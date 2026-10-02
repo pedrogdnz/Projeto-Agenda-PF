@@ -102,101 +102,118 @@ class _ConfiguracaoAnoLetivoPageState extends State<ConfiguracaoAnoLetivoPage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-
-              if (modoAtivo != null) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: modoAtivo == TipoConfiguracaoAnoLetivo.ferias
-                        ? Colors.red.shade50
-                        : Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+            
+                if (modoAtivo != null) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
                       color: modoAtivo == TipoConfiguracaoAnoLetivo.ferias
-                          ? Colors.red.shade200
-                          : Colors.blue.shade200,
+                          ? Colors.red.shade50
+                          : Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: modoAtivo == TipoConfiguracaoAnoLetivo.ferias
+                            ? Colors.red.shade200
+                            : Colors.blue.shade200,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            modoAtivo.titulo,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _viewModel.cancelarModo,
+                          child: const Text('Cancelar'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                          ),
+                          onPressed: _viewModel.confirmando ? null : _confirmar,
+                          child: _viewModel.confirmando
+                              ? const SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Confirmar',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          modoAtivo.titulo,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 12),
+                ],
+            
+                _viewModel.carregandoDiasBloqueados
+                    ? const Center(child: LinearProgressIndicator())
+                    : Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: AnoLetivoCalendar(
+                          focusedDay: _viewModel.focusedDay,
+                          modoAtivo: modoAtivo,
+                          datasSelecionadas: _viewModel.datasSelecionadas,
+                          diasBloqueados: _viewModel.diasBloqueados,
+                          diaSelecionavel: _viewModel.diaSelecionavel,
+                          onDataArrastada: _viewModel.adicionarDataArrastada,
+                          onDataTocada: _viewModel.alternarDataTocada,
+                          onPageChanged: _viewModel.changePage,
                         ),
                       ),
-                      TextButton(
-                        onPressed: _viewModel.cancelarModo,
-                        child: const Text('Cancelar'),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                        ),
-                        onPressed: _viewModel.confirmando ? null : _confirmar,
-                        child: _viewModel.confirmando
-                            ? const SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Confirmar',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                      ),
-                    ],
-                  ),
+            
+                const SizedBox(height: 30),
+            
+                AdminMenuButton(
+                  icon: Icons.beach_access_outlined,
+                  label: 'Configurar férias',
+                  ativo: modoAtivo == TipoConfiguracaoAnoLetivo.ferias,
+                  onTap: _viewModel.ativarModoFerias,
                 ),
                 const SizedBox(height: 12),
+                AdminMenuButton(
+                  icon: Icons.event_outlined,
+                  label: 'Configurar feriados',
+                  ativo: modoAtivo == TipoConfiguracaoAnoLetivo.feriados,
+                  onTap: _viewModel.ativarModoFeriados,
+                ),
+                const SizedBox(height: 12),
+                AdminMenuButton(
+                  icon: Icons.schedule_outlined,
+                  label: 'Configurar horários gerais',
+                  onTap: _abrirHorariosGerais,
+                ),
               ],
-
-              _viewModel.carregandoDiasBloqueados
-                  ? const Center(child: LinearProgressIndicator())
-                  : AnoLetivoCalendar(
-                      focusedDay: _viewModel.focusedDay,
-                      modoAtivo: modoAtivo,
-                      datasSelecionadas: _viewModel.datasSelecionadas,
-                      diasBloqueados: _viewModel.diasBloqueados,
-                      diaSelecionavel: _viewModel.diaSelecionavel,
-                      onDataArrastada: _viewModel.adicionarDataArrastada,
-                      onDataTocada: _viewModel.alternarDataTocada,
-                      onPageChanged: _viewModel.changePage,
-                    ),
-
-              const SizedBox(height: 20),
-
-              AdminMenuButton(
-                icon: Icons.beach_access_outlined,
-                label: 'Configurar férias',
-                ativo: modoAtivo == TipoConfiguracaoAnoLetivo.ferias,
-                onTap: _viewModel.ativarModoFerias,
-              ),
-              const SizedBox(height: 12),
-              AdminMenuButton(
-                icon: Icons.event_outlined,
-                label: 'Configurar feriados',
-                ativo: modoAtivo == TipoConfiguracaoAnoLetivo.feriados,
-                onTap: _viewModel.ativarModoFeriados,
-              ),
-              const SizedBox(height: 12),
-              AdminMenuButton(
-                icon: Icons.schedule_outlined,
-                label: 'Configurar horários gerais',
-                onTap: _abrirHorariosGerais,
-              ),
-            ],
+            ),
           ),
         ),
       ),

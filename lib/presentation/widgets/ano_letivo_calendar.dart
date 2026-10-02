@@ -168,7 +168,7 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
         onPageChanged: widget.onPageChanged,
         headerStyle: const HeaderStyle(
           formatButtonVisible: false,
-          titleCentered: false,
+          titleCentered: true,
           titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
           leftChevronIcon: Icon(Icons.chevron_left, color: Colors.black54),
           rightChevronIcon: Icon(Icons.chevron_right, color: Colors.black54),
