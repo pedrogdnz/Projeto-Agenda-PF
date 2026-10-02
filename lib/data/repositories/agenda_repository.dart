@@ -1,8 +1,10 @@
 import 'package:agendapf/data/models/data_bloqueada_model.dart';
+import 'package:agendapf/data/models/enum/dia_semana.dart';
 import 'package:agendapf/data/models/enum/motivo_bloqueio.dart';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
+import 'package:agendapf/data/repositories/disponibilidade_padrao_repository.dart';
 import 'package:agendapf/data/services/abstract/horario_data_source.dart';
 import 'package:agendapf/data/services/abstract/data_bloqueada_source.dart';
 import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
@@ -56,24 +58,36 @@ class AgendaRepository {
   final DataBloqueadaService _dataBloqueadaService;
   final HorarioService _horarioService;
   final ReservaService _reservaService;
+  final DisponibilidadePadraoRepository _disponibilidadePadraoRepository;
 
   const AgendaRepository({
     required DataBloqueadaService dataBloqueadaService,
     required HorarioService horarioService,
     required ReservaService reservaService,
+    required DisponibilidadePadraoRepository disponibilidadePadraoRepository,
   }) : _dataBloqueadaService = dataBloqueadaService,
        _horarioService = horarioService,
-       _reservaService = reservaService;
-
+       _reservaService = reservaService,
+       _disponibilidadePadraoRepository = disponibilidadePadraoRepository;
   HorarioService get horarioService => _horarioService;
   ReservaService get reservaService => _reservaService;
   DataBloqueadaService get dataBloqueadaService => _dataBloqueadaService;
+  DisponibilidadePadraoRepository get disponibilidadePadraoRepository =>
+      _disponibilidadePadraoRepository;
 
   Future<Map<DateTime, MotivoBloqueio>> buscarDiasBloqueados() async {
     final registros = await _dataBloqueadaService.buscarTodas();
     return {
       for (final registro in registros)
         _normalizarData(registro.data): registro.motivo,
+    };
+  }
+
+  Future<Set<DiaSemana>> buscarDiasSemanaAtivos() async {
+    final semana = await _disponibilidadePadraoRepository.buscarSemana();
+    return {
+      for (final d in semana)
+        if (d.horarioIds.isNotEmpty) d.diaSemana,
     };
   }
 
@@ -90,13 +104,18 @@ class AgendaRepository {
 
   bool diaSelecionavel(
     DateTime dia,
-    Map<DateTime, MotivoBloqueio> diasBloqueados,
-  ) {
+    Map<DateTime, MotivoBloqueio> diasBloqueados, {
+    Set<DiaSemana>? diasSemanaAtivos,
+  }) {
     final hoje = _normalizarData(DateTime.now());
     final diaNormalizado = _normalizarData(dia);
 
     if (diaNormalizado.isBefore(hoje)) return false; // RN04
     if (diasBloqueados.containsKey(diaNormalizado)) return false; // RN05
+    if (diasSemanaAtivos != null &&
+        !diasSemanaAtivos.contains(DiaSemana.fromData(diaNormalizado))) {
+      return false; // Regra Geral
+    }
 
     return true;
   }
@@ -108,6 +127,12 @@ class AgendaRepository {
     if (!diaSelecionavel(diaNormalizado, diasBloqueados)) {
       return const [];
     }
+
+    final idsPermitidos =
+        (await _disponibilidadePadraoRepository.horarioIdsPara(
+          diaNormalizado,
+        )).toSet();
+    if (idsPermitidos.isEmpty) return const [];
 
     final horarios = await _horarioService.buscarTodos();
     final reservas = await _reservaService.buscarTodas();
@@ -124,6 +149,7 @@ class AgendaRepository {
     final ehHoje = _normalizarData(agora) == diaNormalizado;
 
     return horarios
+        .where((horario) => idsPermitidos.contains(horario.id))
         .where((horario) {
           if (!ehHoje) return true;
           final inicio = _combinarDataEHora(
@@ -135,13 +161,12 @@ class AgendaRepository {
         .map((horario) {
           final fundosOcupados =
               fundosOcupadosPorHorario[horario.id] ?? const {};
-          final disponibilidade = {
-            for (final fundo in CorFundoHorario.values)
-              fundo: !fundosOcupados.contains(fundo),
-          };
           return HorarioDoDia(
             horario: horario,
-            disponibilidadePorFundo: disponibilidade,
+            disponibilidadePorFundo: {
+              for (final fundo in CorFundoHorario.values)
+                fundo: !fundosOcupados.contains(fundo),
+            },
           );
         })
         .toList();
@@ -156,6 +181,19 @@ class AgendaRepository {
   }) async {
     final diaNormalizado = _normalizarData(data);
     final diasBloqueados = await buscarDiasBloqueados();
+    final idsPermitidos = await _disponibilidadePadraoRepository.horarioIdsPara(
+      diaNormalizado,
+    );
+    if (idsPermitidos.isEmpty) {
+      throw const DataIndisponivelException(
+        'O laboratório não atende neste dia da semana.',
+      );
+    }
+    if (!idsPermitidos.contains(horarioId)) {
+      throw const HorarioInvalidoException(
+        'Este horário não está disponível neste dia da semana.',
+      );
+    }
 
     if (!diaSelecionavel(diaNormalizado, diasBloqueados)) {
       throw const DataIndisponivelException();
