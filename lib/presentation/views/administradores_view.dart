@@ -46,7 +46,6 @@ class _AdministradoresPageState extends State<AdministradoresPage> {
         ),
       ),
     );
-    // Ao voltar (após edição ou exclusão), recarrega a lista.
     _viewModel.carregarAdministradores();
   }
 

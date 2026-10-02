@@ -14,7 +14,6 @@ class DisponibilidadePadraoViewModel extends ChangeNotifier {
   bool _carregando = true;
   List<Horario> _horarios = [];
 
-  /// Seleção em edição (ainda não salva) e o último estado persistido.
   final Map<DiaSemana, Set<String>> _selecao = {};
   final Map<DiaSemana, Set<String>> _salvo = {};
 

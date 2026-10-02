@@ -1,4 +1,4 @@
-import 'package:agendapf/presentation/views/login_view.dart';
+import 'package:agendapf/presentation/views/tela_inicial_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -13,9 +13,7 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await initializeDateFormatting('pt_BR', null);
 
@@ -31,7 +29,7 @@ class MyApp extends StatelessWidget {
       title: 'Agenda - Processos Fotográficos',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorScheme: ColorScheme.light(primary: Colors.black)),
-      home: LoginPage(),
+      home: TelaInicialView(),
     );
   }
 }

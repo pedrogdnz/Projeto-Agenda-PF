@@ -4,8 +4,8 @@ class PasswordValidator {
       return 'Digite uma senha.';
     }
 
-    if (password.length < 8) {
-      return 'A senha deve ter pelo menos 8 caracteres.';
+    if (password.length < 6) {
+      return 'A senha deve ter pelo menos 6 caracteres.';
     }
 
     if (!RegExp(r'[A-Z]').hasMatch(password)) {

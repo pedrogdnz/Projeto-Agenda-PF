@@ -492,7 +492,7 @@ class _LoginPageState extends State<LoginPage> {
                 label: 'Senha:',
                 controller: _viewModel.senhaController,
                 isSenha: true,
-                validator: PasswordValidator.validate,
+                validator: ehCadastro ? PasswordValidator.validate : _viewModel.validateSenha,
               ),
             ],
           ),

@@ -7,7 +7,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 /// Calendário da Configuração do Ano Letivo (admin). Semelhante ao
 /// calendário do aluno, mas com dois modos extras de seleção:
-/// - Férias: arrastar o dedo seleciona várias datas consecutivas (vermelho).
+/// - Férias: arrastar o dedo seleciona ou desmarca várias datas consecutivas (vermelho).
 /// - Feriados: tocar em cada data alterna sua seleção individualmente (azul).
 
 class AnoLetivoCalendar extends StatefulWidget {
@@ -41,6 +41,7 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
   // arraste (modo Férias). É repopulado a cada build do mês visível.
   final Map<DateTime, GlobalKey> _chavesPorDia = {};
   DateTime? _ultimoDiaArrastado;
+  bool? _desmarcandoAoArrastar; // Define se o gesto atual está marcando ou desmarcando
 
   bool get _modoFerias => widget.modoAtivo == TipoConfiguracaoAnoLetivo.ferias;
   bool get _modoFeriados =>
@@ -63,9 +64,22 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
       final areaCelula = Offset.zero & renderBox.size;
 
       if (areaCelula.contains(posicaoLocal)) {
-        if (_ultimoDiaArrastado == entrada.key) return;
-        _ultimoDiaArrastado = entrada.key;
-        widget.onDataArrastada(entrada.key);
+        final dia = entrada.key;
+        if (_ultimoDiaArrastado == dia) return;
+
+        // Define a ação do gesto (marcar ou desmarcar) com base no primeiro dia tocado
+        _desmarcandoAoArrastar ??= widget.datasSelecionadas.contains(dia);
+
+        _ultimoDiaArrastado = dia;
+
+        final jaSelecionado = widget.datasSelecionadas.contains(dia);
+
+        // Dispara a callback para alternar o estado do dia conforme a intenção do gesto
+        if (_desmarcandoAoArrastar! && jaSelecionado) {
+          widget.onDataArrastada(dia);
+        } else if (!_desmarcandoAoArrastar! && !jaSelecionado) {
+          widget.onDataArrastada(dia);
+        }
         return;
       }
     }
@@ -123,6 +137,11 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
     );
   }
 
+  void _limparEstadoPonteiro() {
+    _ultimoDiaArrastado = null;
+    _desmarcandoAoArrastar = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     _chavesPorDia.clear();
@@ -130,7 +149,8 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
     return Listener(
       onPointerDown: (e) => _handlePonteiro(e.position),
       onPointerMove: (e) => _handlePonteiro(e.position),
-      onPointerUp: (_) => _ultimoDiaArrastado = null,
+      onPointerUp: (_) => _limparEstadoPonteiro(),
+      onPointerCancel: (_) => _limparEstadoPonteiro(),
       child: TableCalendar(
         locale: 'pt_BR',
         firstDay: kFirstDay,
@@ -142,7 +162,7 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
         selectedDayPredicate: (_) => false,
         onDaySelected: (selectedDay, focusedDay) {
           if (_modoFeriados) {
-            widget.onDataTocada(selectedDay);
+            widget.onDataTocada(_normalizar(selectedDay));
           }
         },
         onPageChanged: widget.onPageChanged,
@@ -163,7 +183,6 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
             fontWeight: FontWeight.w500,
           ),
         ),
-
         calendarStyle: const CalendarStyle(outsideDaysVisible: false),
         calendarBuilders: CalendarBuilders(
           defaultBuilder: (context, day, focusedDay) => _celulaDia(day),
