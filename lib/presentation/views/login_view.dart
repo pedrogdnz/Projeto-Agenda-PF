@@ -169,19 +169,25 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: _corFundo,
       body: Stack(
+        fit: StackFit.expand,
         children: [
           // Fundo gradiente do header (preto -> cinza escuro)
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            height: _alturaHeader + _raioCurva,
+            height: _alturaHeader + 160,
             child: const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFF000000), Color(0xFF5C5C5C)],
+                  stops: [0.0, 0.4, 1.0],
+                  colors: [
+                    Color(0xFF000000),
+                    Color(0xFF222222),
+                    Color(0xFF5C5C5C),
+                  ],
                 ),
               ),
             ),
@@ -242,13 +248,6 @@ class _LoginPageState extends State<LoginPage> {
               },
             ),
           ),
-
-          // Câmera (com alça saindo do topo)
-          Positioned(
-            top: 0,
-            right: 25,
-            child: Image.asset('images/camera.png', width: 150),
-          ),
         ],
       ),
     );
@@ -259,24 +258,37 @@ class _LoginPageState extends State<LoginPage> {
     return SizedBox(
       height: _alturaHeader,
       width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 48, 20, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              titulo,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 38,
-                height: 1.1,
-              ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Título e subtítulo
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 48, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 38,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                subtitulo,
+              ],
             ),
-            const SizedBox(height: 14),
-            subtitulo,
-          ],
-        ),
+          ),
+
+          // Câmera
+          Positioned(
+            top: 0,
+            right: 20,
+            child: Image.asset('images/camera.png', width: 120),
+          ),
+        ],
       ),
     );
   }
@@ -311,7 +323,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  /// Campo com label em cima, fundo branco, cantos arredondados e sombra.
   Widget _buildCampo({
     required String label,
     required TextEditingController controller,
@@ -327,40 +338,64 @@ class _LoginPageState extends State<LoginPage> {
           label,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
+
         const SizedBox(height: 8),
-        Material(
-          color: Colors.white,
-          elevation: 4,
-          shadowColor: Colors.black54,
-          borderRadius: BorderRadius.circular(8),
-          child: TextFormField(
-            controller: controller,
-            keyboardType: keyboardType,
-            obscureText: isSenha && _ocultarSenha,
-            validator: validator,
-            style: const TextStyle(fontSize: 15),
-            decoration: InputDecoration(
-              hintText: hint,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-              suffixIcon: isSenha
-                  ? IconButton(
-                      icon: Icon(
-                        _ocultarSenha
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: Colors.black87,
-                      ),
-                      onPressed: () =>
-                          setState(() => _ocultarSenha = !_ocultarSenha),
-                    )
-                  : null,
+
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          obscureText: isSenha && _ocultarSenha,
+          validator: validator,
+          style: const TextStyle(fontSize: 15),
+
+          decoration: InputDecoration(
+            hintText: hint,
+
+            filled: true,
+            fillColor: Colors.white,
+
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
             ),
+
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+
+            // Configuração da mensagem de erro
+            errorStyle: const TextStyle(
+              color: Colors.red,
+              fontSize: 12,
+              height: 1.3,
+            ),
+
+            suffixIcon: isSenha
+                ? IconButton(
+                    icon: Icon(
+                      _ocultarSenha
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.black87,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _ocultarSenha = !_ocultarSenha;
+                      });
+                    },
+                  )
+                : null,
           ),
         ),
       ],
@@ -483,7 +518,6 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _viewModel.emailController,
                 keyboardType: TextInputType.emailAddress,
                 validator: _viewModel.validateEmail,
-                hint: 'aluno@exemplo.com',
               ),
 
               const SizedBox(height: 20),
@@ -492,7 +526,9 @@ class _LoginPageState extends State<LoginPage> {
                 label: 'Senha:',
                 controller: _viewModel.senhaController,
                 isSenha: true,
-                validator: ehCadastro ? PasswordValidator.validate : _viewModel.validateSenha,
+                validator: ehCadastro
+                    ? PasswordValidator.validate
+                    : _viewModel.validateSenha,
               ),
             ],
           ),
