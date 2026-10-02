@@ -4,6 +4,7 @@ import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/ano_letivo_viewmodel.dart';
 import 'package:agendapf/presentation/widgets/admin_menu_button.dart';
 import 'package:agendapf/presentation/widgets/ano_letivo_calendar.dart';
+import 'horarios_gerais_view.dart';
 
 class ConfiguracaoAnoLetivoPage extends StatefulWidget {
   final AgendaRepository agendaRepository;
@@ -50,6 +51,18 @@ class _ConfiguracaoAnoLetivoPageState extends State<ConfiguracaoAnoLetivoPage> {
     }
 
     setState(() {});
+  }
+
+  void _abrirHorariosGerais() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HorariosGeraisPage(
+          disponibilidadePadraoRepository:
+              widget.agendaRepository.disponibilidadePadraoRepository,
+        ),
+      ),
+    );
   }
 
   @override
@@ -181,7 +194,7 @@ class _ConfiguracaoAnoLetivoPageState extends State<ConfiguracaoAnoLetivoPage> {
               AdminMenuButton(
                 icon: Icons.schedule_outlined,
                 label: 'Configurar horários gerais',
-                onTap: _viewModel.tentarAbrirHorariosGerais,
+                onTap: _abrirHorariosGerais,
               ),
             ],
           ),

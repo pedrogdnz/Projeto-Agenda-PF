@@ -51,11 +51,6 @@ class AnoLetivoViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void tentarAbrirHorariosGerais() {
-    _mensagemInfo = 'Tela ainda não implementada';
-    notifyListeners();
-  }
-
   void limparMensagemInfo() {
     _mensagemInfo = null;
   }
@@ -76,7 +71,6 @@ class AnoLetivoViewModel extends ChangeNotifier {
 
     final diaNormalizado = _normalizarData(dia);
     if (!diaSelecionavel(diaNormalizado)) return;
-    if (_diasBloqueados.containsKey(diaNormalizado)) return;
     if (_diasBloqueados.containsKey(diaNormalizado)) return;
 
     _datasSelecionadas.add(diaNormalizado);

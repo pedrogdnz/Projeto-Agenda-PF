@@ -59,11 +59,10 @@ class DetalhesViewModel extends ChangeNotifier {
 
     final horarioAtual = _horarioSelecionado;
     if (horarioAtual != null) {
-      final item = _horariosDoDia
-          .where((h) => h.horario.id == horarioAtual.id)
-          .cast<HorarioDoDia?>()
-          .firstWhere((h) => true, orElse: () => null);
-
+      HorarioDoDia? item;
+      for (final h in _horariosDoDia) {
+        if (h.horario.id == horarioAtual.id) item = h;
+      }
       if (item == null || !item.disponivelPara(fundo)) {
         _horarioSelecionado = null;
       }
