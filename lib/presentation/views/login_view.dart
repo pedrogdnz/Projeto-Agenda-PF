@@ -1,9 +1,11 @@
+import 'package:agendapf/data/models/disponibilidade_padrao_model.dart';
 import 'package:agendapf/data/repositories/administrador_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
 import 'package:agendapf/data/services/fake/fake_aluno_service.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
+import 'package:agendapf/data/services/fake/fake_disponibilidade_padrao_service.dart';
 import 'package:agendapf/data/services/fake/fake_horario_service.dart';
 import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
@@ -96,10 +98,19 @@ class _LoginPageState extends State<LoginPage> {
   void _navegarAposLogin() {
     final resultado = _viewModel.resultado!;
 
+    // 1. Instância compartilhada do FakeHorarioService
+    final horarioService = FakeHorarioService();
+
+    // 2. Instâncias dos Repositórios usando a mesma instância de horarioService
     final agendaRepository = AgendaRepository(
       dataBloqueadaService: FakeDataBloqueadaService(),
-      horarioService: FakeHorarioService(),
+      horarioService: horarioService,
       reservaService: FakeReservaService(),
+    );
+
+    final disponibilidadePadraoRepository = DisponibilidadePadraoRepository(
+      disponibilidadeService: FakeDisponibilidadePadraoService(),
+      horarioService: horarioService,
     );
 
     final alunoRepository = AlunoRepository(
@@ -120,6 +131,8 @@ class _LoginPageState extends State<LoginPage> {
             agendaRepository: agendaRepository,
             alunoRepository: alunoRepository,
             administradorRepository: administradorRepository,
+            DisponibilidadePadraoRepository:
+                disponibilidadePadraoRepository, // Passado aqui
           ),
         ),
       );
