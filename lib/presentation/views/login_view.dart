@@ -402,42 +402,31 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  /// Botão estilo "trilho": pílula preta à esquerda sobre trilho cinza.
-  Widget _buildBotaoTrilho({
+  /// Botão preto simples
+  Widget _buildBotaoPreto({
     required String texto,
     required VoidCallback? onPressed,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: GestureDetector(
-        onTap: onPressed,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            height: 36,
-            width: double.infinity,
-            color: const Color(0xFFD9D9D9),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: FractionallySizedBox(
-                widthFactor: 0.59,
-                heightFactor: 1,
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    texto,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            texto,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
         ),
@@ -557,7 +546,7 @@ class _LoginPageState extends State<LoginPage> {
 
         const SizedBox(height: 28),
 
-        _buildBotaoTrilho(
+        _buildBotaoPreto(
           texto: ehCadastro ? 'Cadastrar' : 'Login',
           onPressed: _viewModel.carregando ? null : _enviar,
         ),
@@ -642,7 +631,7 @@ class _LoginPageState extends State<LoginPage> {
 
         const SizedBox(height: 28),
 
-        _buildBotaoTrilho(
+        _buildBotaoPreto(
           texto: 'Concluir cadastro',
           onPressed: _viewModel.carregando ? null : _confirmarMatriculaGoogle,
         ),
