@@ -9,13 +9,10 @@ class TelaInicialView extends StatefulWidget {
 }
 
 class _TelaInicialViewState extends State<TelaInicialView> {
-
   void _abrirPaginaLogin() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) =>  LoginPage()
-        )
-    ); 
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
   @override
@@ -74,7 +71,7 @@ class _TelaInicialViewState extends State<TelaInicialView> {
             ),
           ),
 
-          // 2. CARD SUPERIOR 
+          // 2. CARD SUPERIOR
           Positioned(
             top: 0,
             left: 0,
@@ -84,11 +81,10 @@ class _TelaInicialViewState extends State<TelaInicialView> {
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(45),
-                  
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.18),
+                    color: Colors.black.withValues(alpha: 0.18),
                     blurRadius: 25,
                     offset: const Offset(0, 10),
                     spreadRadius: -2,
@@ -98,7 +94,6 @@ class _TelaInicialViewState extends State<TelaInicialView> {
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(45),
-                  
                 ),
                 child: Stack(
                   children: [
@@ -109,7 +104,6 @@ class _TelaInicialViewState extends State<TelaInicialView> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    // Gradiente escuro sobre a imagem
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
@@ -117,15 +111,14 @@ class _TelaInicialViewState extends State<TelaInicialView> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black.withOpacity(0.6),
-                              Colors.black.withOpacity(0.4),
-                              Colors.black.withOpacity(0.75),
+                              Colors.black.withValues(alpha: 0.6),
+                              Colors.black.withValues(alpha: 0.4),
+                              Colors.black.withValues(alpha: 0.75),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    // Conteúdo do topo
                     SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(

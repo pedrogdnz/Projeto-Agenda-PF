@@ -134,16 +134,16 @@ class _CalendarPageState extends State<CalendarPage> {
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
               const Text("Selecione uma data", style: TextStyle(fontSize: 14)),
-          
+
               const SizedBox(height: 24),
-          
+
               AnimatedBuilder(
                 animation: _viewModel,
                 builder: (context, _) {
                   if (_viewModel.carregandoDiasBloqueados) {
                     return const Center(child: LinearProgressIndicator());
                   }
-          
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -153,7 +153,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
+                              color: Colors.black.withValues(alpha: 0.06),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -165,7 +165,7 @@ class _CalendarPageState extends State<CalendarPage> {
                             disabledBuilder: (context, day, focusedDay) {
                               final motivo = _viewModel.motivoBloqueioPara(day);
                               if (motivo == null) return null;
-          
+
                               return Container(
                                 margin: const EdgeInsets.all(4),
                                 alignment: Alignment.center,
@@ -184,30 +184,30 @@ class _CalendarPageState extends State<CalendarPage> {
                             },
                           ),
                           locale: 'pt_BR',
-          
+
                           firstDay: kFirstDay,
                           lastDay: kLastDay,
-          
+
                           focusedDay: _viewModel.focusedDay,
                           calendarFormat: CalendarFormat.month,
-          
+
                           availableGestures: AvailableGestures.horizontalSwipe,
-          
+
                           enabledDayPredicate: (day) =>
                               _viewModel.diaSelecionavel(day),
-          
+
                           selectedDayPredicate: (day) {
                             return isSameDay(_viewModel.selectedDay, day);
                           },
-          
+
                           onDaySelected: (selectedDay, focusedDay) {
                             _viewModel.selectDay(selectedDay, focusedDay);
                           },
-          
+
                           onPageChanged: (focusedDay) {
                             _viewModel.changePage(focusedDay);
                           },
-          
+
                           headerStyle: const HeaderStyle(
                             formatButtonVisible: false,
                             titleCentered: true,
@@ -224,7 +224,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               color: Colors.black54,
                             ),
                           ),
-          
+
                           daysOfWeekStyle: const DaysOfWeekStyle(
                             weekdayStyle: TextStyle(
                               color: Colors.grey,
@@ -235,10 +235,10 @@ class _CalendarPageState extends State<CalendarPage> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-          
+
                           calendarStyle: CalendarStyle(
                             isTodayHighlighted: true,
-          
+
                             disabledTextStyle: TextStyle(
                               color: Colors.grey.shade400,
                               decoration: TextDecoration.lineThrough,
@@ -247,32 +247,34 @@ class _CalendarPageState extends State<CalendarPage> {
                               color: Colors.transparent,
                               shape: BoxShape.circle,
                             ),
-          
+
                             todayDecoration: BoxDecoration(
                               color: Colors.blue.shade200,
                               shape: BoxShape.circle,
                             ),
-          
+
                             selectedDecoration: const BoxDecoration(
                               color: Color(0xFF3F51B5),
                               shape: BoxShape.circle,
                             ),
-          
+
                             selectedTextStyle: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
-          
-                            todayTextStyle: const TextStyle(color: Colors.white),
-          
+
+                            todayTextStyle: const TextStyle(
+                              color: Colors.white,
+                            ),
+
                             outsideTextStyle: TextStyle(
                               color: Colors.grey.shade400,
                             ),
-          
+
                             defaultTextStyle: const TextStyle(
                               color: Colors.black87,
                             ),
-          
+
                             weekendTextStyle: const TextStyle(
                               color: Colors.black87,
                             ),
@@ -280,7 +282,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                       ),
                       const SizedBox(height: 14),
-          
+
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -295,9 +297,9 @@ class _CalendarPageState extends State<CalendarPage> {
                               _viewModel.motivosBloqueioDoMesVisivel,
                         ),
                       ),
-          
+
                       const SizedBox(height: 16),
-          
+
                       InkWell(
                         borderRadius: BorderRadius.circular(18),
                         onTap: _abrirReservas,
@@ -322,9 +324,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                   size: 26,
                                 ),
                               ),
-          
+
                               const SizedBox(width: 14),
-          
+
                               const Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,9 +338,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-          
+
                                     SizedBox(height: 4),
-          
+
                                     Text(
                                       'Consulte suas reservas e detalhes',
                                       style: TextStyle(
@@ -349,8 +351,11 @@ class _CalendarPageState extends State<CalendarPage> {
                                   ],
                                 ),
                               ),
-          
-                              const Icon(Icons.chevron_right, color: Colors.grey),
+
+                              const Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey,
+                              ),
                             ],
                           ),
                         ),
