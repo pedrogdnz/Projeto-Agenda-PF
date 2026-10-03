@@ -5,6 +5,8 @@ import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/views/ano_letivo_view.dart';
 import 'package:agendapf/presentation/views/alunos_view.dart';
 import 'package:agendapf/presentation/views/administradores_view.dart';
+// Importe a página de perfil do administrador quando ela for criada
+// import 'package:agendapf/presentation/views/administrador_perfil_view.dart';
 
 class AdminHomePage extends StatefulWidget {
   final AgendaRepository agendaRepository;
@@ -23,6 +25,29 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
+  // NOVO: Função para abrir o perfil do Administrador
+  void _abrirPerfil() {
+    // Descomente e ajuste abaixo quando a página AdministradorPerfil for criada.
+    // Lembre-se de passar os repositórios/IDs necessários no construtor dela.
+    /*
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AdministradorPerfil(
+          // adminId: widget.adminId, 
+          // authRepository: widget.authRepository,
+        ),
+      ),
+    );
+    */
+
+    // Aviso temporário
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Perfil do Administrador: tela ainda não implementada'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,46 +56,52 @@ class _AdminHomePageState extends State<AdminHomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-  icon: const Icon(
-    Icons.arrow_back_ios,
-    color: Colors.black,
-  ),
-  onPressed: () async {
-    final sair = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Sair da página?'),
-          content: const Text(
-            'Tem certeza que deseja sair?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context, false);
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () async {
+            final sair = await showDialog<bool>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text('Sair da página?'),
+                  content: const Text('Tem certeza que deseja sair?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, false);
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(183, 61, 61, 61),
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Sair'),
+                    ),
+                  ],
+                );
               },
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(183, 61, 61, 61),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Sair'),
-            ),
-          ],
-        );
-      },
-    );
+            );
 
-    if (sair == true && mounted) {
-      Navigator.pop(context);
-    }
-  },
-),
+            if (sair == true && mounted) {
+              Navigator.pop(context);
+            }
+          },
+        ),
+        // NOVO: Ícone de perfil adicionado ao actions do AppBar
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.account_circle_outlined,
+              color: Colors.black,
+            ),
+            tooltip: 'Perfil',
+            onPressed: _abrirPerfil,
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -104,13 +135,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
               const SizedBox(height: 16),
 
               _AdminMenuButton(
-                icon: Icons.event_note_outlined,
-                label: 'Reservas',
-                onTap: () => _abrirModulo(context, 'CRUD de Reservas'),
-              ),
-              const SizedBox(height: 16),
-
-              _AdminMenuButton(
                 icon: Icons.admin_panel_settings_outlined,
                 label: 'Administradores',
                 onTap: () => _abrirAdministradores(context),
@@ -125,7 +149,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           if (index == 1) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Pendências: tela ainda não implementada'),
+                content: Text('Reservas: tela ainda não implementada'),
               ),
             );
           }
@@ -147,12 +171,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.pending_actions_outlined),
             activeIcon: Icon(Icons.pending_actions),
-            label: 'Pendências',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Conta',
+            label: 'Reservas',
           ),
         ],
       ),
@@ -190,12 +209,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
           administradorRepository: widget.administradorRepository,
         ),
       ),
-    );
-  }
-
-  void _abrirModulo(BuildContext context, String nome) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$nome: tela ainda não implementada')),
     );
   }
 }
