@@ -19,6 +19,7 @@ class AnoLetivoCalendar extends StatefulWidget {
   final ValueChanged<DateTime> onDataArrastada;
   final ValueChanged<DateTime> onDataTocada;
   final ValueChanged<DateTime> onPageChanged;
+  final ValueChanged<DateTime> onDataBloqueadaTocada;
 
   const AnoLetivoCalendar({
     super.key,
@@ -30,6 +31,7 @@ class AnoLetivoCalendar extends StatefulWidget {
     required this.onDataArrastada,
     required this.onDataTocada,
     required this.onPageChanged,
+    required this.onDataBloqueadaTocada,
   });
 
   @override
@@ -41,7 +43,8 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
   // arraste (modo Férias). É repopulado a cada build do mês visível.
   final Map<DateTime, GlobalKey> _chavesPorDia = {};
   DateTime? _ultimoDiaArrastado;
-  bool? _desmarcandoAoArrastar; // Define se o gesto atual está marcando ou desmarcando
+  bool?
+  _desmarcandoAoArrastar; // Define se o gesto atual está marcando ou desmarcando
 
   bool get _modoFerias => widget.modoAtivo == TipoConfiguracaoAnoLetivo.ferias;
   bool get _modoFeriados =>
@@ -161,8 +164,15 @@ class _AnoLetivoCalendarState extends State<AnoLetivoCalendar> {
         enabledDayPredicate: (day) => widget.diaSelecionavel(day),
         selectedDayPredicate: (_) => false,
         onDaySelected: (selectedDay, focusedDay) {
+          final dia = _normalizar(selectedDay);
+
+          if (widget.diasBloqueados.containsKey(dia)) {
+            widget.onDataBloqueadaTocada(dia);
+            return;
+          }
+
           if (_modoFeriados) {
-            widget.onDataTocada(_normalizar(selectedDay));
+            widget.onDataTocada(dia);
           }
         },
         onPageChanged: widget.onPageChanged,

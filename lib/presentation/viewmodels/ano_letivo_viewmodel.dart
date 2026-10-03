@@ -134,6 +134,28 @@ class AnoLetivoViewModel extends ChangeNotifier {
     _erro = null;
   }
 
+  Future<bool> removerBloqueio(DateTime dia) async {
+    final diaNormalizado = _normalizarData(dia);
+    if (!_diasBloqueados.containsKey(diaNormalizado)) return false;
+
+    _confirmando = true;
+    _erro = null;
+    notifyListeners();
+
+    try {
+      await _agendaRepository.desbloquearDatas([diaNormalizado]);
+      await carregarDiasBloqueados();
+      _mensagemInfo = 'Restrição removida.';
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      return false;
+    } finally {
+      _confirmando = false;
+      notifyListeners();
+    }
+  }
+
   DateTime _normalizarData(DateTime data) {
     return DateTime(data.year, data.month, data.day);
   }

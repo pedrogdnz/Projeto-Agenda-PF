@@ -4,6 +4,8 @@ import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/ano_letivo_viewmodel.dart';
 import 'package:agendapf/presentation/widgets/admin_menu_button.dart';
 import 'package:agendapf/presentation/widgets/ano_letivo_calendar.dart';
+import 'package:intl/intl.dart';
+import 'package:agendapf/presentation/utils/motivo_bloqueio_cor.dart';
 import 'horarios_gerais_view.dart';
 
 class ConfiguracaoAnoLetivoPage extends StatefulWidget {
@@ -65,6 +67,41 @@ class _ConfiguracaoAnoLetivoPageState extends State<ConfiguracaoAnoLetivoPage> {
     );
   }
 
+  Future<void> _confirmarRemocaoBloqueio(DateTime dia) async {
+    final motivo = _viewModel.diasBloqueados[dia];
+    final descricao = motivo == null
+        ? 'bloqueio'
+        : descricaoMotivoBloqueio(motivo);
+
+    final confirmou = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remover restrição'),
+        content: Text(
+          'Remover "$descricao" do dia ${DateFormat('dd/MM/yyyy').format(dia)}? '
+          'A data voltará a ficar disponível para reservas.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Voltar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Sim, remover',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmou != true || !mounted) return;
+    await _viewModel.removerBloqueio(dia);
+  }
+
   @override
   void dispose() {
     _viewModel.removeListener(_handleViewModelChange);
@@ -107,7 +144,7 @@ class _ConfiguracaoAnoLetivoPageState extends State<ConfiguracaoAnoLetivoPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-            
+
                 if (modoAtivo != null) ...[
                   Container(
                     width: double.infinity,
@@ -162,7 +199,7 @@ class _ConfiguracaoAnoLetivoPageState extends State<ConfiguracaoAnoLetivoPage> {
                   ),
                   const SizedBox(height: 12),
                 ],
-            
+
                 _viewModel.carregandoDiasBloqueados
                     ? const Center(child: LinearProgressIndicator())
                     : Container(
@@ -187,12 +224,17 @@ class _ConfiguracaoAnoLetivoPageState extends State<ConfiguracaoAnoLetivoPage> {
                           diaSelecionavel: _viewModel.diaSelecionavel,
                           onDataArrastada: _viewModel.adicionarDataArrastada,
                           onDataTocada: _viewModel.alternarDataTocada,
+                          onDataBloqueadaTocada: _confirmarRemocaoBloqueio,
                           onPageChanged: _viewModel.changePage,
                         ),
                       ),
-            
+                const SizedBox(height: 8),
+                Text(
+                  'Toque em uma data já marcada para remover a restrição.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
                 const SizedBox(height: 30),
-            
+
                 AdminMenuButton(
                   icon: Icons.beach_access_outlined,
                   label: 'Configurar férias',

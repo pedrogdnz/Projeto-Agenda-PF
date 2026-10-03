@@ -172,6 +172,17 @@ class AgendaRepository {
         .toList();
   }
 
+  Future<void> desbloquearDatas(List<DateTime> datas) async {
+    final alvo = datas.map(_normalizarData).toSet();
+    final registros = await _dataBloqueadaService.buscarTodas();
+
+    for (final registro in registros) {
+      if (alvo.contains(_normalizarData(registro.data))) {
+        await _dataBloqueadaService.excluir(registro.id);
+      }
+    }
+  }
+
   Future<Reserva> criarReserva({
     required String alunoId,
     required String horarioId,
