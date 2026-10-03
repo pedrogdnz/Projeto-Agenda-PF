@@ -86,7 +86,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               },
             );
 
-            if (sair == true && mounted) {
+            if (sair == true && context.mounted) {
               Navigator.pop(context);
             }
           },

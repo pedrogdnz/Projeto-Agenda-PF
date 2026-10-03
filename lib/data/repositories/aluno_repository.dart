@@ -15,9 +15,6 @@ class AlunoNaoEncontradoException implements Exception {
   String toString() => mensagem;
 }
 
-/// Repositório de CRUD de Alunos usado pelo painel do Administrador.
-/// Reaproveita as mesmas exceções de conflito de e-mail/matrícula já
-/// definidas em [AuthRepository] em vez de duplicar essa validação.
 class AlunoRepository {
   final AlunoService _alunoService;
   final AdministradorService _administradorService;
@@ -34,9 +31,6 @@ class AlunoRepository {
 
   Future<Aluno?> buscarPorId(String id) => _alunoService.buscarPorId(id);
 
-  /// Atualiza os dados cadastrais do aluno. Se [novaSenha] vier nula ou
-  /// vazia, a senha atual é preservada — o administrador nunca visualiza
-  /// a senha existente, apenas pode substituí-la por uma nova.
   Future<Aluno> atualizar({
     required String id,
     required String nome,
