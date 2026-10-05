@@ -120,7 +120,10 @@ class AgendaRepository {
     return true;
   }
 
-  Future<List<HorarioDoDia>> buscarHorariosDoDia(DateTime dia) async {
+  Future<List<HorarioDoDia>> buscarHorariosDoDia(
+    DateTime dia, {
+    String? ignorarReservaId,
+  }) async {
     final diaNormalizado = _normalizarData(dia);
     final diasBloqueados = await buscarDiasBloqueados();
 
@@ -139,6 +142,7 @@ class AgendaRepository {
 
     final fundosOcupadosPorHorario = <String, Set<CorFundoHorario>>{};
     for (final reserva in reservas) {
+      if (reserva.id == ignorarReservaId) continue; // NOVO
       if (_normalizarData(reserva.dataReserva) != diaNormalizado) continue;
       fundosOcupadosPorHorario
           .putIfAbsent(reserva.horarioId, () => {})
@@ -183,17 +187,15 @@ class AgendaRepository {
     }
   }
 
-  Future<Reserva> criarReserva({
-    required String alunoId,
+  Future<void> _validarSlot({
+    required DateTime dia,
     required String horarioId,
-    required DateTime data,
     required CorFundoHorario corFundo,
-    String descricao = '',
+    String? ignorarReservaId,
   }) async {
-    final diaNormalizado = _normalizarData(data);
     final diasBloqueados = await buscarDiasBloqueados();
     final idsPermitidos = await _disponibilidadePadraoRepository.horarioIdsPara(
-      diaNormalizado,
+      dia,
     );
     if (idsPermitidos.isEmpty) {
       throw const DataIndisponivelException(
@@ -206,7 +208,7 @@ class AgendaRepository {
       );
     }
 
-    if (!diaSelecionavel(diaNormalizado, diasBloqueados)) {
+    if (!diaSelecionavel(dia, diasBloqueados)) {
       throw const DataIndisponivelException();
     }
 
@@ -218,14 +220,29 @@ class AgendaRepository {
     final reservas = await _reservaService.buscarTodas();
     final jaReservado = reservas.any(
       (r) =>
+          r.id != ignorarReservaId &&
           r.horarioId == horarioId &&
           r.corFundo == corFundo &&
-          _normalizarData(r.dataReserva) == diaNormalizado,
+          _normalizarData(r.dataReserva) == dia,
     );
-
     if (jaReservado) {
       throw const HorarioIndisponivelException();
     }
+  }
+
+  Future<Reserva> criarReserva({
+    required String alunoId,
+    required String horarioId,
+    required DateTime data,
+    required CorFundoHorario corFundo,
+    String descricao = '',
+  }) async {
+    final diaNormalizado = _normalizarData(data);
+    await _validarSlot(
+      dia: diaNormalizado,
+      horarioId: horarioId,
+      corFundo: corFundo,
+    );
 
     return _reservaService.criar(
       Reserva(
@@ -237,6 +254,42 @@ class AgendaRepository {
         descricao: descricao,
       ),
     );
+  }
+
+  /// Uso administrativo: o acesso é garantido pela navegação (só o
+  /// AdminHomePage chega aqui), como nas demais telas de admin.
+  Future<Reserva> atualizarReserva({
+    required String reservaId,
+    required String horarioId,
+    required DateTime data,
+    required CorFundoHorario corFundo,
+    String descricao = '',
+  }) async {
+    final atual = await _reservaService.buscarPorId(reservaId);
+    if (atual == null) throw const ReservaNaoEncontradaException();
+
+    final diaNormalizado = _normalizarData(data);
+    await _validarSlot(
+      dia: diaNormalizado,
+      horarioId: horarioId,
+      corFundo: corFundo,
+      ignorarReservaId: reservaId,
+    );
+
+    return _reservaService.atualizar(
+      atual.copyWith(
+        horarioId: horarioId,
+        dataReserva: diaNormalizado,
+        corFundo: corFundo,
+        descricao: descricao,
+      ),
+    );
+  }
+
+  Future<void> excluirReservaComoAdmin(String reservaId) async {
+    final reserva = await _reservaService.buscarPorId(reservaId);
+    if (reserva == null) throw const ReservaNaoEncontradaException();
+    await _reservaService.excluir(reservaId);
   }
 
   DateTime _normalizarData(DateTime data) {

@@ -5,6 +5,7 @@ import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/views/ano_letivo_view.dart';
 import 'package:agendapf/presentation/views/alunos_view.dart';
 import 'package:agendapf/presentation/views/administradores_view.dart';
+import 'package:agendapf/presentation/views/admin_reservas_view.dart';
 // Importe a página de perfil do administrador quando ela for criada
 // import 'package:agendapf/presentation/views/administrador_perfil_view.dart';
 
@@ -91,7 +92,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
             }
           },
         ),
-        // NOVO: Ícone de perfil adicionado ao actions do AppBar
+
         actions: [
           IconButton(
             icon: const Icon(
@@ -147,11 +148,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         currentIndex: 0,
         onTap: (index) {
           if (index == 1) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Reservas: tela ainda não implementada'),
-              ),
-            );
+            _abrirReservas(context);
           }
 
           if (index == 2) {
@@ -207,6 +204,18 @@ class _AdminHomePageState extends State<AdminHomePage> {
       MaterialPageRoute(
         builder: (context) => AdministradoresPage(
           administradorRepository: widget.administradorRepository,
+        ),
+      ),
+    );
+  }
+
+  void _abrirReservas(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdminReservasPage(
+          agendaRepository: widget.agendaRepository,
+          alunoRepository: widget.alunoRepository,
         ),
       ),
     );
