@@ -1,3 +1,6 @@
+import 'package:agendapf/data/models/enum/tipo_curso.dart';
+import 'package:agendapf/data/models/enum/tipo_turma.dart';
+
 class Aluno {
   final String id;
   final String nome;
@@ -7,13 +10,20 @@ class Aluno {
   final String? fotoBase64;
   final DateTime criadoEm;
 
+  /// Nulos em alunos cadastrados antes desses campos existirem.
+  final TipoCurso? tipoCurso;
+  final Turma? turma;
+
   const Aluno({
     required this.id,
     required this.nome,
     required this.matricula,
     required this.email,
     this.senha,
-    required this.criadoEm, this.fotoBase64,
+    this.fotoBase64,
+    required this.criadoEm,
+    this.tipoCurso,
+    this.turma,
   });
 
   /// Cria uma cópia deste Aluno, substituindo apenas os campos informados.
@@ -26,6 +36,8 @@ class Aluno {
     String? fotoBase64,
     bool removerFoto = false,
     DateTime? criadoEm,
+    TipoCurso? tipoCurso,
+    Turma? turma,
   }) {
     return Aluno(
       id: id ?? this.id,
@@ -33,10 +45,10 @@ class Aluno {
       matricula: matricula ?? this.matricula,
       email: email ?? this.email,
       senha: senha ?? this.senha,
-      fotoBase64: removerFoto
-      ? null
-        : (fotoBase64 ?? this.fotoBase64),
-    criadoEm: criadoEm ?? this.criadoEm,
+      fotoBase64: removerFoto ? null : (fotoBase64 ?? this.fotoBase64),
+      criadoEm: criadoEm ?? this.criadoEm,
+      tipoCurso: tipoCurso ?? this.tipoCurso,
+      turma: turma ?? this.turma,
     );
   }
 
@@ -49,6 +61,8 @@ class Aluno {
       'senha': senha,
       'fotoBase64': fotoBase64,
       'criadoEm': criadoEm.toIso8601String(),
+      'tipoCurso': tipoCurso?.name,
+      'turma': turma?.name,
     };
   }
 
@@ -59,8 +73,10 @@ class Aluno {
       matricula: map['matricula'] as String,
       email: map['email'] as String,
       senha: map['senha'] as String?,
-      fotoBase64: map['fotoBase64'] as String?, // NOVO
+      fotoBase64: map['fotoBase64'] as String?,
       criadoEm: DateTime.parse(map['criadoEm'] as String),
+      tipoCurso: TipoCurso.fromNome(map['tipoCurso'] as String?),
+      turma: Turma.fromNome(map['turma'] as String?),
     );
   }
 
@@ -74,16 +90,29 @@ class Aluno {
         other.email == email &&
         other.senha == senha &&
         other.fotoBase64 == fotoBase64 &&
-        other.criadoEm == criadoEm;
+        other.criadoEm == criadoEm &&
+        other.tipoCurso == tipoCurso &&
+        other.turma == turma;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, nome, matricula, email, senha, fotoBase64, criadoEm);
+    return Object.hash(
+      id,
+      nome,
+      matricula,
+      email,
+      senha,
+      fotoBase64,
+      criadoEm,
+      tipoCurso,
+      turma,
+    );
   }
 
   @override
   String toString() {
-    return 'Aluno(id: $id, nome: $nome, matricula: $matricula, email: $email, criadoEm: $criadoEm)';
+    return 'Aluno(id: $id, nome: $nome, matricula: $matricula, email: $email, '
+        'tipoCurso: $tipoCurso, turma: $turma, criadoEm: $criadoEm)';
   }
 }
