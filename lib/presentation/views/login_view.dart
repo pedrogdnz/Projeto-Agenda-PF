@@ -1,19 +1,20 @@
 import 'package:agendapf/data/repositories/administrador_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:agendapf/data/repositories/disponibilidade_padrao_repository.dart';
-import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
-import 'package:agendapf/data/services/fake/fake_aluno_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_administrador_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_aluno_service.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
-import 'package:agendapf/data/services/fake/fake_data_bloqueada.dart';
-import 'package:agendapf/data/services/fake/fake_disponibilidade_padrao_service.dart';
-import 'package:agendapf/data/services/fake/fake_horario_service.dart';
-import 'package:agendapf/data/services/fake/fake_reserva_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_data_bloqueada_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_disponibilidade_padrao_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_horario_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_reserva_service.dart';
 import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/viewmodels/login_viewmodel.dart';
 import 'package:agendapf/presentation/views/admin_home_view.dart';
 import 'package:agendapf/presentation/views/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/presentation/utils/password_validatior.dart';
+import 'package:agendapf/data/services/firebase/firebase_auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -103,34 +104,38 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _navegarAposLogin() {
-    final resultado = _viewModel.resultado!;
+void _navegarAposLogin() {
+  final resultado = _viewModel.resultado!;
 
-    final horarioService = FakeHorarioService();
-    final alunoService = FakeAlunoService();
-    final administradorService = FakeAdministradorService();
+  final horarioService = FirebaseHorarioService();
+  final alunoService = FirebaseAlunoService();
+  final administradorService = FirebaseAdministradorService();
 
-    final disponibilidadePadraoRepository = DisponibilidadePadraoRepository(
-      disponibilidadeService: FakeDisponibilidadePadraoService(),
-      horarioService: horarioService,
-    );
+  final disponibilidadePadraoRepository = DisponibilidadePadraoRepository(
+    disponibilidadeService: FirebaseDisponibilidadePadraoService(),
+    horarioService: horarioService,
+  );
 
-    final agendaRepository = AgendaRepository(
-      dataBloqueadaService: FakeDataBloqueadaService(),
-      horarioService: horarioService,
-      reservaService: FakeReservaService(),
-      disponibilidadePadraoRepository: disponibilidadePadraoRepository,
-    );
+  final agendaRepository = AgendaRepository(
+    dataBloqueadaService: FirebaseDataBloqueadaService(),
+    horarioService: horarioService,
+    reservaService: FirebaseReservaService(),
+    disponibilidadePadraoRepository: disponibilidadePadraoRepository,
+  );
 
-    final alunoRepository = AlunoRepository(
-      alunoService: alunoService,
-      administradorService: administradorService,
-    );
+  final alunoRepository = AlunoRepository(
+    alunoService: alunoService,
+    administradorService: administradorService,
+  );
 
-    final administradorRepository = AdministradorRepository(
-      administradorService: administradorService,
-      alunoService: alunoService,
-    );
+  final administradorRepository = AdministradorRepository(
+    administradorService: administradorService,
+    alunoService: alunoService,
+    authService: FirebaseAuthService(), // NOVO — exigido pela nova assinatura
+  );
+
+  // o resto da função (if resultado.ehAdministrador {...} ... Navigator.pushReplacement...)
+  // continua exatamente igual, não precisa mexer
 
     if (resultado.ehAdministrador) {
       Navigator.pushReplacement(

@@ -1,5 +1,5 @@
 import 'package:agendapf/data/repositories/auth_repository.dart';
-import 'package:agendapf/data/services/fake/fake_administrador_service.dart';
+import 'package:agendapf/data/services/firebase/firebase_administrador_service.dart';
 import 'package:agendapf/data/services/firebase/firebase_aluno_service.dart';
 import 'package:agendapf/data/services/firebase/firebase_auth_service.dart';
 
@@ -24,13 +24,13 @@ class LoginViewModel extends ChangeNotifier {
   final AuthRepository _authRepository;
 
   LoginViewModel({AuthRepository? authRepository})
-    : _authRepository =
-          authRepository ??
-          AuthRepository(
-            authService: FirebaseAuthService(),
-            alunoService: FirebaseAlunoService(),
-            administradorService: FakeAdministradorService(),
-          );
+  : _authRepository =
+        authRepository ??
+        AuthRepository(
+          authService: FirebaseAuthService(),
+          alunoService: FirebaseAlunoService(),
+          administradorService: FirebaseAdministradorService(), // trocado
+        );
 
   ModoFormulario _modo = ModoFormulario.login;
   bool _carregando = false;
