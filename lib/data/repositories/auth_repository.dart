@@ -100,35 +100,18 @@ class GoogleLoginResult {
   bool get precisaCompletarCadastro => pendente != null;
 }
 
-//TODO - administrador continua com verificação manual por enquanto (fora de escopo)
-abstract class VerificadorDeSenha {
-  bool verificar(String senhaDigitada, String senhaArmazenada);
-}
-
-class VerificadorDeSenhaTextoPuro implements VerificadorDeSenha {
-  const VerificadorDeSenhaTextoPuro();
-
-  @override
-  bool verificar(String senhaDigitada, String senhaArmazenada) {
-    return senhaDigitada == senhaArmazenada;
-  }
-}
-
 class AuthRepository {
   final AuthService _authService;
   final AlunoService _alunoService;
   final AdministradorService _administradorService;
-  final VerificadorDeSenha _verificadorDeSenha;
 
   const AuthRepository({
     required AuthService authService,
     required AlunoService alunoService,
     required AdministradorService administradorService,
-    VerificadorDeSenha verificadorDeSenha = const VerificadorDeSenhaTextoPuro(),
   }) : _authService = authService,
        _alunoService = alunoService,
-       _administradorService = administradorService,
-       _verificadorDeSenha = verificadorDeSenha;
+       _administradorService = administradorService;
 
   /// Login por e-mail/senha. Administrador continua com verificação manual;
   /// Aluno autentica de verdade no Firebase Auth antes de tocar o Firestore.
@@ -156,41 +139,58 @@ class AuthRepository {
 
   /// Cadastra um novo Aluno via e-mail/senha, autenticando de verdade
   /// no Firebase Auth antes de gravar o perfil no Firestore.
-  Future<ResultadoLogin> cadastrarAluno({
-    required String nome,
-    required String matricula,
-    required String email,
-    required String senha,
-  }) async {
-    final emailNormalizado = email.trim().toLowerCase();
-    final matriculaNormalizada = matricula.trim();
+  /// Cadastra um novo usuário via e-mail/senha. Se o e-mail terminar em
+/// @ifpr.edu.br, o cadastro é como Administrador (servidor/professor);
+/// caso contrário, como Aluno. Sem validação adicional por enquanto —
+/// qualquer e-mail @ifpr.edu.br é aceito como admin neste momento.
+Future<ResultadoLogin> cadastrar({
+  required String nome,
+  required String matricula,
+  required String email,
+  required String senha,
+}) async {
+  final emailNormalizado = email.trim().toLowerCase();
+  final ehDominioAdministrativo = emailNormalizado.endsWith('@ifpr.edu.br');
 
-    final usuarioAuth = await _authService.cadastrarComEmail(
-      email: emailNormalizado,
-      senha: senha,
-    );
+  final usuarioAuth = await _authService.cadastrarComEmail(
+    email: emailNormalizado,
+    senha: senha,
+  );
 
-    final alunoComMatricula = await _alunoService.buscarPorEmailOuMatricula(
-      matriculaNormalizada,
-    );
-    if (alunoComMatricula != null) {
-      await _authService.excluirContaAtual();
-      throw const MatriculaJaCadastradaException();
-    }
-
-    final novoAluno = await _alunoService.criar(
-      Aluno(
+  if (ehDominioAdministrativo) {
+    final novoAdmin = await _administradorService.criar(
+      Administrador(
         id: usuarioAuth.uid,
         nome: nome.trim(),
-        matricula: matriculaNormalizada,
         email: emailNormalizado,
         senha: null,
-        criadoEm: DateTime.now(),
       ),
     );
-
-    return ResultadoLogin.aluno(novoAluno);
+    return ResultadoLogin.administrador(novoAdmin);
   }
+
+  final matriculaNormalizada = matricula.trim();
+  final alunoComMatricula = await _alunoService.buscarPorEmailOuMatricula(
+    matriculaNormalizada,
+  );
+  if (alunoComMatricula != null) {
+    await _authService.excluirContaAtual();
+    throw const MatriculaJaCadastradaException();
+  }
+
+  final novoAluno = await _alunoService.criar(
+    Aluno(
+      id: usuarioAuth.uid,
+      nome: nome.trim(),
+      matricula: matriculaNormalizada,
+      email: emailNormalizado,
+      senha: null,
+      criadoEm: DateTime.now(),
+    ),
+  );
+
+  return ResultadoLogin.aluno(novoAluno);
+}
 
   Future<GoogleLoginResult> entrarComGoogle() async {
     final usuarioGoogle = await _authService.signInWithGoogle();
