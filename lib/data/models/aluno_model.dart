@@ -1,5 +1,5 @@
 import 'package:agendapf/data/models/enum/tipo_curso.dart';
-import 'package:agendapf/data/models/enum/tipo_turma.dart';
+import 'package:agendapf/data/models/enum/turma.dart';
 
 class Aluno {
   final String id;

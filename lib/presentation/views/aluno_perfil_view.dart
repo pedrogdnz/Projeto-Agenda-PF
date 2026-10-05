@@ -252,6 +252,54 @@ class _AlunoPerfilState extends State<AlunoPerfil> {
                           ),
                         ),
                         ListTile(
+                          leading: _iconeCampo(Icons.school_outlined),
+                          title: const Text(
+                            'Curso',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          subtitle: Text(
+                            aluno.tipoCurso?.titulo??"",
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          trailing: const Icon(Icons.chevron_right, size: 20),
+                          onTap: () => _editarCampo(
+                            titulo: 'Curso',
+                            controller: _viewModel.cursoController,
+                            validator:  (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Informe o curso';
+                              }
+
+                              return null;
+                            },
+                            keyboardType: TextInputType.text,
+                          ),
+                        ),
+                        ListTile(
+                          leading: _iconeCampo(Icons.groups_outlined),
+                          title: const Text(
+                            'Turma',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          subtitle: Text(
+                            aluno.turma?.titulo??"",
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          trailing: const Icon(Icons.chevron_right, size: 20),
+                          onTap: () => _editarCampo(
+                            titulo: 'Turma',
+                            controller: _viewModel.turmaController,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Informe a turma';
+                              }
+
+                              return null;
+                            },
+                            keyboardType: TextInputType.text,
+                          ),
+                        ),
+                        ListTile(
                           leading: _iconeCampo(Icons.numbers),
                           title: const Text(
                             'Matrícula',

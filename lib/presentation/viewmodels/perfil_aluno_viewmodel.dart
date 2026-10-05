@@ -25,6 +25,8 @@ class PerfilAlunoViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
   final nomeController = TextEditingController();
   final matriculaController = TextEditingController();
+  final cursoController = TextEditingController();
+  final turmaController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
   Uint8List? _fotoBytes;
@@ -61,6 +63,8 @@ class PerfilAlunoViewModel extends ChangeNotifier {
   void dispose() {
     nomeController.dispose();
     matriculaController.dispose();
+    cursoController.dispose();
+    turmaController.dispose();
     super.dispose();
   }
 
@@ -76,6 +80,8 @@ class PerfilAlunoViewModel extends ChangeNotifier {
       if (aluno != null) {
         nomeController.text = aluno.nome;
         matriculaController.text = aluno.matricula;
+        cursoController.text = aluno.tipoCurso?.titulo??"";
+        cursoController.text = aluno.turma?.titulo??"";
       }
     } catch (e) {
       _erro = e.toString();
