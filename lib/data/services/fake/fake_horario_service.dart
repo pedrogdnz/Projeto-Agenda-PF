@@ -1,8 +1,6 @@
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/services/abstract/horario_data_source.dart';
 
-//TODO - essa lista é const, então _horarios.add(...) em criar() já daria erro em runtime
-
 class FakeHorarioService implements HorarioService {
   final List<Horario> _horarios = [
     Horario(id: '1', horaInicial: '00:00', horaFinal: '01:00'),
