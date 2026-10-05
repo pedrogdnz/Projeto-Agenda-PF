@@ -104,38 +104,38 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-void _navegarAposLogin() {
-  final resultado = _viewModel.resultado!;
+  void _navegarAposLogin() {
+    final resultado = _viewModel.resultado!;
 
-  final horarioService = FirebaseHorarioService();
-  final alunoService = FirebaseAlunoService();
-  final administradorService = FirebaseAdministradorService();
+    final horarioService = FirebaseHorarioService();
+    final alunoService = FirebaseAlunoService();
+    final administradorService = FirebaseAdministradorService();
 
-  final disponibilidadePadraoRepository = DisponibilidadePadraoRepository(
-    disponibilidadeService: FirebaseDisponibilidadePadraoService(),
-    horarioService: horarioService,
-  );
+    final disponibilidadePadraoRepository = DisponibilidadePadraoRepository(
+      disponibilidadeService: FirebaseDisponibilidadePadraoService(),
+      horarioService: horarioService,
+    );
 
-  final agendaRepository = AgendaRepository(
-    dataBloqueadaService: FirebaseDataBloqueadaService(),
-    horarioService: horarioService,
-    reservaService: FirebaseReservaService(),
-    disponibilidadePadraoRepository: disponibilidadePadraoRepository,
-  );
+    final agendaRepository = AgendaRepository(
+      dataBloqueadaService: FirebaseDataBloqueadaService(),
+      horarioService: horarioService,
+      reservaService: FirebaseReservaService(),
+      disponibilidadePadraoRepository: disponibilidadePadraoRepository,
+    );
 
-  final alunoRepository = AlunoRepository(
-    alunoService: alunoService,
-    administradorService: administradorService,
-  );
+    final alunoRepository = AlunoRepository(
+      alunoService: alunoService,
+      administradorService: administradorService,
+    );
 
-  final administradorRepository = AdministradorRepository(
-    administradorService: administradorService,
-    alunoService: alunoService,
-    authService: FirebaseAuthService(), // NOVO — exigido pela nova assinatura
-  );
+    final administradorRepository = AdministradorRepository(
+      administradorService: administradorService,
+      alunoService: alunoService,
+      authService: FirebaseAuthService(), // NOVO — exigido pela nova assinatura
+    );
 
-  // o resto da função (if resultado.ehAdministrador {...} ... Navigator.pushReplacement...)
-  // continua exatamente igual, não precisa mexer
+    // o resto da função (if resultado.ehAdministrador {...} ... Navigator.pushReplacement...)
+    // continua exatamente igual, não precisa mexer
 
     if (resultado.ehAdministrador) {
       Navigator.pushReplacement(
@@ -145,6 +145,8 @@ void _navegarAposLogin() {
             agendaRepository: agendaRepository,
             alunoRepository: alunoRepository,
             administradorRepository: administradorRepository,
+            authRepository: _viewModel.authRepository,
+            adminId: resultado.administrador!.id,
           ),
         ),
       );
@@ -429,10 +431,7 @@ void _navegarAposLogin() {
           ),
           child: Text(
             texto,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
       ),

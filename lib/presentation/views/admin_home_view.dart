@@ -6,19 +6,23 @@ import 'package:agendapf/presentation/views/ano_letivo_view.dart';
 import 'package:agendapf/presentation/views/alunos_view.dart';
 import 'package:agendapf/presentation/views/administradores_view.dart';
 import 'package:agendapf/presentation/views/admin_reservas_view.dart';
-// Importe a página de perfil do administrador quando ela for criada
-// import 'package:agendapf/presentation/views/administrador_perfil_view.dart';
+import 'package:agendapf/presentation/views/admin_perfil_view.dart';
+import 'package:agendapf/data/repositories/auth_repository.dart';
 
 class AdminHomePage extends StatefulWidget {
   final AgendaRepository agendaRepository;
   final AlunoRepository alunoRepository;
   final AdministradorRepository administradorRepository;
+  final AuthRepository authRepository;
+  final String adminId;
 
   const AdminHomePage({
     super.key,
     required this.agendaRepository,
     required this.alunoRepository,
     required this.administradorRepository,
+    required this.authRepository,
+    required this.adminId,
   });
 
   @override
@@ -26,25 +30,14 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
-  // NOVO: Função para abrir o perfil do Administrador
   void _abrirPerfil() {
-    // Descomente e ajuste abaixo quando a página AdministradorPerfil for criada.
-    // Lembre-se de passar os repositórios/IDs necessários no construtor dela.
-    /*
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => AdministradorPerfil(
-          // adminId: widget.adminId, 
-          // authRepository: widget.authRepository,
+        builder: (_) => AdminPerfil(
+          adminId: widget.adminId,
+          administradorRepository: widget.administradorRepository,
+          authRepository: widget.authRepository,
         ),
-      ),
-    );
-    */
-
-    // Aviso temporário
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Perfil do Administrador: tela ainda não implementada'),
       ),
     );
   }
