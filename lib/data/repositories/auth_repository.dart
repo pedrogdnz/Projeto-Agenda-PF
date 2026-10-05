@@ -133,31 +133,26 @@ class AuthRepository {
   /// Login por e-mail/senha. Administrador continua com verificação manual;
   /// Aluno autentica de verdade no Firebase Auth antes de tocar o Firestore.
   Future<ResultadoLogin> autenticar({
-    required String identificador,
-    required String senha,
-  }) async {
-    final administrador = await _administradorService.buscarPorEmail(
-      identificador,
-    );
-    if (administrador != null) {
-      if (!_verificadorDeSenha.verificar(senha, administrador.senha)) {
-        throw const CredenciaisInvalidasException();
-      }
-      return ResultadoLogin.administrador(administrador);
-    }
+  required String identificador,
+  required String senha,
+}) async {
+  final usuarioAuth = await _authService.signInComEmail(
+    email: identificador.trim(),
+    senha: senha,
+  );
 
-    final usuarioAuth = await _authService.signInComEmail(
-      email: identificador.trim(),
-      senha: senha,
-    );
+  final administrador = await _administradorService.buscarPorId(usuarioAuth.uid);
+  if (administrador != null) {
+    return ResultadoLogin.administrador(administrador);
+  }
 
-    final aluno = await _alunoService.buscarPorId(usuarioAuth.uid);
-    if (aluno == null) {
-      throw const CredenciaisInvalidasException();
-    }
-
+  final aluno = await _alunoService.buscarPorId(usuarioAuth.uid);
+  if (aluno != null) {
     return ResultadoLogin.aluno(aluno);
   }
+
+  throw const CredenciaisInvalidasException();
+}
 
   /// Cadastra um novo Aluno via e-mail/senha, autenticando de verdade
   /// no Firebase Auth antes de gravar o perfil no Firestore.
