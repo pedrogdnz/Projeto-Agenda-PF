@@ -3,13 +3,13 @@ import 'package:agendapf/data/repositories/auth_repository.dart'
     show EmailJaCadastradoException;
 import 'package:agendapf/data/services/abstract/administrador_data_source.dart';
 import 'package:agendapf/data/services/abstract/aluno_data_source.dart';
+import 'package:agendapf/data/services/abstract/auth_data_source.dart';
 
 class AdministradorNaoEncontradoException implements Exception {
   final String mensagem;
   const AdministradorNaoEncontradoException([
     this.mensagem = 'Administrador não encontrado.',
   ]);
-
   @override
   String toString() => mensagem;
 }
@@ -19,28 +19,33 @@ class UltimoAdministradorException implements Exception {
   const UltimoAdministradorException([
     this.mensagem = 'Não é possível excluir o único administrador restante.',
   ]);
-
   @override
   String toString() => mensagem;
 }
+
 class AdministradorRepository {
   final AdministradorService _administradorService;
   final AlunoService _alunoService;
+  final AuthService _authService; // NOVO
 
   const AdministradorRepository({
     required AdministradorService administradorService,
     required AlunoService alunoService,
+    required AuthService authService, // NOVO
   }) : _administradorService = administradorService,
-       _alunoService = alunoService;
+       _alunoService = alunoService,
+       _authService = authService;
 
   AdministradorService get administradorService => _administradorService;
 
-  Future<List<Administrador>> buscarTodos() =>
-      _administradorService.buscarTodos();
+  Future<List<Administrador>> buscarTodos() => _administradorService.buscarTodos();
 
-  Future<Administrador?> buscarPorId(String id) =>
-      _administradorService.buscarPorId(id);
+  Future<Administrador?> buscarPorId(String id) => _administradorService.buscarPorId(id);
 
+  /// Cria a conta no Firebase Auth e o perfil no Firestore.
+  /// ATENÇÃO: criar um usuário via client SDK autentica automaticamente
+  /// como ele — isso desloga o admin que estava logado. Resolver isso
+  /// exige uma segunda instância do FirebaseApp (fora do escopo por ora).
   Future<Administrador> criar({
     required String nome,
     required String email,
@@ -50,19 +55,23 @@ class AdministradorRepository {
 
     await _garantirEmailDisponivel(emailNormalizado);
 
+    final usuarioAuth = await _authService.cadastrarComEmail(
+      email: emailNormalizado,
+      senha: senha,
+    );
+
     return _administradorService.criar(
       Administrador(
-        id: '', 
+        id: usuarioAuth.uid,
         nome: nome.trim(),
         email: emailNormalizado,
-        senha: senha,
+        senha: null,
       ),
     );
   }
 
-  /// Atualiza os dados cadastrais do administrador. Se [novaSenha] vier
-  /// nula ou vazia, a senha atual é preservada — mesmo comportamento do
-  /// AlunoRepository.atualizar.
+  /// Atualiza nome/e-mail. Trocar senha exigiria reautenticação no Firebase
+  /// Auth (fora do escopo por ora) — [novaSenha] é ignorado.
   Future<Administrador> atualizar({
     required String id,
     required String nome,
@@ -74,7 +83,6 @@ class AdministradorRepository {
       throw const AdministradorNaoEncontradoException();
     }
 
-    final nomeNormalizado = nome.trim();
     final emailNormalizado = email.trim().toLowerCase();
 
     if (emailNormalizado != atual.email.toLowerCase()) {
@@ -82,11 +90,8 @@ class AdministradorRepository {
     }
 
     final atualizado = atual.copyWith(
-      nome: nomeNormalizado,
+      nome: nome.trim(),
       email: emailNormalizado,
-      senha: (novaSenha != null && novaSenha.trim().isNotEmpty)
-          ? novaSenha.trim()
-          : null,
     );
 
     return _administradorService.atualizar(atualizado);
@@ -97,7 +102,8 @@ class AdministradorRepository {
     if (todos.length <= 1) {
       throw const UltimoAdministradorException();
     }
-
+    // Remove só o perfil no Firestore. A conta no Firebase Auth continua
+    // existindo (apagar a conta de outro usuário exige Admin SDK/backend).
     await _administradorService.excluir(id);
   }
 
@@ -105,16 +111,12 @@ class AdministradorRepository {
     String emailNormalizado, {
     String? ignorarId,
   }) async {
-    final adminComEmail = await _administradorService.buscarPorEmail(
-      emailNormalizado,
-    );
+    final adminComEmail = await _administradorService.buscarPorEmail(emailNormalizado);
     if (adminComEmail != null && adminComEmail.id != ignorarId) {
       throw const EmailJaCadastradoException();
     }
 
-    final alunoComEmail = await _alunoService.buscarPorEmailOuMatricula(
-      emailNormalizado,
-    );
+    final alunoComEmail = await _alunoService.buscarPorEmailOuMatricula(emailNormalizado);
     if (alunoComEmail != null) {
       throw const EmailJaCadastradoException();
     }
