@@ -109,18 +109,13 @@ class _CalendarPageState extends State<CalendarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // Colocamos o botão de Perfil no lado esquerdo (leading)
         leading: IconButton(
-          icon: const Icon(Icons.menu),
-          tooltip: 'Ver reservas',
-          onPressed: _abrirReservas,
+          icon: const Icon(Icons.account_circle_outlined),
+          tooltip: 'Perfil',
+          onPressed: _abrirPerfil,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined),
-            tooltip: 'Perfil',
-            onPressed: _abrirPerfil,
-          ),
-        ],
+        // Removemos a propriedade actions pois o botão de reservas já existe na tela
       ),
       backgroundColor: Colors.white,
       body: Padding(
