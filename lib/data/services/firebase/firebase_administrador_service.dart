@@ -33,7 +33,6 @@ class FirebaseAdministradorService implements AdministradorService {
     return Administrador.fromMap(snapshot.docs.first.data());
   }
 
-  @override
   Future<List<Administrador>> buscarPorNomeOuEmail(String query) async {
     if (query.trim().isEmpty) return [];
 
