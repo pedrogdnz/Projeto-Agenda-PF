@@ -81,6 +81,8 @@ class _HorariosGeraisPageState extends State<HorariosGeraisPage> {
       body: SafeArea(
         child: _viewModel.carregando
             ? const Center(child: CircularProgressIndicator())
+            : _viewModel.horarios.isEmpty
+            ? _buildSemHorarios()
             : ListView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                 children: [
@@ -93,6 +95,39 @@ class _HorariosGeraisPageState extends State<HorariosGeraisPage> {
                   for (final dia in DiaSemana.values) _buildDia(dia),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildSemHorarios() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.schedule_outlined,
+              size: 56,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Não foi possível carregar os horários.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+              onPressed: _viewModel.carregar,
+              child: const Text(
+                'Tentar novamente',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
