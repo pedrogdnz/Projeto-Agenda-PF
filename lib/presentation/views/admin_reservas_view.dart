@@ -1,8 +1,8 @@
+import 'package:agendapf/presentation/views/admin_reservas_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
-import 'package:agendapf/presentation/viewmodels/admin_reservas_viewmodel.dart';
 import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart'
     show TipoFiltroReserva;
 import 'package:agendapf/presentation/views/admin_reserva_editar_view.dart';

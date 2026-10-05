@@ -1,10 +1,9 @@
+import 'package:agendapf/presentation/views/admin_reservas_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/admin_reserva_editar_viewmodel.dart';
-import 'package:agendapf/presentation/viewmodels/admin_reservas_viewmodel.dart'
-    show ReservaDoAluno;
 import 'package:agendapf/presentation/widgets/empty_state_view.dart';
 import 'package:agendapf/presentation/widgets/horario_tile.dart';
 
