@@ -4,6 +4,7 @@ class Aluno {
   final String matricula;
   final String email;
   final String? senha;
+  final String? fotoBase64;
   final DateTime criadoEm;
 
   const Aluno({
@@ -12,7 +13,7 @@ class Aluno {
     required this.matricula,
     required this.email,
     this.senha,
-    required this.criadoEm,
+    required this.criadoEm, this.fotoBase64,
   });
 
   /// Cria uma cópia deste Aluno, substituindo apenas os campos informados.
@@ -22,6 +23,8 @@ class Aluno {
     String? matricula,
     String? email,
     String? senha,
+    String? fotoBase64,
+    bool removerFoto = false,
     DateTime? criadoEm,
   }) {
     return Aluno(
@@ -30,7 +33,10 @@ class Aluno {
       matricula: matricula ?? this.matricula,
       email: email ?? this.email,
       senha: senha ?? this.senha,
-      criadoEm: criadoEm ?? this.criadoEm,
+      fotoBase64: removerFoto
+      ? null
+        : (fotoBase64 ?? this.fotoBase64),
+    criadoEm: criadoEm ?? this.criadoEm,
     );
   }
 
@@ -41,6 +47,7 @@ class Aluno {
       'matricula': matricula,
       'email': email,
       'senha': senha,
+      'fotoBase64': fotoBase64,
       'criadoEm': criadoEm.toIso8601String(),
     };
   }
@@ -52,6 +59,7 @@ class Aluno {
       matricula: map['matricula'] as String,
       email: map['email'] as String,
       senha: map['senha'] as String?,
+      fotoBase64: map['fotoBase64'] as String?, // NOVO
       criadoEm: DateTime.parse(map['criadoEm'] as String),
     );
   }
@@ -65,12 +73,13 @@ class Aluno {
         other.matricula == matricula &&
         other.email == email &&
         other.senha == senha &&
+        other.fotoBase64 == fotoBase64 &&
         other.criadoEm == criadoEm;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, nome, matricula, email, senha, criadoEm);
+    return Object.hash(id, nome, matricula, email, senha, fotoBase64, criadoEm);
   }
 
   @override

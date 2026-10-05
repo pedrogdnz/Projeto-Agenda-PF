@@ -3,9 +3,13 @@ import 'package:agendapf/data/models/aluno_model.dart';
 import 'package:agendapf/data/repositories/auth_repository.dart';
 import 'package:agendapf/data/services/abstract/aluno_data_source.dart';
 import 'package:agendapf/data/services/firebase/firebase_aluno_service.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 
 class MatriculaJaEmUsoException implements Exception {
   final String mensagem;
+
   const MatriculaJaEmUsoException([
     this.mensagem = 'Esta matrícula já está em uso por outro aluno.',
   ]);
@@ -21,6 +25,19 @@ class PerfilAlunoViewModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
   final nomeController = TextEditingController();
   final matriculaController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+
+  Uint8List? _fotoBytes;
+  bool _salvandoFoto = false;
+
+  Uint8List? get fotoBytes => _fotoBytes;
+  bool get temFoto => _fotoBytes != null;
+  bool get salvandoFoto => _salvandoFoto;
+
+  void _atualizarCacheFoto() {
+    final b64 = _aluno?.fotoBase64;
+    _fotoBytes = (b64 == null || b64.isEmpty) ? null : base64Decode(b64);
+  }
 
   PerfilAlunoViewModel({
     required this.alunoId,
@@ -55,6 +72,7 @@ class PerfilAlunoViewModel extends ChangeNotifier {
     try {
       final aluno = await _alunoService.buscarPorId(alunoId);
       _aluno = aluno;
+      _atualizarCacheFoto();
       if (aluno != null) {
         nomeController.text = aluno.nome;
         matriculaController.text = aluno.matricula;
@@ -117,4 +135,59 @@ class PerfilAlunoViewModel extends ChangeNotifier {
   }
 
   Future<void> logout() => _authRepository.logout();
+
+  /// Escolhe (câmera/galeria) e salva a foto. Retorna false se o usuário
+/// cancelou ou se deu erro (nesse caso [erro] fica preenchido).
+Future<bool> alterarFoto(ImageSource origem) async {
+  final atual = _aluno;
+  if (atual == null) return false;
+
+  try {
+    final arquivo = await _picker.pickImage(
+      source: origem,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 70,
+    );
+    if (arquivo == null) return false; // cancelou
+
+    _salvandoFoto = true;
+    _erro = null;
+    notifyListeners();
+
+    final bytes = await arquivo.readAsBytes();
+    _aluno = await _alunoService.atualizar(
+      atual.copyWith(fotoBase64: base64Encode(bytes)),
+    );
+    _atualizarCacheFoto();
+    return true;
+  } catch (e) {
+    _erro = e.toString();
+    return false;
+  } finally {
+    _salvandoFoto = false;
+    notifyListeners();
+  }
+}
+
+Future<bool> removerFoto() async {
+  final atual = _aluno;
+  if (atual == null) return false;
+
+  _salvandoFoto = true;
+  _erro = null;
+  notifyListeners();
+
+  try {
+    _aluno = await _alunoService.atualizar(atual.copyWith(removerFoto: true));
+    _atualizarCacheFoto();
+    return true;
+  } catch (e) {
+    _erro = e.toString();
+    return false;
+  } finally {
+    _salvandoFoto = false;
+    notifyListeners();
+  }
+}
 }
