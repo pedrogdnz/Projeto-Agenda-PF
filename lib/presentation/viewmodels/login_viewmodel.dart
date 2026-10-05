@@ -147,7 +147,7 @@ AuthRepository get authRepository => _authRepository; // NOVO
     notifyListeners();
 
     try {
-      _resultado = await _authRepository.cadastrarAluno(
+      _resultado = await _authRepository.cadastrar(
         nome: nomeController.text,
         matricula: matriculaController.text,
         email: emailController.text,
