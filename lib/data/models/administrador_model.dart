@@ -2,13 +2,13 @@ class Administrador {
   final String id;
   final String nome;
   final String email;
-  final String senha;
+  final String? senha;
 
   const Administrador({
     required this.id,
     required this.nome,
     required this.email,
-    required this.senha,
+    this.senha,
   });
 
   Administrador copyWith({
@@ -26,12 +26,7 @@ class Administrador {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'nome': nome,
-      'email': email,
-      'senha': senha,
-    };
+    return {'id': id, 'nome': nome, 'email': email, 'senha': senha};
   }
 
   factory Administrador.fromMap(Map<String, dynamic> map) {
@@ -39,7 +34,7 @@ class Administrador {
       id: map['id'] as String,
       nome: map['nome'] as String,
       email: map['email'] as String,
-      senha: map['senha'] as String,
+      senha: map['senha'] as String?,
     );
   }
 
@@ -54,12 +49,8 @@ class Administrador {
   }
 
   @override
-  int get hashCode {
-    return Object.hash(id, nome, email, senha);
-  }
+  int get hashCode => Object.hash(id, nome, email, senha);
 
   @override
-  String toString() {
-    return 'Administrador(id: $id, nome: $nome, email: $email)';
-  }
+  String toString() => 'Administrador(id: $id, nome: $nome, email: $email)';
 }
