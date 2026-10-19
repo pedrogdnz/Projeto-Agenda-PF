@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/administrador_model.dart';
 import 'package:agendapf/data/repositories/administrador_repository.dart';
 import 'package:agendapf/presentation/viewmodels/administrador_detalhes_viewmodel.dart';
-import 'package:agendapf/presentation/widgets/empty_state_view.dart';
+import 'package:agendapf/presentation/shared/widgets/empty_state_view.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
 
 class AdministradorDetalhesPage extends StatefulWidget {

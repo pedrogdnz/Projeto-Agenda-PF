@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart';
-import 'package:agendapf/presentation/widgets/empty_state_view.dart';
-import 'package:agendapf/presentation/widgets/filtro_tabs.dart';
+import 'package:agendapf/presentation/shared/widgets/empty_state_view.dart';
+import 'package:agendapf/presentation/shared/widgets/filtro_tabs.dart';
 import 'package:agendapf/presentation/widgets/reserva_card.dart';
 
 class Reservas extends StatefulWidget {

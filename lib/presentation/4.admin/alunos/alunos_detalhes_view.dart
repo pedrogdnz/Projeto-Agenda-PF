@@ -5,7 +5,7 @@ import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:agendapf/presentation/viewmodels/aluno_detalhes_viewmodel.dart';
-import 'package:agendapf/presentation/widgets/empty_state_view.dart';
+import 'package:agendapf/presentation/shared/widgets/empty_state_view.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
 
 class AlunoDetalhesPage extends StatefulWidget {

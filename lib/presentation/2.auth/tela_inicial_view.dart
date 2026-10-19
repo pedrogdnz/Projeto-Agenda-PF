@@ -1,4 +1,4 @@
-import 'package:agendapf/presentation/views/login_view.dart';
+import 'package:agendapf/presentation/auth/login_view.dart';
 import 'package:flutter/material.dart';
 
 class TelaInicialView extends StatefulWidget {
@@ -23,7 +23,6 @@ class _TelaInicialViewState extends State<TelaInicialView> {
       backgroundColor: const Color(0xFFF7F7F9),
       body: Stack(
         children: [
-          // 1. PAINEL INFERIOR (BRANCO)
           Positioned(
             left: 0,
             right: 0,

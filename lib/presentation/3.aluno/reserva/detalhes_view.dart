@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:agendapf/presentation/widgets/empty_state_view.dart';
+import 'package:agendapf/presentation/1.shared/widgets/empty_state_view.dart';
 import 'package:agendapf/presentation/widgets/horario_tile.dart';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
-import 'package:agendapf/presentation/viewmodels/detalhes_viewmodel.dart';
+import 'package:agendapf/presentation/3.aluno/calendario/reserva/detalhes_viewmodel.dart';
 import 'package:agendapf/presentation/views/reservas_view.dart';
 
 class Detalhes extends StatefulWidget {

@@ -4,7 +4,7 @@ import 'package:agendapf/data/repositories/aluno_repository.dart';
 import 'package:agendapf/presentation/viewmodels/alunos_viewmodel.dart';
 import 'package:agendapf/presentation/views/alunos_detalhes_view.dart';
 import 'package:agendapf/presentation/widgets/aluno_list_tile.dart';
-import 'package:agendapf/presentation/widgets/empty_state_view.dart';
+import 'package:agendapf/presentation/shared/widgets/empty_state_view.dart';
 
 class AlunosPage extends StatefulWidget {
   final AlunoRepository alunoRepository;
