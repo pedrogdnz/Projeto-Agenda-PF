@@ -1,12 +1,14 @@
 
+import 'package:agendapf/presentation/aluno/minhas_reservas/reservas_viewmodel.dart'
+show TipoFiltroReserva;
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/aluno_model.dart';
 import 'package:agendapf/data/models/horario_model.dart';
 import 'package:agendapf/data/models/reserva_model.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
-import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart'
-    show TipoFiltroReserva;
+// import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart'
+    // show TipoFiltroReserva;
 
 class ReservaDoAluno {
   final Reserva reserva;

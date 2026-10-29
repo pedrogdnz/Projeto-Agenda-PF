@@ -1,12 +1,12 @@
 import 'package:agendapf/data/repositories/administrador_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
+import 'package:agendapf/presentation/admin/alunos/alunos_view.dart';
+import 'package:agendapf/presentation/admin/ano_letivo/ano_letivo_view.dart';
+import 'package:agendapf/presentation/admin/perfil/admin_perfil_view.dart';
+import 'package:agendapf/presentation/administradores/administradores_view.dart';
+import 'package:agendapf/presentation/administradores/reserva/admin_reservas_view.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
-import 'package:agendapf/presentation/views/ano_letivo_view.dart';
-import 'package:agendapf/presentation/views/alunos_view.dart';
-import 'package:agendapf/presentation/views/administradores_view.dart';
-import 'package:agendapf/presentation/views/admin_reservas_view.dart';
-import 'package:agendapf/presentation/views/admin_perfil_view.dart';
 import 'package:agendapf/data/repositories/auth_repository.dart';
 
 class AdminHomePage extends StatefulWidget {

@@ -1,13 +1,18 @@
 import 'package:agendapf/data/repositories/auth_repository.dart';
+import 'package:agendapf/presentation/aluno/calendario/calendar_viewmodel.dart';
+import 'package:agendapf/presentation/aluno/calendario/widgets/calendar_legenda.dart';
+import 'package:agendapf/presentation/aluno/minhas_reservas/reservas_view.dart';
+import 'package:agendapf/presentation/aluno/perfil/aluno_perfil_view.dart';
+import 'package:agendapf/presentation/aluno/reserva/detalhes_view.dart';
 import 'package:agendapf/presentation/utils/motivo_bloqueio_cor.dart';
-import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
-import 'package:agendapf/presentation/views/detalhes_view.dart';
-import 'package:agendapf/presentation/views/reservas_view.dart';
+// import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
+// import 'package:agendapf/presentation/views/detalhes_view.dart';
+// import 'package:agendapf/presentation/views/reservas_view.dart';
 import 'package:agendapf/core/utils/utils.dart';
-import 'package:agendapf/presentation/widgets/calendar_legenda.dart';
+// import 'package:agendapf/presentation/widgets/calendar_legenda.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:agendapf/presentation/views/aluno_perfil_view.dart';
+// import 'package:agendapf/presentation/views/aluno_perfil_view.dart';
 
 class CalendarPage extends StatefulWidget {
   final CalendarViewModel viewModel;

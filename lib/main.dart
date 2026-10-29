@@ -1,4 +1,4 @@
-import 'package:agendapf/presentation/views/tela_inicial_view.dart';
+import 'package:agendapf/presentation/auth/tela_inicial_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';

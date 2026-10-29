@@ -1,7 +1,7 @@
+import 'package:agendapf/presentation/aluno/minhas_reservas/reservas_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
-import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart';
 
 /// Card de uma reserva na tela "Minhas Reservas": data em destaque, fundo,
 /// descrição opcional e status. O botão de cancelar só aparece quando a

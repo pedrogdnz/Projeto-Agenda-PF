@@ -8,10 +8,10 @@ import 'package:agendapf/data/services/firebase/firebase_data_bloqueada_service.
 import 'package:agendapf/data/services/firebase/firebase_disponibilidade_padrao_service.dart';
 import 'package:agendapf/data/services/firebase/firebase_horario_service.dart';
 import 'package:agendapf/data/services/firebase/firebase_reserva_service.dart';
-import 'package:agendapf/presentation/viewmodels/calendar_viewmodel.dart';
+import 'package:agendapf/presentation/admin/admin_home_view.dart';
+import 'package:agendapf/presentation/aluno/calendario/calendar_view.dart';
+import 'package:agendapf/presentation/aluno/calendario/calendar_viewmodel.dart';
 import 'package:agendapf/presentation/auth/login_viewmodel.dart';
-import 'package:agendapf/presentation/views/admin_home_view.dart';
-import 'package:agendapf/presentation/views/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/presentation/utils/password_validatior.dart';
 import 'package:agendapf/data/services/firebase/firebase_auth_service.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/repositories/administrador_repository.dart';
-import 'package:agendapf/presentation/5.administradores/administradores_viewmodel.dart';
-import 'package:agendapf/presentation/5.administradores/administrador_detalhes_view.dart';
-import 'package:agendapf/presentation/5.administradores/widgets/administrador_list_tile.dart';
-import 'package:agendapf/presentation/1.shared/widgets/empty_state_view.dart';
+import 'package:agendapf/presentation/administradores/administradores_viewmodel.dart';
+import 'package:agendapf/presentation/administradores/administrador_detalhes_view.dart';
+import 'package:agendapf/presentation/administradores/widgets/administrador_list_tile.dart';
+import 'package:agendapf/presentation/shared/widgets/empty_state_view.dart';
 
 class AdministradoresPage extends StatefulWidget {
   final AdministradorRepository administradorRepository;

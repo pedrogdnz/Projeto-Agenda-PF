@@ -1,8 +1,9 @@
 // lib/presentation/views/horarios_gerais_view.dart
+import 'package:agendapf/presentation/admin/horarios_gerais/disponibilidade_padrao_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/models/enum/dia_semana.dart';
 import 'package:agendapf/data/repositories/disponibilidade_padrao_repository.dart';
-import 'package:agendapf/presentation/viewmodels/disponibilidade_padrao_viewmodel.dart';
+// import 'package:agendapf/presentation/viewmodels/disponibilidade_padrao_viewmodel.dart';
 
 class HorariosGeraisPage extends StatefulWidget {
   final DisponibilidadePadraoRepository disponibilidadePadraoRepository;

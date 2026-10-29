@@ -1,11 +1,11 @@
-import 'package:agendapf/presentation/viewmodels/admin_reservas_viewmodel.dart';
+import 'package:agendapf/presentation/administradores/reserva/admin_reserva_editar_viewmodel.dart';
+import 'package:agendapf/presentation/administradores/reserva/admin_reservas_viewmodel.dart';
+import 'package:agendapf/presentation/aluno/minhas_reservas/widgets/horario_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
-import 'package:agendapf/presentation/viewmodels/admin_reserva_editar_viewmodel.dart';
 import 'package:agendapf/presentation/shared/widgets/empty_state_view.dart';
-import 'package:agendapf/presentation/widgets/horario_tile.dart';
 
 class AdminReservaEditarPage extends StatefulWidget {
   final ReservaDoAluno item;

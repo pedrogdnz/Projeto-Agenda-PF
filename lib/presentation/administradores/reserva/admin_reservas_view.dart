@@ -1,11 +1,14 @@
-import 'package:agendapf/presentation/viewmodels/admin_reservas_viewmodel.dart';
+// import 'package:agendapf/presentation/viewmodels/admin_reservas_viewmodel.dart';
+import 'package:agendapf/presentation/administradores/reserva/admin_reserva_editar_view.dart';
+import 'package:agendapf/presentation/administradores/reserva/admin_reservas_viewmodel.dart';
+import 'package:agendapf/presentation/aluno/minhas_reservas/reservas_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:agendapf/data/repositories/agenda_repository.dart';
 import 'package:agendapf/data/repositories/aluno_repository.dart';
-import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart'
-    show TipoFiltroReserva;
-import 'package:agendapf/presentation/views/admin_reserva_editar_view.dart';
+// import 'package:agendapf/presentation/viewmodels/reservas_viewmodel.dart'
+//     show TipoFiltroReserva;
+// import 'package:agendapf/presentation/views/admin_reserva_editar_view.dart';
 import 'package:agendapf/presentation/widgets/admin_reserva_card.dart';
 import 'package:agendapf/presentation/shared/widgets/empty_state_view.dart';
 import 'package:agendapf/presentation/shared/widgets/filtro_tabs.dart';

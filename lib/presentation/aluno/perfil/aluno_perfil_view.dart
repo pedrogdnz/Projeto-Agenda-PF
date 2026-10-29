@@ -1,7 +1,7 @@
 import 'package:agendapf/data/models/aluno_model.dart';
+import 'package:agendapf/presentation/aluno/perfil/perfil_aluno_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/data/repositories/auth_repository.dart';
-import 'package:agendapf/presentation/viewmodels/perfil_aluno_viewmodel.dart';
 import 'package:agendapf/presentation/auth/login_view.dart';
 import 'package:agendapf/presentation/widgets/text_field.dart';
 import 'package:image_picker/image_picker.dart';
