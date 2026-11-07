@@ -26,12 +26,12 @@ class UltimoAdministradorException implements Exception {
 class AdministradorRepository {
   final AdministradorService _administradorService;
   final AlunoService _alunoService;
-  final AuthService _authService; // NOVO
+  final AuthService _authService; 
 
   const AdministradorRepository({
     required AdministradorService administradorService,
     required AlunoService alunoService,
-    required AuthService authService, // NOVO
+    required AuthService authService, 
   }) : _administradorService = administradorService,
        _alunoService = alunoService,
        _authService = authService;

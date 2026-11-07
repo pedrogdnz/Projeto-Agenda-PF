@@ -88,18 +88,15 @@ class _AlunoPerfilState extends State<AlunoPerfil> {
   }) async {
     await showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // permite o sheet crescer acima do teclado
+      isScrollControlled: true, 
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        // Reflete o estado de "salvando" do ViewModel dentro do próprio
-        // sheet, sem precisar de outro StatefulWidget.
         return AnimatedBuilder(
           animation: _viewModel,
           builder: (context, _) {
             return Padding(
-              // Empurra o conteúdo para cima quando o teclado abre.
               padding: EdgeInsets.only(
                 left: 20,
                 right: 20,
@@ -248,54 +245,6 @@ class _AlunoPerfilState extends State<AlunoPerfil> {
                             titulo: 'Nome',
                             controller: _viewModel.nomeController,
                             validator: _viewModel.validateNome,
-                            keyboardType: TextInputType.text,
-                          ),
-                        ),
-                        ListTile(
-                          leading: _iconeCampo(Icons.school_outlined),
-                          title: const Text(
-                            'Curso',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          subtitle: Text(
-                            aluno.tipoCurso?.titulo??"",
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          trailing: const Icon(Icons.chevron_right, size: 20),
-                          onTap: () => _editarCampo(
-                            titulo: 'Curso',
-                            controller: _viewModel.cursoController,
-                            validator:  (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Informe o curso';
-                              }
-
-                              return null;
-                            },
-                            keyboardType: TextInputType.text,
-                          ),
-                        ),
-                        ListTile(
-                          leading: _iconeCampo(Icons.groups_outlined),
-                          title: const Text(
-                            'Turma',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          subtitle: Text(
-                            aluno.turma?.titulo??"",
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          trailing: const Icon(Icons.chevron_right, size: 20),
-                          onTap: () => _editarCampo(
-                            titulo: 'Turma',
-                            controller: _viewModel.turmaController,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Informe a turma';
-                              }
-
-                              return null;
-                            },
                             keyboardType: TextInputType.text,
                           ),
                         ),
