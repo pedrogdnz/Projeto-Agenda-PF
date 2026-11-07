@@ -111,6 +111,13 @@ class AdminReservaCard extends StatelessWidget {
                         text:
                             'Fundo: ${reserva.corFundo == CorFundoHorario.preto ? 'Preto' : 'Branco'}',
                       ),
+                      if (reserva.professorResponsavel.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        _InfoRow(
+                          icon: Icons.person_outline,
+                          text: 'Professor: ${reserva.professorResponsavel}',
+                        ),
+                      ],
                       if (reserva.descricao.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         _InfoRow(

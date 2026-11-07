@@ -235,8 +235,14 @@ class AgendaRepository {
     required String horarioId,
     required DateTime data,
     required CorFundoHorario corFundo,
+    required String professorResponsavel,
     String descricao = '',
   }) async {
+    final professor = professorResponsavel.trim();
+    if (professor.isEmpty) {
+      throw const ProfessorObrigatorioException();
+    }
+
     final diaNormalizado = _normalizarData(data);
     await _validarSlot(
       dia: diaNormalizado,
@@ -251,20 +257,25 @@ class AgendaRepository {
         horarioId: horarioId,
         dataReserva: diaNormalizado,
         corFundo: corFundo,
+        professorResponsavel: professor,
         descricao: descricao,
       ),
     );
   }
 
-  /// Uso administrativo: o acesso é garantido pela navegação (só o
-  /// AdminHomePage chega aqui), como nas demais telas de admin.
   Future<Reserva> atualizarReserva({
     required String reservaId,
     required String horarioId,
     required DateTime data,
     required CorFundoHorario corFundo,
+    required String professorResponsavel,
     String descricao = '',
   }) async {
+    final professor = professorResponsavel.trim();
+    if (professor.isEmpty) {
+      throw const ProfessorObrigatorioException();
+    }
+
     final atual = await _reservaService.buscarPorId(reservaId);
     if (atual == null) throw const ReservaNaoEncontradaException();
 
@@ -281,6 +292,7 @@ class AgendaRepository {
         horarioId: horarioId,
         dataReserva: diaNormalizado,
         corFundo: corFundo,
+        professorResponsavel: professor,
         descricao: descricao,
       ),
     );
@@ -335,6 +347,16 @@ class ReservaNaoPertenceAoAlunoException implements Exception {
   final String mensagem;
   const ReservaNaoPertenceAoAlunoException([
     this.mensagem = 'Esta reserva não pertence a este aluno.',
+  ]);
+
+  @override
+  String toString() => mensagem;
+}
+
+class ProfessorObrigatorioException implements Exception {
+  final String mensagem;
+  const ProfessorObrigatorioException([
+    this.mensagem = 'Informe o professor responsável pela atividade.',
   ]);
 
   @override

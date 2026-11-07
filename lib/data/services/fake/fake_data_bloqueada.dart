@@ -7,17 +7,17 @@ class FakeDataBloqueadaService implements DataBloqueadaService {
     DataBloqueada(
       id: '1',
       data: DateTime(2026, 9, 7),
-      motivo: MotivoBloqueio.feriados, // Independência do Brasil
+      motivo: MotivoBloqueio.feriados,
     ),
     DataBloqueada(
       id: '2',
       data: DateTime(2026, 10, 12),
-      motivo: MotivoBloqueio.feriados, // N. Sra. Aparecida
+      motivo: MotivoBloqueio.feriados,
     ),
     DataBloqueada(
       id: '3',
       data: DateTime(2026, 11, 11),
-      motivo: MotivoBloqueio.ferias, // N. Sra. Aparecida
+      motivo: MotivoBloqueio.ferias,
     ),
   ];
 

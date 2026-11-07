@@ -9,6 +9,7 @@ class DetalhesViewModel extends ChangeNotifier {
   final AgendaRepository _agendaRepository;
 
   final descricaoController = TextEditingController();
+  final professorController = TextEditingController();
 
   DetalhesViewModel({
     required this.data,
@@ -50,9 +51,6 @@ class DetalhesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Troca o fundo escolhido. Se o horário já selecionado não estiver mais
-  /// disponível para o novo fundo, a seleção é limpa (evita confirmar uma
-  /// combinação horário+fundo que já está ocupada).
   void selecionarFundo(CorFundoHorario fundo) {
     if (_fundoSelecionado == fundo) return;
     _fundoSelecionado = fundo;
@@ -75,6 +73,9 @@ class DetalhesViewModel extends ChangeNotifier {
     if (_horarioSelecionado == null) {
       return 'Selecione um horário disponível';
     }
+    if (professorController.text.trim().isEmpty) {
+      return 'Informe o professor responsável pela atividade';
+    }
     return null;
   }
 
@@ -96,6 +97,7 @@ class DetalhesViewModel extends ChangeNotifier {
         horarioId: _horarioSelecionado!.id,
         data: data,
         corFundo: _fundoSelecionado,
+        professorResponsavel: professorController.text.trim(),
         descricao: descricaoController.text.trim(),
       );
       _reservaConfirmada = true;
@@ -116,6 +118,7 @@ class DetalhesViewModel extends ChangeNotifier {
   @override
   void dispose() {
     descricaoController.dispose();
+    professorController.dispose();
     super.dispose();
   }
 }

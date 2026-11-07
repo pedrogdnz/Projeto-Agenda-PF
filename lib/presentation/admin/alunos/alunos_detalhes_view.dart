@@ -378,6 +378,17 @@ class _AlunoDetalhesPageState extends State<AlunoDetalhesPage> {
                         fontSize: 13,
                       ),
                     ),
+                    if (reserva.professorResponsavel.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          'Professor: ${reserva.professorResponsavel}',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
                     if (reserva.descricao.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),

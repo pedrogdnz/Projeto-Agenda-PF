@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:agendapf/data/models/enum/cor_fundo_horario.dart';
 
-/// `corFundo` e `descricao` pertencem à reserva, não ao horário.
 class Reserva {
   final String id;
   final String alunoId;
   final String horarioId;
   final DateTime dataReserva;
   final CorFundoHorario corFundo;
+  final String professorResponsavel;
   final String descricao;
 
   const Reserva({
@@ -16,6 +16,7 @@ class Reserva {
     required this.horarioId,
     required this.dataReserva,
     required this.corFundo,
+    required this.professorResponsavel,
     this.descricao = '',
   });
 
@@ -25,6 +26,7 @@ class Reserva {
     String? horarioId,
     DateTime? dataReserva,
     CorFundoHorario? corFundo,
+    String? professorResponsavel,
     String? descricao,
   }) {
     return Reserva(
@@ -33,6 +35,8 @@ class Reserva {
       horarioId: horarioId ?? this.horarioId,
       dataReserva: dataReserva ?? this.dataReserva,
       corFundo: corFundo ?? this.corFundo,
+      professorResponsavel:
+          professorResponsavel ?? this.professorResponsavel,
       descricao: descricao ?? this.descricao,
     );
   }
@@ -44,6 +48,7 @@ class Reserva {
       'horarioId': horarioId,
       'dataReserva': dataReserva.toIso8601String(),
       'corFundo': corFundo.name,
+      'professorResponsavel': professorResponsavel,
       'descricao': descricao,
     };
   }
@@ -57,6 +62,8 @@ class Reserva {
       corFundo: CorFundoHorario.fromNome(
         map['corFundo'] as String? ?? 'branco',
       ),
+      professorResponsavel:
+          map['professorResponsavel'] as String? ?? '',
       descricao: map['descricao'] as String? ?? '',
     );
   }
@@ -75,6 +82,7 @@ class Reserva {
         other.horarioId == horarioId &&
         other.dataReserva == dataReserva &&
         other.corFundo == corFundo &&
+        other.professorResponsavel == professorResponsavel &&
         other.descricao == descricao;
   }
 
@@ -86,6 +94,7 @@ class Reserva {
       horarioId,
       dataReserva,
       corFundo,
+      professorResponsavel,
       descricao,
     );
   }
@@ -93,6 +102,6 @@ class Reserva {
   @override
   String toString() {
     return 'Reserva(id: $id, alunoId: $alunoId, horarioId: $horarioId, '
-        'dataReserva: $dataReserva, corFundo: $corFundo, descricao: $descricao)';
+        'dataReserva: $dataReserva, corFundo: $corFundo, professorResponsavel: $professorResponsavel, descricao: $descricao)';
   }
 }

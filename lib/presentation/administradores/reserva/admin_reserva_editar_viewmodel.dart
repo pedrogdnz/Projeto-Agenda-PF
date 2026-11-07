@@ -11,6 +11,7 @@ class AdminReservaEditarViewModel extends ChangeNotifier {
   final AgendaRepository _agendaRepository;
 
   final descricaoController = TextEditingController();
+  final professorController = TextEditingController();
 
   AdminReservaEditarViewModel({
     required this.item,
@@ -20,6 +21,7 @@ class AdminReservaEditarViewModel extends ChangeNotifier {
        _fundoSelecionado = item.reserva.corFundo,
        _horarioSelecionado = item.horario {
     descricaoController.text = item.reserva.descricao;
+    professorController.text = item.reserva.professorResponsavel;
   }
 
   DateTime _data;
@@ -132,6 +134,11 @@ class AdminReservaEditarViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    if (professorController.text.trim().isEmpty) {
+      _erro = 'Informe o professor responsável pela atividade';
+      notifyListeners();
+      return false;
+    }
 
     _salvando = true;
     _erro = null;
@@ -143,6 +150,7 @@ class AdminReservaEditarViewModel extends ChangeNotifier {
         horarioId: _horarioSelecionado!.id,
         data: _data,
         corFundo: _fundoSelecionado,
+        professorResponsavel: professorController.text.trim(),
         descricao: descricaoController.text.trim(),
       );
       return true;
@@ -160,6 +168,7 @@ class AdminReservaEditarViewModel extends ChangeNotifier {
   @override
   void dispose() {
     descricaoController.dispose();
+    professorController.dispose();
     super.dispose();
   }
 }

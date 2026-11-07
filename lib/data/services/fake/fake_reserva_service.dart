@@ -10,7 +10,7 @@ class FakeReservaService implements ReservaService {
       horarioId: '1',
       dataReserva: DateTime(2026, 8, 25),
       corFundo: CorFundoHorario.branco,
-      
+      professorResponsavel: 'Prof. Exemplo',
     ),
     Reserva(
       id: '2',
@@ -18,6 +18,7 @@ class FakeReservaService implements ReservaService {
       horarioId: '2',
       dataReserva: DateTime(2026, 8, 26),
       corFundo: CorFundoHorario.branco,
+      professorResponsavel: 'Prof. Exemplo',
     ),
     Reserva(
       id: '3',
@@ -25,6 +26,7 @@ class FakeReservaService implements ReservaService {
       horarioId: '3',
       dataReserva: DateTime(2026, 8, 27),
       corFundo: CorFundoHorario.branco,
+      professorResponsavel: 'Prof. Exemplo',
     ),
   ];
 

@@ -45,9 +45,14 @@ class ReservaCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: isPassada ? Colors.grey.shade300 : const Color(0xFF1E1E1E),
+                        color: isPassada
+                            ? Colors.grey.shade300
+                            : const Color(0xFF1E1E1E),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -55,7 +60,9 @@ class ReservaCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: isPassada ? Colors.grey.shade700 : Colors.white,
+                          color: isPassada
+                              ? Colors.grey.shade700
+                              : Colors.white,
                         ),
                       ),
                     ),
@@ -99,10 +106,18 @@ class ReservaCard extends StatelessWidget {
                   ),
                 _InfoTag(
                   icon: Icons.palette_outlined,
-                  label: 'Fundo: ${item.reserva.corFundo == CorFundoHorario.preto ? 'Preto' : 'Branco'}',
+                  label:
+                      'Fundo: ${item.reserva.corFundo == CorFundoHorario.preto ? 'Preto' : 'Branco'}',
                   backgroundColor: const Color(0xFFF4F6F9),
                   textColor: const Color(0xFF2C3E50),
                 ),
+                if (item.reserva.professorResponsavel.isNotEmpty)
+                  _InfoTag(
+                    icon: Icons.person_outline,
+                    label: 'Prof.: ${item.reserva.professorResponsavel}',
+                    backgroundColor: const Color(0xFFF4F6F9),
+                    textColor: const Color(0xFF2C3E50),
+                  ),
               ],
             ),
 
@@ -112,7 +127,11 @@ class ReservaCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.notes_rounded, size: 16, color: Colors.grey.shade500),
+                  Icon(
+                    Icons.notes_rounded,
+                    size: 16,
+                    color: Colors.grey.shade500,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -169,7 +188,9 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = isPassada ? Colors.grey.shade100 : const Color(0xFFE8F5E9);
-    final textColor = isPassada ? Colors.grey.shade600 : const Color(0xFF2E7D32);
+    final textColor = isPassada
+        ? Colors.grey.shade600
+        : const Color(0xFF2E7D32);
     final icon = isPassada ? Icons.history : Icons.check_circle_rounded;
     final text = isPassada ? 'Concluída' : 'Confirmada';
 
