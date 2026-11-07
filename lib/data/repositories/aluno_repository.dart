@@ -4,9 +4,6 @@ import 'package:agendapf/data/repositories/auth_repository.dart'
 import 'package:agendapf/data/services/abstract/administrador_data_source.dart';
 import 'package:agendapf/data/services/abstract/aluno_data_source.dart';
 
-//TODO - aqui é o tigo falando, num é erro não - só avisando que excluir um aluno
-// aqui não remove nem bloqueia as reservas já feitas por ele, problema futuro
-
 class AlunoNaoEncontradoException implements Exception {
   final String mensagem;
   const AlunoNaoEncontradoException([this.mensagem = 'Aluno não encontrado.']);

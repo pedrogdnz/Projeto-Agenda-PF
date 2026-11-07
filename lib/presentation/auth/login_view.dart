@@ -25,7 +25,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   late final LoginViewModel _viewModel;
-    bool _ocultarSenha = true;
+  bool _ocultarSenha = true;
 
   static const Color _corFundo = Color(0xFFF0F0F0);
   static const double _alturaHeader = 180;
@@ -57,6 +57,26 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     _navegarAposLogin();
+  }
+
+  void _mostrarDialogoEsqueceuSenha() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Esqueceu sua senha?'),
+          content: const Text(
+            'Por favor entre em contato com o técnico do laboratório para criar uma nova senha!',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _entrarComGoogle() async {
@@ -128,9 +148,8 @@ class _LoginPageState extends State<LoginPage> {
     final administradorRepository = AdministradorRepository(
       administradorService: administradorService,
       alunoService: alunoService,
-      authService: FirebaseAuthService(), 
+      authService: FirebaseAuthService(),
     );
-
 
     if (resultado.ehAdministrador) {
       Navigator.pushReplacement(
@@ -522,8 +541,9 @@ class _LoginPageState extends State<LoginPage> {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              // Sem função definida no arquivo original.
-              onPressed: _viewModel.carregando ? null : () {},
+              onPressed: _viewModel.carregando
+                  ? null
+                  : _mostrarDialogoEsqueceuSenha,
               style: TextButton.styleFrom(
                 foregroundColor: Colors.black87,
                 padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
