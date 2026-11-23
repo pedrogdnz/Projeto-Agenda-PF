@@ -80,8 +80,8 @@ class PerfilAlunoViewModel extends ChangeNotifier {
       if (aluno != null) {
         nomeController.text = aluno.nome;
         matriculaController.text = aluno.matricula;
-        cursoController.text = aluno.tipoCurso?.titulo??"";
-        cursoController.text = aluno.turma?.titulo??"";
+        cursoController.text = aluno.tipoCurso?.titulo ?? "";
+        cursoController.text = aluno.turma?.titulo ?? "";
       }
     } catch (e) {
       _erro = e.toString();
@@ -143,57 +143,57 @@ class PerfilAlunoViewModel extends ChangeNotifier {
   Future<void> logout() => _authRepository.logout();
 
   /// Escolhe (câmera/galeria) e salva a foto. Retorna false se o usuário
-/// cancelou ou se deu erro (nesse caso [erro] fica preenchido).
-Future<bool> alterarFoto(ImageSource origem) async {
-  final atual = _aluno;
-  if (atual == null) return false;
+  /// cancelou ou se deu erro (nesse caso [erro] fica preenchido).
+  Future<bool> alterarFoto(ImageSource origem) async {
+    final atual = _aluno;
+    if (atual == null) return false;
 
-  try {
-    final arquivo = await _picker.pickImage(
-      source: origem,
-      maxWidth: 512,
-      maxHeight: 512,
-      imageQuality: 70,
-    );
-    if (arquivo == null) return false; // cancelou
+    try {
+      final arquivo = await _picker.pickImage(
+        source: origem,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 70,
+      );
+      if (arquivo == null) return false; // cancelou
+
+      _salvandoFoto = true;
+      _erro = null;
+      notifyListeners();
+
+      final bytes = await arquivo.readAsBytes();
+      _aluno = await _alunoService.atualizar(
+        atual.copyWith(fotoBase64: base64Encode(bytes)),
+      );
+      _atualizarCacheFoto();
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      return false;
+    } finally {
+      _salvandoFoto = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> removerFoto() async {
+    final atual = _aluno;
+    if (atual == null) return false;
 
     _salvandoFoto = true;
     _erro = null;
     notifyListeners();
 
-    final bytes = await arquivo.readAsBytes();
-    _aluno = await _alunoService.atualizar(
-      atual.copyWith(fotoBase64: base64Encode(bytes)),
-    );
-    _atualizarCacheFoto();
-    return true;
-  } catch (e) {
-    _erro = e.toString();
-    return false;
-  } finally {
-    _salvandoFoto = false;
-    notifyListeners();
+    try {
+      _aluno = await _alunoService.atualizar(atual.copyWith(removerFoto: true));
+      _atualizarCacheFoto();
+      return true;
+    } catch (e) {
+      _erro = e.toString();
+      return false;
+    } finally {
+      _salvandoFoto = false;
+      notifyListeners();
+    }
   }
-}
-
-Future<bool> removerFoto() async {
-  final atual = _aluno;
-  if (atual == null) return false;
-
-  _salvandoFoto = true;
-  _erro = null;
-  notifyListeners();
-
-  try {
-    _aluno = await _alunoService.atualizar(atual.copyWith(removerFoto: true));
-    _atualizarCacheFoto();
-    return true;
-  } catch (e) {
-    _erro = e.toString();
-    return false;
-  } finally {
-    _salvandoFoto = false;
-    notifyListeners();
-  }
-}
 }

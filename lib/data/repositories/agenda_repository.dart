@@ -8,6 +8,9 @@ import 'package:agendapf/data/repositories/disponibilidade_padrao_repository.dar
 import 'package:agendapf/data/services/abstract/horario_data_source.dart';
 import 'package:agendapf/data/services/abstract/data_bloqueada_source.dart';
 import 'package:agendapf/data/services/abstract/reserva_data_source.dart';
+import 'dart:developer' as developer;
+import 'package:agendapf/data/services/abstract/aluno_data_source.dart';
+import 'package:agendapf/data/services/email/cloudflare_email_service.dart';
 
 class HorarioDoDia {
   final Horario horario;
@@ -59,21 +62,32 @@ class AgendaRepository {
   final HorarioService _horarioService;
   final ReservaService _reservaService;
   final DisponibilidadePadraoRepository _disponibilidadePadraoRepository;
+  final AlunoService _alunoService;
+  final CloudflareEmailService _emailService;
 
   const AgendaRepository({
-    required DataBloqueadaService dataBloqueadaService,
-    required HorarioService horarioService,
-    required ReservaService reservaService,
-    required DisponibilidadePadraoRepository disponibilidadePadraoRepository,
-  }) : _dataBloqueadaService = dataBloqueadaService,
-       _horarioService = horarioService,
-       _reservaService = reservaService,
-       _disponibilidadePadraoRepository = disponibilidadePadraoRepository;
-  HorarioService get horarioService => _horarioService;
-  ReservaService get reservaService => _reservaService;
-  DataBloqueadaService get dataBloqueadaService => _dataBloqueadaService;
-  DisponibilidadePadraoRepository get disponibilidadePadraoRepository =>
-      _disponibilidadePadraoRepository;
+  required DataBloqueadaService dataBloqueadaService,
+  required HorarioService horarioService,
+  required ReservaService reservaService,
+  required DisponibilidadePadraoRepository
+      disponibilidadePadraoRepository,
+  required AlunoService alunoService,
+  required CloudflareEmailService emailService,
+}) : _dataBloqueadaService = dataBloqueadaService,
+     _horarioService = horarioService,
+     _reservaService = reservaService,
+     _disponibilidadePadraoRepository =
+         disponibilidadePadraoRepository,
+     _alunoService = alunoService,
+     _emailService = emailService;
+
+     // Getters públicos para acesso aos serviços e repositórios.
+ReservaService get reservaService => _reservaService;
+
+HorarioService get horarioService => _horarioService;
+
+DisponibilidadePadraoRepository get disponibilidadePadraoRepository =>
+    _disponibilidadePadraoRepository;
 
   Future<Map<DateTime, MotivoBloqueio>> buscarDiasBloqueados() async {
     final registros = await _dataBloqueadaService.buscarTodas();
@@ -82,6 +96,61 @@ class AgendaRepository {
         _normalizarData(registro.data): registro.motivo,
     };
   }
+
+  Future<void> _notificarReserva({
+  required Reserva reserva,
+  required String tipo,
+  required String origem,
+}) async {
+  try {
+    final aluno = await _alunoService.buscarPorId(reserva.alunoId);
+
+    if (aluno == null) {
+      developer.log(
+        'Notificação não enviada: aluno não encontrado.',
+      );
+      return;
+    }
+
+    final horario = await _horarioService.buscarPorId(
+      reserva.horarioId,
+    );
+
+    if (horario == null) {
+      developer.log(
+        'Notificação não enviada: horário não encontrado.',
+      );
+      return;
+    }
+
+    final dataFormatada =
+        '${reserva.dataReserva.year.toString().padLeft(4, '0')}-'
+        '${reserva.dataReserva.month.toString().padLeft(2, '0')}-'
+        '${reserva.dataReserva.day.toString().padLeft(2, '0')}';
+
+    final horarioFormatado =
+        '${horario.horaInicial} às ${horario.horaFinal}';
+
+    await _emailService.enviarNotificacao(
+      tipo: tipo,
+      alunoId: aluno.id,
+      alunoNome: aluno.nome,
+      alunoEmail: aluno.email,
+      data: dataFormatada,
+      horario: horarioFormatado,
+      fundo: reserva.corFundo.name,
+      professor: reserva.professorResponsavel,
+      descricao: reserva.descricao,
+      origem: origem,
+    );
+  } catch (e, stackTrace) {
+    developer.log(
+      'Falha ao enviar notificação da reserva ${reserva.id}.',
+      error: e,
+      stackTrace: stackTrace,
+    );
+  }
+}
 
   Future<Set<DiaSemana>> buscarDiasSemanaAtivos() async {
     final semana = await _disponibilidadePadraoRepository.buscarSemana();
@@ -231,78 +300,111 @@ class AgendaRepository {
   }
 
   Future<Reserva> criarReserva({
-    required String alunoId,
-    required String horarioId,
-    required DateTime data,
-    required CorFundoHorario corFundo,
-    required String professorResponsavel,
-    String descricao = '',
-  }) async {
-    final professor = professorResponsavel.trim();
-    if (professor.isEmpty) {
-      throw const ProfessorObrigatorioException();
-    }
+  required String alunoId,
+  required String horarioId,
+  required DateTime data,
+  required CorFundoHorario corFundo,
+  required String professorResponsavel,
+  String descricao = '',
+}) async {
+  final professor = professorResponsavel.trim();
 
-    final diaNormalizado = _normalizarData(data);
-    await _validarSlot(
-      dia: diaNormalizado,
-      horarioId: horarioId,
-      corFundo: corFundo,
-    );
-
-    return _reservaService.criar(
-      Reserva(
-        id: '',
-        alunoId: alunoId,
-        horarioId: horarioId,
-        dataReserva: diaNormalizado,
-        corFundo: corFundo,
-        professorResponsavel: professor,
-        descricao: descricao,
-      ),
-    );
+  if (professor.isEmpty) {
+    throw const ProfessorObrigatorioException();
   }
+
+  final diaNormalizado = _normalizarData(data);
+
+  await _validarSlot(
+    dia: diaNormalizado,
+    horarioId: horarioId,
+    corFundo: corFundo,
+  );
+
+  final reserva = await _reservaService.criar(
+    Reserva(
+      id: '',
+      alunoId: alunoId,
+      horarioId: horarioId,
+      dataReserva: diaNormalizado,
+      corFundo: corFundo,
+      professorResponsavel: professor,
+      descricao: descricao,
+    ),
+  );
+
+  await _notificarReserva(
+    reserva: reserva,
+    tipo: 'criacao',
+    origem: 'aluno',
+  );
+
+  return reserva;
+}
 
   Future<Reserva> atualizarReserva({
-    required String reservaId,
-    required String horarioId,
-    required DateTime data,
-    required CorFundoHorario corFundo,
-    required String professorResponsavel,
-    String descricao = '',
-  }) async {
-    final professor = professorResponsavel.trim();
-    if (professor.isEmpty) {
-      throw const ProfessorObrigatorioException();
-    }
+  required String reservaId,
+  required String horarioId,
+  required DateTime data,
+  required CorFundoHorario corFundo,
+  required String professorResponsavel,
+  String descricao = '',
+}) async {
+  final professor = professorResponsavel.trim();
 
-    final atual = await _reservaService.buscarPorId(reservaId);
-    if (atual == null) throw const ReservaNaoEncontradaException();
-
-    final diaNormalizado = _normalizarData(data);
-    await _validarSlot(
-      dia: diaNormalizado,
-      horarioId: horarioId,
-      corFundo: corFundo,
-      ignorarReservaId: reservaId,
-    );
-
-    return _reservaService.atualizar(
-      atual.copyWith(
-        horarioId: horarioId,
-        dataReserva: diaNormalizado,
-        corFundo: corFundo,
-        professorResponsavel: professor,
-        descricao: descricao,
-      ),
-    );
+  if (professor.isEmpty) {
+    throw const ProfessorObrigatorioException();
   }
+
+  final atual = await _reservaService.buscarPorId(reservaId);
+
+  if (atual == null) {
+    throw const ReservaNaoEncontradaException();
+  }
+
+  final diaNormalizado = _normalizarData(data);
+
+  await _validarSlot(
+    dia: diaNormalizado,
+    horarioId: horarioId,
+    corFundo: corFundo,
+    ignorarReservaId: reservaId,
+  );
+
+  final atualizada = await _reservaService.atualizar(
+    atual.copyWith(
+      horarioId: horarioId,
+      dataReserva: diaNormalizado,
+      corFundo: corFundo,
+      professorResponsavel: professor,
+      descricao: descricao,
+    ),
+  );
+
+  await _notificarReserva(
+    reserva: atualizada,
+    tipo: 'edicao',
+    origem: 'admin',
+  );
+
+  return atualizada;
+}
 
   Future<void> excluirReservaComoAdmin(String reservaId) async {
-    final reserva = await _reservaService.buscarPorId(reservaId);
-    if (reserva == null) throw const ReservaNaoEncontradaException();
-    await _reservaService.excluir(reservaId);
+  final reserva = await _reservaService.buscarPorId(reservaId);
+
+  if (reserva == null) {
+    throw const ReservaNaoEncontradaException();
   }
+
+  await _reservaService.excluir(reservaId);
+
+  await _notificarReserva(
+    reserva: reserva,
+    tipo: 'cancelamento',
+    origem: 'admin',
+  );
+}
 
   DateTime _normalizarData(DateTime data) {
     return DateTime(data.year, data.month, data.day);
@@ -316,21 +418,27 @@ class AgendaRepository {
   }
 
   Future<void> cancelarReserva({
-    required String reservaId,
-    required String alunoIdSolicitante,
-  }) async {
-    final reserva = await _reservaService.buscarPorId(reservaId);
+  required String reservaId,
+  required String alunoIdSolicitante,
+}) async {
+  final reserva = await _reservaService.buscarPorId(reservaId);
 
-    if (reserva == null) {
-      throw const ReservaNaoEncontradaException();
-    }
-
-    if (reserva.alunoId != alunoIdSolicitante) {
-      throw const ReservaNaoPertenceAoAlunoException();
-    }
-
-    await _reservaService.excluir(reservaId);
+  if (reserva == null) {
+    throw const ReservaNaoEncontradaException();
   }
+
+  if (reserva.alunoId != alunoIdSolicitante) {
+    throw const ReservaNaoPertenceAoAlunoException();
+  }
+
+  await _reservaService.excluir(reservaId);
+
+  await _notificarReserva(
+    reserva: reserva,
+    tipo: 'cancelamento',
+    origem: 'aluno',
+  );
+}
 }
 
 class ReservaNaoEncontradaException implements Exception {

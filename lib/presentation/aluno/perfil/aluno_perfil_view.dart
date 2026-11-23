@@ -88,7 +88,7 @@ class _AlunoPerfilState extends State<AlunoPerfil> {
   }) async {
     await showModalBottomSheet(
       context: context,
-      isScrollControlled: true, 
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -277,7 +277,6 @@ class _AlunoPerfilState extends State<AlunoPerfil> {
                             style: const TextStyle(fontSize: 14),
                           ),
                         ),
-                        const ListTile(leading: null, title: null),
                       ],
                     ),
                   ),

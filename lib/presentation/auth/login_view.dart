@@ -15,6 +15,7 @@ import 'package:agendapf/presentation/auth/login_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:agendapf/presentation/utils/password_validatior.dart';
 import 'package:agendapf/data/services/firebase/firebase_auth_service.dart';
+import 'package:agendapf/data/services/email/cloudflare_email_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -127,6 +128,7 @@ class _LoginPageState extends State<LoginPage> {
     final horarioService = FirebaseHorarioService();
     final alunoService = FirebaseAlunoService();
     final administradorService = FirebaseAdministradorService();
+    final emailService = CloudflareEmailService();
 
     final disponibilidadePadraoRepository = DisponibilidadePadraoRepository(
       disponibilidadeService: FirebaseDisponibilidadePadraoService(),
@@ -134,11 +136,13 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     final agendaRepository = AgendaRepository(
-      dataBloqueadaService: FirebaseDataBloqueadaService(),
-      horarioService: horarioService,
-      reservaService: FirebaseReservaService(),
-      disponibilidadePadraoRepository: disponibilidadePadraoRepository,
-    );
+  dataBloqueadaService: FirebaseDataBloqueadaService(),
+  horarioService: horarioService,
+  reservaService: FirebaseReservaService(),
+  disponibilidadePadraoRepository: disponibilidadePadraoRepository,
+  alunoService: alunoService,
+  emailService: emailService,
+);
 
     final alunoRepository = AlunoRepository(
       alunoService: alunoService,
