@@ -227,6 +227,26 @@ class _AdminReservaEditarPageState extends State<AdminReservaEditarPage> {
                       ),
                     ),
 
+                    const SizedBox(height: 12),
+
+const Text(
+  "Professor responsável pela atividade",
+  style: TextStyle(fontWeight: FontWeight.bold),
+),
+const SizedBox(height: 6),
+TextFormField(
+  controller: _viewModel.professorController,
+  textCapitalization: TextCapitalization.words,
+  decoration: InputDecoration(
+    hintText: 'Nome do professor',
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+  ),
+),
+
+const SizedBox(height: 12),
+
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
